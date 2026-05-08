@@ -1,0 +1,970 @@
+{
+  "D:\\Projects\\ginag\\ginag-backend\\prisma.config.ts": {
+    "mtime": 1778001808.6205964,
+    "hash": "b993771f4227671600de103e72a067f5"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\app.ts": {
+    "mtime": 1778218194.857741,
+    "hash": "5fdcf1f7fcc48f44012fadb287569c3f"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\server.ts": {
+    "mtime": 1778217863.6673465,
+    "hash": "6216759cff3c53c2e88c91ed2f350850"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\config\\cloudinary.ts": {
+    "mtime": 1778001808.62142,
+    "hash": "f8edb08f4fb2cdfe971c97b029eb4db1"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\config\\prisma.ts": {
+    "mtime": 1778095919.599245,
+    "hash": "a4a48d9ef023931cee70bc0d72ba853e"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\config\\upload.ts": {
+    "mtime": 1778001808.6241908,
+    "hash": "23896623faa03a4ca0cf3a955874c1db"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\analytics.controller.ts": {
+    "mtime": 1778086421.151092,
+    "hash": "5921c7ddcd3619d485f3ae3b3bdd5462"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\audit.controller.ts": {
+    "mtime": 1778001808.6241908,
+    "hash": "87ea8e90ecce32544e3da8cc6e0fc92d"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\auth.controller.ts": {
+    "mtime": 1778218124.8541584,
+    "hash": "d13849eedfbe8c22802b16708339538f"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\category.controller.ts": {
+    "mtime": 1778001808.7546237,
+    "hash": "3f9c86fc209cf5437e3a99a8d0cba05d"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\chat.controller.ts": {
+    "mtime": 1778001808.758794,
+    "hash": "4e6acf225d6c9d222db55fbc50e529e3"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\customOrder.controller.ts": {
+    "mtime": 1778218278.9562128,
+    "hash": "6db535c4c536c45ced4fd73360b94a98"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\googleReviews.controller.ts": {
+    "mtime": 1778086334.4612515,
+    "hash": "142f04736ff675dfd56b0dde94112b7c"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\hero.controller.ts": {
+    "mtime": 1778001808.758794,
+    "hash": "d2e3ea18efb67d602dc6b30cff9d59e4"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\media.controller.ts": {
+    "mtime": 1778001808.7608044,
+    "hash": "b1ca27ae08a69260b7257dc09d2a77fc"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\page.controller.ts": {
+    "mtime": 1778001808.7628138,
+    "hash": "10220a2bda8a19220b22e010bbdd7521"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\product.controller.ts": {
+    "mtime": 1778086387.0703511,
+    "hash": "ac189bb76c82c961b6585aca2e09aca1"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\search.controller.ts": {
+    "mtime": 1778001808.7628138,
+    "hash": "2f8781c237c0746bb7f30c30b4202424"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\settings.controller.ts": {
+    "mtime": 1778218238.8916466,
+    "hash": "4b3e023782249ff8cefb7f40139efc5a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\social.controller.ts": {
+    "mtime": 1778001808.7648234,
+    "hash": "1a0c6b7274269a363dee6512fb6829ca"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\special.controller.ts": {
+    "mtime": 1778086449.9103541,
+    "hash": "550234d6a1600f9bb17c3d10be75d2ba"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\theme.controller.ts": {
+    "mtime": 1778001808.7648234,
+    "hash": "fe60a367c505c1ac39b58b8ab85823d0"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\controllers\\user.controller.ts": {
+    "mtime": 1778001808.7668333,
+    "hash": "85cc2620f0dd8472cbfce1ee4185387b"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\middlewares\\auth.middleware.ts": {
+    "mtime": 1778001808.7668333,
+    "hash": "246ea8f226e16a8b5ed9b600f512ae7a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\middlewares\\global.error.handler.ts": {
+    "mtime": 1778001808.7688434,
+    "hash": "c8d14a0ff8768c4371b2ef2925a8fb9f"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\middlewares\\rateLimit.ts": {
+    "mtime": 1778218086.5177436,
+    "hash": "daf0f0c1101667bf545699c293d5c918"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\analytics.routes.ts": {
+    "mtime": 1778086429.330976,
+    "hash": "adb130ccfbf7086c5d1c17a5bbb5983a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\audit.routes.ts": {
+    "mtime": 1778001808.7688434,
+    "hash": "1aa3dfad3863d386c87cee18651cb11a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\auth.routes.ts": {
+    "mtime": 1778218092.1115193,
+    "hash": "8511ab1125cc1bece918b49885ba512a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\category.routes.ts": {
+    "mtime": 1778001808.7705977,
+    "hash": "1032244e38747592a7b2203dafaeaaf3"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\chat.route.ts": {
+    "mtime": 1778001808.773183,
+    "hash": "8b085ad7df942017ad34d4c63038ea03"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\customOrder.routes.ts": {
+    "mtime": 1778093138.8389359,
+    "hash": "df734f7a7149c57475a4492ca9ff0212"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\googleReviews.routes.ts": {
+    "mtime": 1778086338.9842017,
+    "hash": "3e4bcdbff53402a9636fa189b171e94d"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\hero.routes.ts": {
+    "mtime": 1778001808.773183,
+    "hash": "e177c68fb9c5a37777101e1940e867f3"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\index.ts": {
+    "mtime": 1778090735.5589123,
+    "hash": "58307a24f3ad2213ad92ab92e73d9f9a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\media.routes.ts": {
+    "mtime": 1778001808.773183,
+    "hash": "1b00d3c79d973eb5e14ce0259f026fe6"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\page.routes.ts": {
+    "mtime": 1778001808.7761395,
+    "hash": "c706cc4885672e24e19116edf68a0762"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\product.routes.ts": {
+    "mtime": 1778001808.7761395,
+    "hash": "d996b3db6e4cb32f23c365970ee604e5"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\search.routes.ts": {
+    "mtime": 1778001808.7781506,
+    "hash": "d4cf4c233b7c66bdd8e9b58927f9d4c0"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\seed.routes.ts": {
+    "mtime": 1778218137.7191334,
+    "hash": "7b5cfd75ae2935904a743761c61661f4"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\settings.routes.ts": {
+    "mtime": 1778218179.4392757,
+    "hash": "e07e26eb4227aedf24a1740bf7882282"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\social.routes.ts": {
+    "mtime": 1778001808.7781506,
+    "hash": "c29332e6ec1fad4bea207ad7a4f0959b"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\special.routes.ts": {
+    "mtime": 1778001808.780161,
+    "hash": "0c53786358190b27288e34231c462960"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\theme.routes.ts": {
+    "mtime": 1778001808.780161,
+    "hash": "e7b3ff5f567be3bc11f08f89fc05024b"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\routes\\user.routes.ts": {
+    "mtime": 1778001808.780161,
+    "hash": "d9ca57ac541a32e62eaf78479c50e79a"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\scripts\\seed_pages.ts": {
+    "mtime": 1778001808.7824197,
+    "hash": "51b9a7660bc3857b45422a4f1efda574"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\sockets\\chat.socket.ts": {
+    "mtime": 1778218216.194674,
+    "hash": "549c488110da5a0524bb17564756e5fb"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\utils\\cron.ts": {
+    "mtime": 1778086436.0283213,
+    "hash": "db35b7b8d7a48689f999a119e797faa9"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\utils\\jwt.ts": {
+    "mtime": 1778001808.784432,
+    "hash": "681e77e827af735baed61e03bcd55b96"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\src\\utils\\mailer.ts": {
+    "mtime": 1778086280.2297382,
+    "hash": "b2e6aab15332159f6b7b83baa3010670"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\eslint.config.mjs": {
+    "mtime": 1778001768.3549361,
+    "hash": "6c4307ffa009658f5c97f5629094c0c2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\global.d.ts": {
+    "mtime": 1778001768.3562274,
+    "hash": "bfccf7d78c215fbcab13424eb14c679b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\next-env.d.ts": {
+    "mtime": 1778059659.3473666,
+    "hash": "29f60a376e12bf72b67d4994fcc84214"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\next.config.ts": {
+    "mtime": 1778001768.3562274,
+    "hash": "9ab9673da1a31e151c1c2e34976dd98d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\postcss.config.mjs": {
+    "mtime": 1778001768.359944,
+    "hash": "52dc80057b135a55ec84ffb70c32abe4"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\proxy.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "f383ee3e26314c3ca8a1692c37d936da"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\layout.tsx": {
+    "mtime": 1778218397.397194,
+    "hash": "fd82088a2b292c350c3825c6534c15bd"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\manifest.ts": {
+    "mtime": 1778094901.0213768,
+    "hash": "3fef76c7b4258a6f2568e27fd7cb87cb"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\page.tsx": {
+    "mtime": 1778215174.9174538,
+    "hash": "978fd5b8501172dfc87038b7fd27d2d9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\robots.ts": {
+    "mtime": 1778218349.6866534,
+    "hash": "c742e8dff90ac424b8badd62925c2af3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\sitemap.ts": {
+    "mtime": 1778218373.9299703,
+    "hash": "e6c1a79ac78af4d8fd073b7f1cb2f6f9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\about-us\\page.tsx": {
+    "mtime": 1778001768.362756,
+    "hash": "93cfe3b6fca62f72ccad3cc7322b9234"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\cancellation-policy\\page.tsx": {
+    "mtime": 1778001768.362756,
+    "hash": "10bd15fe0e258da7cf9f14ccbc82260e"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\categories\\page.tsx": {
+    "mtime": 1778093763.68736,
+    "hash": "b187928b78c79ee7395e1f916a40aa0b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\categories\\[slug]\\not-found.tsx": {
+    "mtime": 1778093803.588108,
+    "hash": "09c38a12e54386e034092c90c28a777a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\categories\\[slug]\\page.tsx": {
+    "mtime": 1778093792.0908792,
+    "hash": "c6a5436f5039f757f930d5ed2cbf1eea"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\contact-us\\page.tsx": {
+    "mtime": 1778001768.3719623,
+    "hash": "8fb3ae39074d09e3b48251cdaa2b0dfb"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\layout.tsx": {
+    "mtime": 1778001768.5714753,
+    "hash": "ff5a68ae30390a62cbb77413af974942"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\page.tsx": {
+    "mtime": 1778088193.5143714,
+    "hash": "325ba192fdc7da74f4a9f24e93c437c9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\categories\\page.tsx": {
+    "mtime": 1778001768.3806453,
+    "hash": "295dd92c31f0d176697999f4379f54fb"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\chats\\page.tsx": {
+    "mtime": 1778001768.3806453,
+    "hash": "f41946c34e02759fdbedf98f37c607af"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\customers\\page.tsx": {
+    "mtime": 1778001768.3806453,
+    "hash": "50dfe46b174be57c0e059de83f63d2de"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\media\\page.tsx": {
+    "mtime": 1778001768.573495,
+    "hash": "b2a8f4dfc3cc96753c59f702d350cee3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\orders\\page.tsx": {
+    "mtime": 1778087558.1591778,
+    "hash": "24eb0998789629d5954f42a2c9541ab1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\products\\page.tsx": {
+    "mtime": 1778001768.5815585,
+    "hash": "8195f51b6a308bb073d205df1b956803"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\products\\create\\page.tsx": {
+    "mtime": 1778001768.5815585,
+    "hash": "f90fb1cbdede4fbd6748107f84c85669"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\products\\[id]\\edit\\page.tsx": {
+    "mtime": 1778001768.5815585,
+    "hash": "c8655f0c802bee5e3f8225283f405cef"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\admin\\profile\\page.tsx": {
+    "mtime": 1778001768.58357,
+    "hash": "3420bdb1ecfa3d2cba6e081a520d8cd9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\layout.tsx": {
+    "mtime": 1778001768.593205,
+    "hash": "d4e3b0a2f73c1ba2a1a113ec5c91b08d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\page.tsx": {
+    "mtime": 1778088122.3789718,
+    "hash": "9b55b3dcf205571882b54052a0033121"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\addresses\\page.tsx": {
+    "mtime": 1778001768.5900078,
+    "hash": "d522400fbbd16e764f4b5068b673d263"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\chats\\page.tsx": {
+    "mtime": 1778093175.9821813,
+    "hash": "72a5c532db2fd2e8305cc561e9f62ac4"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\dashboard\\page.tsx": {
+    "mtime": 1778088112.6478548,
+    "hash": "25a498014668af4f54cc53ee0b169c8b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\orders\\page.tsx": {
+    "mtime": 1778093165.7333136,
+    "hash": "ee4bf472451b2411d613b649aed1b7e9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\customer\\profile\\page.tsx": {
+    "mtime": 1778001768.5941162,
+    "hash": "3420bdb1ecfa3d2cba6e081a520d8cd9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\layout.tsx": {
+    "mtime": 1778001768.6172316,
+    "hash": "7b803ec7d9f1cb066cdd4006f3fa9e60"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\page.tsx": {
+    "mtime": 1778088168.2905836,
+    "hash": "ddcf965e8576108f28dd5faa076d8014"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\page.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "fbb1437f4ba80567bab99d0bf6824a85"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\create\\page.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "5cded221704cafab396fcb1a7ff776f1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\edit\\[username]\\page.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "9ca8ab7f1ca9861d58f2f0a6c447f3d9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\[username]\\page.tsx": {
+    "mtime": 1778090516.0440779,
+    "hash": "4797094fba3dece3ad875d85bf60c210"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\AdminForm.tsx": {
+    "mtime": 1778090465.7023563,
+    "hash": "4f6debfe59e1e61484f5e4e65eb548f1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\AdminTable.tsx": {
+    "mtime": 1778001768.5994055,
+    "hash": "3246cbffc499deb76200dadc6b6ac440"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\FormAddresses.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "a679a52382c602aae965a2da8234272d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\FormAvatar.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "6c99b4bf4f59147a4c6e22bb06f20c89"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\FormBasicInfo.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "bb27aea1b116336e56ecded8a359d596"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\admins\\_components\\FormStatus.tsx": {
+    "mtime": 1778090476.6050704,
+    "hash": "b7c5ae5db32ac6f4116353be98aefd11"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\audit-logs\\page.tsx": {
+    "mtime": 1778001768.6011593,
+    "hash": "3854b9dea678e45090a392a9996caad2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\categories\\page.tsx": {
+    "mtime": 1778001768.6113465,
+    "hash": "75d19bfb20ff6b32a9ca762d9d430251"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\chats\\page.tsx": {
+    "mtime": 1778001768.6113465,
+    "hash": "f70f7bef3a2f596776e466858a578e4f"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\customers\\page.tsx": {
+    "mtime": 1778001768.6141827,
+    "hash": "daae3abe21ce888a228a231a09e0f5e9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\media\\page.tsx": {
+    "mtime": 1778001768.6198282,
+    "hash": "b2a8f4dfc3cc96753c59f702d350cee3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\orders\\page.tsx": {
+    "mtime": 1778087553.0911582,
+    "hash": "5ae2c5866e25300f8bdb468a50a56458"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\products\\page.tsx": {
+    "mtime": 1778001768.627867,
+    "hash": "8d162f6b30db26e6fcf33c94ae2bf427"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\products\\create\\page.tsx": {
+    "mtime": 1778001768.6258583,
+    "hash": "7da533905e8ca8bc81db6a01005ba704"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\products\\[id]\\edit\\page.tsx": {
+    "mtime": 1778001768.6258583,
+    "hash": "0632f8dd25adc97dfbfc4cf0622ac5e7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\profile\\page.tsx": {
+    "mtime": 1778001768.627867,
+    "hash": "3420bdb1ecfa3d2cba6e081a520d8cd9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\settings\\page.tsx": {
+    "mtime": 1778093338.0835638,
+    "hash": "1bb0dbdbe5305ba2f2fc4cd9823982ed"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\footer\\page.tsx": {
+    "mtime": 1778001768.627867,
+    "hash": "7d8f485df4a05db58e8a79c50dfdfe81"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\hero\\page.tsx": {
+    "mtime": 1778001768.6351578,
+    "hash": "17a82058ed497d65e7c9fe7133dc9d6b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\hero\\create\\page.tsx": {
+    "mtime": 1778001768.6345057,
+    "hash": "43d1961fe47a919dcff659327a8b39ac"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\hero\\[id]\\edit\\page.tsx": {
+    "mtime": 1778001768.6333017,
+    "hash": "15848cdb980f0229b9e68f793bf53731"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\homepage\\page.tsx": {
+    "mtime": 1778082814.2257206,
+    "hash": "152d8001856e1beaf3d969b4674b2d2d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\order-form\\page.tsx": {
+    "mtime": 1778091672.8954177,
+    "hash": "78b84241d5ea89799639e25e96bba9e4"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\page.tsx": {
+    "mtime": 1778001768.6391675,
+    "hash": "fba61ea011107cfc695e943a42ba5f27"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\create\\page.tsx": {
+    "mtime": 1778001768.6391675,
+    "hash": "043cb90738966e372c133ce536beb910"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\edit\\[slug]\\page.tsx": {
+    "mtime": 1778001768.6391675,
+    "hash": "c10e86b0b8e82b75e189bb28bb1f1957"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\_components\\PageCreationForm.tsx": {
+    "mtime": 1778001768.6368384,
+    "hash": "9a346d7aa655ef01146c8662ba570ecf"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\_components\\PageMediaAddin.tsx": {
+    "mtime": 1778001768.6368384,
+    "hash": "73fbebab6dd7cb7a47d7566a173867d5"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\pages\\_components\\PageTable.tsx": {
+    "mtime": 1778001768.6391675,
+    "hash": "6c53a3fbe630d18baea75b9625edf255"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\sections\\page.tsx": {
+    "mtime": 1778001768.6445422,
+    "hash": "3176bf7533bec139130d3ddbe623196b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\social\\page.tsx": {
+    "mtime": 1778001768.6455877,
+    "hash": "d1e4530abc796c4ce7acf81f862a8bd2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\themes\\page.tsx": {
+    "mtime": 1778001768.6465294,
+    "hash": "e4e3fd16be63d74fd544e0096a9d1c55"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\themes\\_components\\ColorForm.tsx": {
+    "mtime": 1778001768.6465294,
+    "hash": "77fba34d4c91fcca0f2ae4ff02c10dc1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\storefront\\themes\\_components\\ColorTable.tsx": {
+    "mtime": 1778001768.6465294,
+    "hash": "0d6ad1f0de8c791226bc00177600940d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\dashboard\\super-admin\\_components\\UserTable.tsx": {
+    "mtime": 1778089883.5236206,
+    "hash": "23b5ea5031389d87cadd2fb66dae47ef"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\exchange-policy\\page.tsx": {
+    "mtime": 1778001768.6498885,
+    "hash": "2964c2ea20e1561010bc7078d2783ae3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\faq\\page.tsx": {
+    "mtime": 1778001768.6498885,
+    "hash": "558f7cd658755ea9f6740b1b27ae98c8"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\login\\page.tsx": {
+    "mtime": 1778001768.6518016,
+    "hash": "754c9f3acaa7364100f37bd7444e766f"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\order-now\\page.tsx": {
+    "mtime": 1778172228.7530906,
+    "hash": "6338314d7d4ff645d4f42c01de634184"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\order-now\\_OrderForm.tsx": {
+    "mtime": 1778168142.7235537,
+    "hash": "cd887fca38a3df22772e6e4cf93421b8"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\order-now\\_OrderHero.tsx": {
+    "mtime": 1778175915.3302066,
+    "hash": "56cb3f2921449a41ff15e02cebcf0d8a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\privacy-policy\\page.tsx": {
+    "mtime": 1778001768.6518016,
+    "hash": "1e8702ff243343e22405c8c5b11f6558"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\products\\page.tsx": {
+    "mtime": 1778093241.9113636,
+    "hash": "0dadaef7b243c65a0a1c8230b115d26a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\products\\[slug]\\not-found.tsx": {
+    "mtime": 1778093232.6387396,
+    "hash": "3e0d6340ceee168b4d74f346b9b54643"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\products\\[slug]\\page.tsx": {
+    "mtime": 1778093225.3010426,
+    "hash": "72094ca6b307ee8e4fe2599aa3a7a66b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\register\\page.tsx": {
+    "mtime": 1778094914.5629659,
+    "hash": "69c98256d2695b0416e65c51ba00b22a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\return-refund-policy\\page.tsx": {
+    "mtime": 1778001768.6555457,
+    "hash": "6d7a5cdb1c9e1197eaf77da2a04d10d4"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\search\\page.tsx": {
+    "mtime": 1778087981.326352,
+    "hash": "d45cd05ee6bbd9ccdbe2c4a79ff9ae1b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\shipping-policy\\page.tsx": {
+    "mtime": 1778001768.6584172,
+    "hash": "03899df225c23bbeee482b7de250ebab"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\shop\\page.tsx": {
+    "mtime": 1778093272.867637,
+    "hash": "cf8845727919618b0c2f6803b7ba2c7b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\shop\\_ShopClient.tsx": {
+    "mtime": 1778087953.7580097,
+    "hash": "da512a2c3cd7cdf3f7ad3e9767b663bc"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\terms-of-service\\page.tsx": {
+    "mtime": 1778001768.6584172,
+    "hash": "30845482b3d4baecedf708c47fa58797"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\app\\[slug]\\page.tsx": {
+    "mtime": 1778093831.0447302,
+    "hash": "2ba10c1750b29aa0a6c69dc6560fc0cc"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\ThemeProvider.tsx": {
+    "mtime": 1778001768.6584172,
+    "hash": "242689b3195c02c5aafbfdfa3f8b7097"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\profiles\\Profile.tsx": {
+    "mtime": 1778001768.6584172,
+    "hash": "9c52c6319a04df5c760132773a7fcf3d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\category\\CategoryForm.tsx": {
+    "mtime": 1778001768.6688766,
+    "hash": "8b4a297e660b7af9e28c9d8a4cc70a2a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\category\\CategoryTable.tsx": {
+    "mtime": 1778001768.669421,
+    "hash": "53289b2e1ec7095436f1151d9d4061e5"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\category\\ViewCategoryModal.tsx": {
+    "mtime": 1778001768.669421,
+    "hash": "421e83384782a54ea3b5a0667f623417"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\chat\\ChatBox.tsx": {
+    "mtime": 1778001768.670455,
+    "hash": "3afd7a65f6d367d05a18fb92bee64f63"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\chat\\ChatManager.tsx": {
+    "mtime": 1778089695.3314855,
+    "hash": "8f194c5c57a86e4dc01ffc6890e30c5c"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\chat\\ChatTable.tsx": {
+    "mtime": 1778001768.6719022,
+    "hash": "9168dfd37b6cc778dd2cbfc92ebfe0b2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\chat\\ChatTableToolbar.tsx": {
+    "mtime": 1778001768.6730485,
+    "hash": "3885bafc8e84798af91a9a86eb306f36"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\chat\\MessageBubble.tsx": {
+    "mtime": 1778001768.673665,
+    "hash": "e99a27b636415a80439322a1d962222a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\icon\\IconPickerModal.tsx": {
+    "mtime": 1778001768.677507,
+    "hash": "83211799d13c01fbb56d06e948d09a72"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\media\\MediaManager.tsx": {
+    "mtime": 1778001768.678227,
+    "hash": "f469ea8bd601b907f4ce7c171e45942b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\orders\\OrdersInbox.tsx": {
+    "mtime": 1778218317.1140852,
+    "hash": "819fa4440ed41e3c4d60be3ee9a6fd80"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\ProductForm.tsx": {
+    "mtime": 1778087496.6253033,
+    "hash": "167f791f91a12934dfb5434e8a3e6b16"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\ProductTable.tsx": {
+    "mtime": 1778088085.898543,
+    "hash": "7e1e9a8cd178ba91d7322e71eedd607f"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\AdditionalInfoPart.tsx": {
+    "mtime": 1778001768.681251,
+    "hash": "72b400520b1b25e85f5d1469986588e6"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\BasicInfoPart.tsx": {
+    "mtime": 1778087536.5712454,
+    "hash": "41377e0a6aff8f97e4f4b39a7d7cddb8"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\CategorySidebar.tsx": {
+    "mtime": 1778001768.681251,
+    "hash": "0824a83447a2b91c287f543a2626dca3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\DescriptionPart.tsx": {
+    "mtime": 1778001768.681251,
+    "hash": "4c04e69f45783aa44e658aba0af51892"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\MediaPart.tsx": {
+    "mtime": 1778001768.681251,
+    "hash": "589d9bfc590892a1ada16dceb269fd35"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\products\\form-parts\\StatusTagsPart.tsx": {
+    "mtime": 1778001768.6849422,
+    "hash": "de90ddc472ee9f4832172ed44457a5c7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\storefront\\HeroForm.tsx": {
+    "mtime": 1778001768.687207,
+    "hash": "e5567c0342c2c1c1663b8cf7dd020a60"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\shared\\storefront\\HeroManagement.tsx": {
+    "mtime": 1778001768.687207,
+    "hash": "b83defdf9db5042303bdc3883985e0aa"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\sidebars\\AdminSidebar.tsx": {
+    "mtime": 1778093098.8209589,
+    "hash": "f6ec4f5b6cb8b4574dc475411b0b00e2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\sidebars\\CustomerSidebar.tsx": {
+    "mtime": 1778093119.7624292,
+    "hash": "129c4ac31eaee260df837616bfadd84e"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\dashboard\\sidebars\\SuperAdminSidebar.tsx": {
+    "mtime": 1778216309.2656286,
+    "hash": "075b3e297507cc1aea5a402cf4175302"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\DynamicProductGrid.tsx": {
+    "mtime": 1778087905.917706,
+    "hash": "519fdc8508f5ff42522e6989aa401c5e"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\FeaturedCategories.tsx": {
+    "mtime": 1778001769.0785913,
+    "hash": "36959f282c479aa6ce5312b01ab8bc44"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\NewArrivals.tsx": {
+    "mtime": 1778087874.6060863,
+    "hash": "213635b6314c4694fe9b62939c5a0b43"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\NewsLetter.tsx": {
+    "mtime": 1778001769.809766,
+    "hash": "3235b1166352be66f19d918a8b9c3cef"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\Testimonials.tsx": {
+    "mtime": 1778001769.809766,
+    "hash": "d6f38eed34e6d5afcb579fa72d2419a1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\TrendingProducts.tsx": {
+    "mtime": 1778087891.8417864,
+    "hash": "2375624163efbc30c2de00a0da40819c"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\afterhero\\TrustBar.tsx": {
+    "mtime": 1778088207.0451791,
+    "hash": "6f20818e5f26a04f8d2f49b24131c381"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\filters\\NicheFilterSidebar.tsx": {
+    "mtime": 1778001769.8163953,
+    "hash": "3302554c81ae71e857cf73958eeae0d6"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\hero\\GinaGHero.tsx": {
+    "mtime": 1778215118.8588512,
+    "hash": "18f4d7b27449b00221dd158839b53b6c"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\products\\FeaturedProducts.tsx": {
+    "mtime": 1778214578.267712,
+    "hash": "8a1c02203dcd978c3a009a36c41a67fa"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\products\\ProductCard.tsx": {
+    "mtime": 1778093903.189068,
+    "hash": "0164e099a4655129e0d3a2e770fd3cbf"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\products\\ProductShowcase.tsx": {
+    "mtime": 1778001769.8222232,
+    "hash": "100ce736054e479e7cd2d0dceb2ae69b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\reviews\\GoogleReviewsSection.tsx": {
+    "mtime": 1778087610.454802,
+    "hash": "4f53a1047ebbcf65e170c58f915c6d5d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\AestheticLifestyle.tsx": {
+    "mtime": 1778001769.8230722,
+    "hash": "8b3d0d63d356319e62305b78fb67d5a0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\FAQSection.tsx": {
+    "mtime": 1778218341.4493003,
+    "hash": "e4a2b06ebaac4de3b7f2f45bd6c33cd7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\GiftCuration.tsx": {
+    "mtime": 1778001769.8244655,
+    "hash": "cf6a1adb5b66b853761c1c9ce1810f20"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\HowItWorks.tsx": {
+    "mtime": 1778001769.8244655,
+    "hash": "b3628e559844be5ff44374bcd22f4b82"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\IndustrialProcess.tsx": {
+    "mtime": 1778001769.8254776,
+    "hash": "0ce13cf81bc25cb9e0f9a9b1e478c54d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\MaterialTechnology.tsx": {
+    "mtime": 1778001770.4296916,
+    "hash": "da0c9068e11d1ae197cf0431ef894e0b"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\PersonalizationBlueprint.tsx": {
+    "mtime": 1778001770.437955,
+    "hash": "96c01e826296d1e89a5c8c5cd05be643"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\SignatureCharmSection.tsx": {
+    "mtime": 1778215150.2777462,
+    "hash": "c2df30cfb14bfbc68360936728603431"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\StickyBanner.tsx": {
+    "mtime": 1778216187.7703578,
+    "hash": "bf12c1d2807ea85adf775ecccb630fb0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\StorySection.tsx": {
+    "mtime": 1778093916.9567466,
+    "hash": "b619609c991f7a65611f3e9b3f513514"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\home\\sections\\TechnicalIntegrity.tsx": {
+    "mtime": 1778001770.437955,
+    "hash": "896f5310938f7320094972b4721c9062"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\IconRenderer.tsx": {
+    "mtime": 1778001770.437955,
+    "hash": "401b1b043ee770e8c5e89709a362d98c"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\MaintenanceGuard.tsx": {
+    "mtime": 1778001770.437955,
+    "hash": "499e0ac1d29bed564337ebd263129d0f"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\PageLoader.tsx": {
+    "mtime": 1778001770.437955,
+    "hash": "6779e0560e3ff2a49023a493e3430296"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\chatbox\\ChatLogin.tsx": {
+    "mtime": 1778090287.5365562,
+    "hash": "1dffe8f7b331e8eb13b02703d6db7ea0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\chatbox\\CustomerChatBox.tsx": {
+    "mtime": 1778089670.0798533,
+    "hash": "849370fd653ff561bf196d7fe5f90c1d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\chatbox\\FloatingWidget.tsx": {
+    "mtime": 1778089708.9096246,
+    "hash": "6950f7d87fc0d3fca97945ad2c411b8a"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\footer\\Footer.tsx": {
+    "mtime": 1778094639.8685253,
+    "hash": "4e2bd3f7085d647864bf26490c4d6ef2"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\footer\\FooterSocials.tsx": {
+    "mtime": 1778001770.4442067,
+    "hash": "e52c1c00e2f7104241845b455cdea2b0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\navbar\\MobileCategoryDrawer.tsx": {
+    "mtime": 1778090803.9109294,
+    "hash": "a36c88a17827895ab9d5af6fd033ef47"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\navbar\\Navbar.tsx": {
+    "mtime": 1778215097.1204293,
+    "hash": "e6bcaf8d6207985951aa3e44996e4260"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\navbar\\PCCategoryBar.tsx": {
+    "mtime": 1778001770.4465241,
+    "hash": "ca5f1a3a8a0b665cb4e12551b2b5a3ce"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shared\\totop\\ToTopButton.tsx": {
+    "mtime": 1778001771.2716377,
+    "hash": "d3d1d34912d5c9fb2c9460cc3b375ccc"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shop\\ProductGallery.tsx": {
+    "mtime": 1778001771.2716377,
+    "hash": "0aac9c852f16be8263f0476c99908bee"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shop\\ProductInfo.tsx": {
+    "mtime": 1778087376.5621676,
+    "hash": "fa7b4885c1e8ce9d5cd5b110191a5c74"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\shop\\ProductTabs.tsx": {
+    "mtime": 1778087415.3412466,
+    "hash": "5ce7b5e58e98095fbae85fa9c79f7ab8"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\AboutTemplate.tsx": {
+    "mtime": 1778001771.2756617,
+    "hash": "442492410ff426ad80aebd36ae6867b1"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\CancellationTemplate.tsx": {
+    "mtime": 1778001771.2756617,
+    "hash": "9403fc7d3faa2a5dc9ed87d9e1e2f0e9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\ContactTemplate.tsx": {
+    "mtime": 1778001771.2756617,
+    "hash": "54606868af77f1f262aefdbd62fa52b0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\ExchangePolicyTemplate.tsx": {
+    "mtime": 1778001771.2756617,
+    "hash": "926adca18980971a6af8ff47d338ffec"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\FAQTemplate.tsx": {
+    "mtime": 1778093358.2673056,
+    "hash": "96cbd690dbfc97a99959d6b9b29e2ec8"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\PolicyTemplate.tsx": {
+    "mtime": 1778090823.3996513,
+    "hash": "0cf0353c183d66bcf3dc5b6735c5a901"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\PrivacyPolicyTemplate.tsx": {
+    "mtime": 1778001772.360137,
+    "hash": "dd0dd90b63c32a8532e5ff7a220b44e7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\ProcessTemplate.tsx": {
+    "mtime": 1778093377.666695,
+    "hash": "779fd2320df63d345af316438f601ad3"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\ReturnRefundTemplate.tsx": {
+    "mtime": 1778001772.3717918,
+    "hash": "2972fd5ae137525b91f9eb2c1d3fa11d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\ShippingPolicyTemplate.tsx": {
+    "mtime": 1778001772.3717918,
+    "hash": "5ade22d96241fd11edab3b7f55a3f3f7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\components\\templates\\TermsOfServiceTemplate.tsx": {
+    "mtime": 1778001772.3717918,
+    "hash": "d73bb57d4abb3a6d4bbe88f63a9a88e9"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\context\\AuthContext.tsx": {
+    "mtime": 1778090270.1834023,
+    "hash": "cd4cf12300daf24da450c7f23f7cb0c5"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\context\\SettingsContext.tsx": {
+    "mtime": 1778001772.375869,
+    "hash": "104ead32c3a26b23bf9541c595772daf"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\lib\\axios.ts": {
+    "mtime": 1778087702.0534725,
+    "hash": "5261de036b32eec22f0a98f579b4228d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\lib\\getSettings.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "0bc376a74f7d9d297abea5ea8e574edd"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\lib\\tanstack.tsx": {
+    "mtime": 1778001772.375869,
+    "hash": "2e8bccab3848261ae87557640fcfa00e"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\lib\\utils.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "316ec75f6b001612ef0d9596b9dc21b4"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\services\\auth.service.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "42396de765d2d69e0aeb68fbb290f9f0"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\store\\themeStore.ts": {
+    "mtime": 1778215041.2363343,
+    "hash": "6bb4bc216f6354d15587b1e3fc265eaf"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\store\\useLangaugeStore.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "96e9e20e829f4a72887b762420a00ab7"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\store\\useProductStore.ts": {
+    "mtime": 1778001772.375869,
+    "hash": "0ef8b1705bee0a2e69564f4d7faf02fe"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\store\\useUserStore.ts": {
+    "mtime": 1778090280.3562117,
+    "hash": "cf11b4301e9ae99f3d7afb4f55509a04"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\types\\swiper.d.ts": {
+    "mtime": 1778001772.8497834,
+    "hash": "7ea8b7f48a9ea965fd5d403e8370dc1d"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\src\\utils\\roleRedirect.tsx": {
+    "mtime": 1778001772.8588457,
+    "hash": "03408434631a01a7bd7a189b91bd5502"
+  },
+  "D:\\Projects\\ginag\\CHANGES.md": {
+    "mtime": 1778057507.2260654,
+    "hash": "08fcb8ad95aacbd5fbeb96566e81ca8e"
+  },
+  "D:\\Projects\\ginag\\CLAUDE.md": {
+    "mtime": 1778087072.664123,
+    "hash": "5b80c0c81c9c340cf51dddb809f278f9"
+  },
+  "D:\\Projects\\ginag\\ENTERPRISE_AUDIT.md": {
+    "mtime": 1778218651.9098003,
+    "hash": "fca6a3166cb3e199b40d87cdb79591d9"
+  },
+  "D:\\Projects\\ginag\\ginag-backend\\README.md": {
+    "mtime": 1778001808.616275,
+    "hash": "8e781fa29bf0c7a84525ce0b7b94842e"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\README.md": {
+    "mtime": 1778001768.3549361,
+    "hash": "e5db1a571ebdf377a6c6cdda50644508"
+  },
+  "D:\\Projects\\ginag\\ginag-frontend\\public\\dreamecommerce.svg": {
+    "mtime": 1778095179.9907322,
+    "hash": "280252c503c4beb22346073eae8995ed"
+  },
+  "D:\\Projects\\ginag\\images\\Hero.jpeg": {
+    "mtime": 1778056477.383232,
+    "hash": "16cab1fa147a2cfc79c891f4707b8dcf"
+  },
+  "D:\\Projects\\ginag\\images\\order.jpeg": {
+    "mtime": 1778056488.24423,
+    "hash": "5dc930017bc2b6401729db47fad851ea"
+  },
+  "D:\\Projects\\ginag\\images\\WhatsApp Image 2026-05-06 at 9.34.27 PM.jpeg": {
+    "mtime": 1778086130.5531862,
+    "hash": "fef6d48d2159c33da5c5d5dccd2f427c"
+  }
+}

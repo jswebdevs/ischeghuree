@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+@theme {
+  /* Dynamic HSL Mappings */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-heading: hsl(var(--heading));
+  --color-subheading: hsl(var(--subheading));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-shadow-col: hsl(var(--shadow-color));
+  
+  /* Radius System */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Custom Animations */
+  --animate-spin-slow: spin 12s linear infinite;
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-twinkle: twinkle 2.6s ease-in-out infinite;
+  --animate-float-slow: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%      { opacity: 1;    transform: scale(1.35); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-300; }
+  h1, h2, h3, h4, h5, h6 { @apply text-heading font-bold tracking-tight; }
+  p { @apply text-foreground; }
+  small, .text-muted { @apply text-subheading; }
+}
+
+@layer utilities {
+  .bg-gradient-theme {
+    background-image: linear-gradient(to bottom right, hsl(var(--gradient-from)), hsl(var(--gradient-to)));
+  }
+  /* Shadow Utils that use the DB variable */
+  .shadow-theme-sm { box-shadow: 0 1px 2px 0 hsl(var(--shadow-color) / 0.05); }
+  .shadow-theme-md { box-shadow: 0 4px 6px -1px hsl(var(--shadow-color) / 0.1), 0 2px 4px -2px hsl(var(--shadow-color) / 0.1); }
+  .shadow-theme-lg { box-shadow: 0 10px 15px -3px hsl(var(--shadow-color) / 0.1), 0 4px 6px -4px hsl(var(--shadow-color) / 0.1); }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Option B: Ultra-thin, sleek scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 3px; /* Very thin */
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #e2e8f0; /* Tailwind slate-200 */
+    border-radius: 10px;
+  }
+  /* Dark mode support for the thin scrollbar */
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #334155; /* Tailwind slate-700 */
+  }
+  /* Firefox support for thin scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+  }
+  .dark .scrollbar-thin {
+    scrollbar-color: #334155 transparent;
+  }
+}
+/* Add to globals.css */
+.custom-quill-editor .ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--muted) / 0.3);
+  padding: 12px !important;
+}
+
+.custom-quill-editor .ql-container {
+  border: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  color: hsl(var(--foreground));
+}
+
+.custom-quill-editor .ql-editor {
+  padding: 1.5rem !important;
+}
+
+/* Dark mode fixes for toolbar icons */
+.dark .custom-quill-editor .ql-stroke {
+  stroke: hsl(var(--foreground)) !important;
+}
+.dark .custom-quill-editor .ql-fill {
+  fill: hsl(var(--foreground)) !important;
+}
+.dark .custom-quill-editor .ql-picker {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Swiper pagination overrides */
+.product-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+.product-swiper .swiper-pagination-bullet-active {
+  background: var(--color-primary, #C8A232);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* Sonner backdrop — blur the page behind any visible toast.
+   Uses :has() to detect at least one mounted toast inside the toaster, then
+   paints a fixed scrim under the toaster (Sonner sits at z-index ~ 999999). */
+body:has([data-sonner-toaster] [data-sonner-toast])::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(10, 7, 5, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: sonner-backdrop-fade 180ms ease-out;
+}
+
+@keyframes sonner-backdrop-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Marquee track for the promo banner.
+   Text enters from the right edge, travels leftward across the bar, then
+   restarts from the right after exiting the left. Single span — only one
+   copy is ever on screen. Animates `left` (% of parent) so the start/end
+   positions are naturally relative to the container width. */
+.ginag-marquee-track {
+  left: 100%;
+  animation: ginag-marquee-rtl 18s linear infinite;
+}
+.ginag-marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (max-width: 640px) {
+  .ginag-marquee-track {
+    animation-duration: 12s;
+  }
+}
+@keyframes ginag-marquee-rtl {
+  from { left: 100%; }
+  to   { left: -100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ginag-marquee-track {
+    animation: none;
+    left: 0;
+  }
+}

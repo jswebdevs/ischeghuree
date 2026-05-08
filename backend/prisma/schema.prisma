@@ -1,0 +1,441 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String         @id @default(uuid())
+  firstName         String
+  lastName          String
+  fullName          String?
+  username          String         @unique
+  email             String         @unique
+  emailVerified     DateTime?
+  phone             String?        @unique
+  phoneVerified     DateTime?
+  password          String
+  gender            Gender?
+  dob               DateTime?
+  avatar            String?
+  lastAvatarUpdate  DateTime?
+  status            UserStatus     @default(PENDING)
+  roles             Role[]
+  customerStatus    CustomerStatus @default(REGULAR)
+  bankDetails       Json?
+  mobileBanking     Json?
+  verificationToken String?
+  otp               String?
+  otpExpires        DateTime?
+  addresses         Address[]
+  uploadedMedia     Media[]
+  chat              ChatSession?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  lastLogin         DateTime?
+  createdBy         String?
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BLOCKED
+  ON_LEAVE
+}
+
+enum CustomerStatus {
+  GUEST
+  REGULAR
+  VIP
+  NONE
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  CUSTOMER
+}
+
+model Address {
+  id         String      @id @default(uuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       AddressType
+  isDefault  Boolean     @default(false)
+  house      String?
+  road       String?
+  area       String?
+  postalCode String?
+  thana      String
+  district   String
+  division   String
+  country    String      @default("Bangladesh")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+enum AddressType {
+  HOME
+  WORK
+  SHIPPING
+  BILLING
+  PRESENT
+  PERMANENT
+}
+
+model Media {
+  id                    String         @id @default(uuid())
+  filename              String
+  title                 String?
+  mediaType             MediaType      @default(IMAGE)
+  originalUrl           String
+  thumbUrl              String?
+  mimetype              String
+  size                  Int
+  folder                String?
+  altText               String?
+  description           String?
+  linkedCategoryFeatured Category[]    @relation("CategoryFeatured")
+  linkedProductFeatured Product[]      @relation("ProductFeatured")
+  linkedProductGallery  Product[]      @relation("ProductGallery")
+  linkedSiteReviews     SiteReview[]   @relation("SiteReviewAvatar")
+
+  linkedStoreLogos      SiteSettings[] @relation("StoreLogo")
+  linkedStoreFavicons   SiteSettings[] @relation("StoreFavicon")
+  linkedStoreOgImages   SiteSettings[] @relation("StoreOgImage")
+  linkedHeroImages      HeroSection[]  @relation("HeroImage")
+
+  // 3D / 360 product assets
+  kind                  MediaKind      @default(GENERAL)
+  sequence              Int?
+  linkedProduct3d       Product?       @relation("Product3dModel")
+  product360ForId       String?
+  product360For         Product?       @relation("Product360Frames", fields: [product360ForId], references: [id], onDelete: Cascade)
+
+  uploadedById          String?
+  uploadedBy            User?          @relation(fields: [uploadedById], references: [id])
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([kind])
+  @@index([product360ForId, sequence])
+}
+
+enum MediaKind {
+  GENERAL
+  PRODUCT_3D_MODEL
+  PRODUCT_360_FRAME
+}
+
+model HeroSection {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  description String?  @db.Text
+  buttonText  String   @default("ORDER NOW")
+  buttonLink  String   @default("/order-now")
+  badgeLabel  String?
+  badgeText   String?
+  imageID     String?
+  image       Media?   @relation("HeroImage", fields: [imageID], references: [id])
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+
+model Category {
+  id              String     @id @default(uuid())
+  name            String
+  slug            String     @unique
+  description     String?
+  featuredImageId String?
+  featuredImage   Media?     @relation("CategoryFeatured", fields: [featuredImageId], references: [id], onDelete: SetNull)
+  icon            String?
+  parentId        String?
+  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryHierarchy")
+  products        Product[]
+  createdAt       DateTime   @default(now())
+  createdBy       String?
+  updatedAt       DateTime   @updatedAt
+
+  @@index([parentId])
+}
+
+
+
+model Product {
+  id                String         @id @default(uuid())
+  productCode       String         @unique
+  name              String
+  slug              String         @unique
+  shortDesc         String?
+  longDesc          String?        @db.Text
+  tags              String[]
+  blogUrl           String?
+  productStatus     ProductStatus  @default(DRAFT)
+  attributes        Json?
+  material          String?
+  usage             String?        @db.Text
+  usefulness        String?        @db.Text
+  awareness         String?        @db.Text
+  specifications    Json?
+  suggestedProducts Product[]      @relation("ProductSuggestions")
+  suggestedBy       Product[]      @relation("ProductSuggestions")
+  featuredImageId   String?
+  featuredImage     Media?         @relation("ProductFeatured", fields: [featuredImageId], references: [id], onDelete: SetNull)
+  images            Media[]        @relation("ProductGallery")
+  model3dId         String?        @unique
+  model3d           Media?         @relation("Product3dModel", fields: [model3dId], references: [id], onDelete: SetNull)
+  turntableFrames   Media[]        @relation("Product360Frames")
+  priceMin          Decimal?       @db.Decimal(10, 2)
+  priceMax          Decimal?       @db.Decimal(10, 2)
+  priceNote         String?
+  categories        Category[]
+  createdAt         DateTime       @default(now())
+  createdBy         String?
+  updatedAt         DateTime       @updatedAt
+
+  @@index([productStatus])
+  @@index([productStatus, createdAt])
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  FEATURED
+  HOT
+  NEW
+  ARCHIVED
+}
+
+model CustomOrder {
+  id                  String              @id @default(uuid())
+  orderNumber         String              @unique
+  customerName        String
+  customerPhone       String
+  charmColorAndStyle  String              @db.Text
+  addInitial          Boolean             @default(false)
+  initial             String?
+  deliveryMethod      DeliveryMethod
+  mailingAddress      String?             @db.Text
+  customerEmail       String?
+  notes               String?             @db.Text
+  status              CustomOrderStatus   @default(PENDING)
+
+  // Delivery / shipment tracking (post-fulfillment)
+  deliveryProvider    String?
+  trackingUrl         String?
+  deliveryStatus      DeliveryStatus      @default(PENDING)
+  deliveredAt         DateTime?
+  deliveryNote        String?
+
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([status])
+  @@index([status, createdAt])
+  @@index([customerEmail])
+  @@index([deliveryStatus])
+}
+
+enum DeliveryMethod {
+  PICKUP
+  MAILING
+}
+
+enum CustomOrderStatus {
+  PENDING
+  CONTACTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING
+  DISPATCHED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  RETURNED
+  CANCELLED
+}
+
+model SiteReview {
+  id           String   @id @default(uuid())
+  avatarID     String?
+  reviewAvatar Media?   @relation("SiteReviewAvatar", fields: [avatarID], references: [id])
+  name         String
+  rating       Int
+  comment      String?
+  status       status   @default(PENDING)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  userRole  String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action, createdAt])
+  @@index([createdAt])
+}
+
+model PhoneVerification {
+  id         String   @id @default(uuid())
+  phone      String   @unique
+  otp        String
+  otpExpires DateTime
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                 String   @id @default("singleton")
+  storeName          String   @default("Ginag")
+  tagline            String?
+  companySlogan      String?
+  supportEmail       String?
+  supportPhone       String?
+  contactEmail       String?
+  contactPhone       String?
+  contactAddress     String?
+  logoId             String?
+  logo               Media?   @relation("StoreLogo", fields: [logoId], references: [id])
+  faviconId          String?
+  favicon            Media?   @relation("StoreFavicon", fields: [faviconId], references: [id])
+  ogImageId          String?
+  ogImage            Media?   @relation("StoreOgImage", fields: [ogImageId], references: [id])
+  currencyCode       String   @default("USD")
+  currencySymbol     String   @default("$")
+  timezone           String   @default("America/Chicago")
+  address            String?
+  orderPrefix        String   @default("CO-")
+  maintenanceMode    Boolean  @default(false)
+  maintenanceMessage String?
+  googlePlaceId      String?
+  googleApiKey       String?
+  footerConfig       Json?
+  homepageConfig     Json?
+  updatedAt          DateTime @updatedAt
+}
+model SocialLink {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String
+  link      String
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model StoreTheme {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  status         Boolean  @default(true)
+  isActive       Boolean  @default(false)
+
+  lightVariables Json
+  darkVariables  Json
+  radius         String   @default("0.5rem")
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model StorefrontPage {
+  id              String   @id @default(uuid())
+  title           String
+  slug            String   @unique
+  template        String   @default("DEFAULT")
+  status          String   @default("PUBLISHED")
+  featuredImage   String?
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  pageConfig      Json?
+
+  content         Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ChatStatus {
+  AGENT_ACTIVE
+  PENDING
+  CLOSED
+  SPAM
+  DONE
+  ARCHIVED
+  DELETED
+}
+
+enum SenderType {
+  USER
+  AGENT
+  SYSTEM
+}
+
+model ChatSession {
+  id        String      @id @default(uuid())
+  userId    String      @unique
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    ChatStatus  @default(PENDING)
+  messages  ChatMessage[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model ChatMessage {
+  id            String      @id @default(uuid())
+  sessionId     String
+  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId      String?
+  senderType    SenderType
+  content       String      @db.Text
+  attachmentUrl String?
+  isRead        Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
