@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-    LayoutDashboard, ClipboardList, MessageCircleMore, User,
+    LayoutDashboard, ClipboardList, MessageCircleMore, User, MapPin,
     Power, Menu, X, ChevronLeft, ChevronRight, UserCircle
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
@@ -20,6 +20,7 @@ export default function CustomerSidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- close the mobile drawer whenever the route changes
         setIsOpen(false);
     }, [pathname]);
 
@@ -52,6 +53,7 @@ export default function CustomerSidebar() {
         { name: "Dashboard", href: "/dashboard/customer/dashboard", icon: LayoutDashboard },
         { name: "Chats", href: "/dashboard/customer/chats", icon: MessageCircleMore },
         { name: "Orders", href: "/dashboard/customer/orders", icon: ClipboardList },
+        { name: "Addresses", href: "/dashboard/customer/addresses", icon: MapPin },
         { name: "Profile", href: "/dashboard/customer/profile", icon: User },
     ];
 
@@ -93,6 +95,7 @@ export default function CustomerSidebar() {
                     <div className={`flex items-center transition-all duration-300 ${isCollapsed ? "md:gap-0" : "gap-3"}`}>
                         <div className="w-10 h-10 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30 overflow-hidden border-2 border-primary/20 transition-colors">
                             {user?.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element -- user avatar URL with unknown dimensions
                                 <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
                                 <UserCircle className="w-6 h-6" />
@@ -113,10 +116,7 @@ export default function CustomerSidebar() {
                 <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto custom-scrollbar">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
-                        // Exact match for dashboard, partial match for sub-routes
-                        const isActive = item.href === '/user'
-                            ? pathname === '/user'
-                            : pathname.startsWith(item.href);
+                        const isActive = pathname.startsWith(item.href);
 
                         return (
                             <Link

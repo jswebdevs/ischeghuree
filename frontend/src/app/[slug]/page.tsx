@@ -6,9 +6,23 @@ import ProcessTemplate from "@/components/templates/ProcessTemplate";
 import FAQTemplate from "@/components/templates/FAQTemplate";
 import ContactTemplate from "@/components/templates/ContactTemplate";
 import PolicyTemplate from "@/components/templates/PolicyTemplate";
-import { getPageBySlug } from "@/lib/getSettings";
+import { getPageBySlug, getGlobalSettings } from "@/lib/getSettings";
 
 export const revalidate = 120;
+
+interface PageBlockData {
+  heading?: string;
+  subheading?: string;
+  mediaType?: string;
+  mediaUrl?: string;
+  content?: string;
+}
+
+interface PageBlock {
+  id?: string;
+  type: string;
+  data: PageBlockData;
+}
 
 // Reserved root-level routes — never let /[slug] catch these.
 const RESERVED = new Set([
@@ -20,10 +34,6 @@ const RESERVED = new Set([
   "login",
   "register",
   "dashboard",
-  "blogs",
-  "cart",
-  "wishlist",
-  "checkout",
 ]);
 
 export async function generateMetadata({
@@ -39,7 +49,7 @@ export async function generateMetadata({
 
   const description =
     page.metaDescription ||
-    page.content?.find((b: any) => b.type === "rich-text")?.data?.content?.replace(/<[^>]+>/g, "").slice(0, 160) ||
+    page.content?.find((b: PageBlock) => b.type === "rich-text")?.data?.content?.replace(/<[^>]+>/g, "").slice(0, 160) ||
     page.title;
 
   return {
@@ -55,7 +65,7 @@ export async function generateMetadata({
   };
 }
 
-const SplitBlock = ({ data, alignLeft }: { data: any; alignLeft: boolean }) => (
+const SplitBlock = ({ data, alignLeft }: { data: PageBlockData; alignLeft: boolean }) => (
   <section className="py-16 md:py-24 overflow-hidden bg-background">
     <div
       className={`container mx-auto px-4 flex flex-col gap-12 lg:gap-20 items-center ${
@@ -103,7 +113,7 @@ const SplitBlock = ({ data, alignLeft }: { data: any; alignLeft: boolean }) => (
   </section>
 );
 
-const RichTextBlock = ({ data }: { data: any }) => (
+const RichTextBlock = ({ data }: { data: PageBlockData }) => (
   <section className="py-12 md:py-16 bg-background">
     <div className="container mx-auto px-4 max-w-4xl">
       <div
@@ -112,7 +122,7 @@ const RichTextBlock = ({ data }: { data: any }) => (
           prose-p:text-muted-foreground prose-p:font-medium prose-p:leading-relaxed
           prose-a:text-primary prose-a:font-bold hover:prose-a:text-primary/80
           prose-li:text-muted-foreground prose-li:font-medium"
-        dangerouslySetInnerHTML={{ __html: data.content }}
+        dangerouslySetInnerHTML={{ __html: data.content ?? "" }}
       />
     </div>
   </section>
@@ -132,7 +142,10 @@ export default async function DynamicStorefrontPage({
   if (pageData.template === "ABOUT") return <AboutTemplate data={pageData} />;
   if (pageData.template === "PROCESS") return <ProcessTemplate data={pageData} />;
   if (pageData.template === "FAQ") return <FAQTemplate data={pageData} />;
-  if (pageData.template === "CONTACT") return <ContactTemplate data={pageData} />;
+  if (pageData.template === "CONTACT") {
+    const settings = await getGlobalSettings();
+    return <ContactTemplate data={pageData} settings={settings} />;
+  }
   if (pageData.template === "POLICY") return <PolicyTemplate data={pageData} />;
 
   let splitBlockCount = 0;
@@ -145,7 +158,7 @@ export default async function DynamicStorefrontPage({
         </h1>
       </div>
 
-      {pageData.content.map((block: any, index: number) => {
+      {pageData.content.map((block: PageBlock, index: number) => {
         if (block.type === "hero") {
           const alignLeft = splitBlockCount % 2 === 0;
           splitBlockCount++;

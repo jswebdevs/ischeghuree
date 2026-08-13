@@ -29,6 +29,7 @@ export default function SuperAdminSidebar() {
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close the mobile drawer whenever the route changes
     setIsOpen(false);
   }, [pathname]);
 
@@ -112,6 +113,7 @@ export default function SuperAdminSidebar() {
       icon: Store,
       subItems: [
         { name: "Homepage", href: "/dashboard/super-admin/storefront/homepage" },
+        { name: "Hero", href: "/dashboard/super-admin/storefront/hero" },
         { name: "Order Form", href: "/dashboard/super-admin/storefront/order-form" },
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social" },
@@ -168,6 +170,7 @@ export default function SuperAdminSidebar() {
           <div className={`flex items-center transition-all duration-300 ${isCollapsed ? "md:gap-0" : "gap-3"}`}>
             <div className="w-10 h-10 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30 overflow-hidden border-2 border-primary/20 transition-colors">
               {user?.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element -- user avatar URL with unknown dimensions
                 <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <UserCircle className="w-6 h-6" />

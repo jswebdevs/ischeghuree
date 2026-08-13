@@ -6,6 +6,8 @@ import Link from "next/link";
 import { User, Mail, Phone, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import api from "@/lib/axios";
 import { useUserStore } from "@/store/useUserStore";
+import { getDashboardRedirectPath } from "@/utils/roleRedirect";
+import type { AxiosError } from "axios";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,14 +18,13 @@ export default function RegisterPage() {
 
   const { user, isAuthenticated } = useUserStore(); 
   
-  // FIX: Safely extract the role regardless of whether the interface uses 'role', 'roles' string, or 'roles' array
+  // Already-authenticated users go straight to their role dashboard.
   useEffect(() => {
-    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
-    
-    if (isAuthenticated && userRole) {
-      const rolePath = String(userRole).toLowerCase().replace('_', '-');
-      const targetDashboard = rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
-      router.replace(targetDashboard);
+    const storedUser = user as { roles?: string[]; role?: string } | null;
+    const userRoles = storedUser?.roles || storedUser?.role;
+
+    if (isAuthenticated && userRoles) {
+      router.replace(getDashboardRedirectPath(userRoles));
     }
   }, [isAuthenticated, user, router]);
 
@@ -52,8 +53,9 @@ export default function RegisterPage() {
         setSuccess(true);
         setTimeout(() => router.push("/login"), 3000);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +70,7 @@ export default function RegisterPage() {
           </div>
           <h2 className="text-2xl font-bold mb-2 text-heading">Check your email!</h2>
           <p className="text-subheading mb-6">
-            We've sent a verification link to <span className="font-semibold text-foreground">{formData.email}</span>.
+            We&apos;ve sent a verification link to <span className="font-semibold text-foreground">{formData.email}</span>.
           </p>
           <Link href="/login" className="text-primary font-semibold hover:underline">
             Go to Login
@@ -84,7 +86,7 @@ export default function RegisterPage() {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-heading mb-2">Create an Account</h1>
-          <p className="text-subheading">Join Ginag today.</p>
+          <p className="text-subheading">ইচ্ছে ঘুড়ি পরিবারে স্বাগতম — Join Ische Ghuree today.</p>
         </div>
 
         {error && (
@@ -145,7 +147,7 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium text-foreground">
-                Phone Number <span className="text-muted-foreground text-xs">(Optional — required at checkout)</span>
+                Phone Number <span className="text-muted-foreground text-xs">(ঐচ্ছিক — Optional)</span>
               </label>
               <div className="relative">
                 <input

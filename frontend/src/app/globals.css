@@ -24,7 +24,19 @@
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-shadow-col: hsl(var(--shadow-color));
-  
+
+  /* Decorative kite facet colours (logo-derived, DESIGN.md §1).
+     Keep in sync with the raw --kite-* vars in :root below. */
+  --color-kite-cyan: #22b8cf;
+  --color-kite-orange: #f76707;
+  --color-kite-magenta: #e64980;
+  --color-kite-green: #37b24d;
+
+  /* Typography — wired to the next/font variables set in app/layout.tsx.
+     Exposed as the `font-heading` / `font-body` Tailwind utilities. */
+  --font-heading: var(--font-noto-serif-bengali), ui-serif, Georgia, serif;
+  --font-body: var(--font-hind-siliguri), ui-sans-serif, system-ui, sans-serif;
+
   /* Radius System */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -52,10 +64,19 @@
   50%      { transform: translateY(-6px); }
 }
 
+/* Kite facet colours as raw CSS vars for gradients, dividers, chips.
+   (Also mapped into @theme above as bg-kite-* / text-kite-* utilities.) */
+:root {
+  --kite-cyan: #22b8cf;
+  --kite-orange: #f76707;
+  --kite-magenta: #e64980;
+  --kite-green: #37b24d;
+}
+
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-300; }
-  h1, h2, h3, h4, h5, h6 { @apply text-heading font-bold tracking-tight; }
+  body { @apply font-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-300; }
+  h1, h2, h3, h4, h5, h6 { @apply font-heading text-heading font-bold tracking-tight; }
   p { @apply text-foreground; }
   small, .text-muted { @apply text-subheading; }
 }
@@ -68,6 +89,8 @@
   .shadow-theme-sm { box-shadow: 0 1px 2px 0 hsl(var(--shadow-color) / 0.05); }
   .shadow-theme-md { box-shadow: 0 4px 6px -1px hsl(var(--shadow-color) / 0.1), 0 2px 4px -2px hsl(var(--shadow-color) / 0.1); }
   .shadow-theme-lg { box-shadow: 0 10px 15px -3px hsl(var(--shadow-color) / 0.1), 0 4px 6px -4px hsl(var(--shadow-color) / 0.1); }
+  .shadow-theme-xl { box-shadow: 0 20px 25px -5px hsl(var(--shadow-color) / 0.1), 0 8px 10px -6px hsl(var(--shadow-color) / 0.1); }
+  .shadow-theme-2xl { box-shadow: 0 25px 50px -12px hsl(var(--shadow-color) / 0.25); }
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
@@ -136,7 +159,7 @@
   opacity: 1;
 }
 .product-swiper .swiper-pagination-bullet-active {
-  background: var(--color-primary, #C8A232);
+  background: var(--color-primary, hsl(204 80% 40%));
   width: 24px;
   border-radius: 4px;
 }
@@ -149,7 +172,7 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
   position: fixed;
   inset: 0;
   z-index: 9998;
-  background: rgba(10, 7, 5, 0.55);
+  background: rgba(8, 13, 21, 0.55);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   pointer-events: none;
@@ -166,24 +189,24 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
    restarts from the right after exiting the left. Single span — only one
    copy is ever on screen. Animates `left` (% of parent) so the start/end
    positions are naturally relative to the container width. */
-.ginag-marquee-track {
+.ig-marquee-track {
   left: 100%;
-  animation: ginag-marquee-rtl 18s linear infinite;
+  animation: ig-marquee-rtl 18s linear infinite;
 }
-.ginag-marquee-track:hover {
+.ig-marquee-track:hover {
   animation-play-state: paused;
 }
 @media (max-width: 640px) {
-  .ginag-marquee-track {
+  .ig-marquee-track {
     animation-duration: 12s;
   }
 }
-@keyframes ginag-marquee-rtl {
+@keyframes ig-marquee-rtl {
   from { left: 100%; }
   to   { left: -100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ginag-marquee-track {
+  .ig-marquee-track {
     animation: none;
     left: 0;
   }

@@ -1,7 +1,21 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
 import { logAction } from './audit.controller';
-import { sendMail, renderOrderConfirmation } from '../utils/mailer';
+import { sendMail, renderOrderConfirmation, renderDeliveryStatusUpdate } from '../utils/mailer';
+
+const VALID_DELIVERY_STATUSES = [
+  'PENDING',
+  'DISPATCHED',
+  'IN_TRANSIT',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+  'RETURNED',
+  'CANCELLED',
+] as const;
+type DeliveryStatusValue = (typeof VALID_DELIVERY_STATUSES)[number];
+
+const isAdminUser = (user: any): boolean =>
+  Array.isArray(user?.roles) && user.roles.some((r: string) => r === 'SUPER_ADMIN' || r === 'ADMIN');
 
 // Generate a collision-resistant order number without relying on an
 // app-level row count (which is racy under load — two simultaneous orders
@@ -17,9 +31,9 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
   const {
     customerName,
     customerPhone,
-    charmColorAndStyle,
-    addInitial,
-    initial,
+    productDetails,
+    quantity,
+    orderType,
     deliveryMethod,
     mailingAddress,
     customerEmail,
@@ -27,27 +41,35 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
   } = body || {};
 
   if (!customerName || typeof customerName !== 'string' || !customerName.trim()) {
-    return { ok: false, message: 'Name is required.' };
+    return { ok: false, message: 'নাম আবশ্যক। Name is required.' };
   }
   if (!customerPhone || typeof customerPhone !== 'string' || !customerPhone.trim()) {
-    return { ok: false, message: 'Cell number is required.' };
+    return { ok: false, message: 'মোবাইল নম্বর আবশ্যক। Cell number is required.' };
   }
-  if (!charmColorAndStyle || typeof charmColorAndStyle !== 'string' || !charmColorAndStyle.trim()) {
-    return { ok: false, message: 'Charm color and style is required.' };
+  if (!productDetails || typeof productDetails !== 'string' || !productDetails.trim()) {
+    return { ok: false, message: 'পণ্যের বিবরণ আবশ্যক। Product details are required.' };
   }
-  const wantsInitial = !!addInitial;
-  if (wantsInitial && (!initial || typeof initial !== 'string' || !initial.trim())) {
-    return { ok: false, message: 'Initial text is required when "Add Initial" is selected.' };
+  let parsedQuantity: number | null = null;
+  if (quantity !== undefined && quantity !== null && String(quantity).trim() !== '') {
+    const q = Number(quantity);
+    if (!Number.isInteger(q) || q < 1) {
+      return { ok: false, message: 'পরিমাণ একটি ধনাত্মক সংখ্যা হতে হবে। Quantity must be a positive whole number.' };
+    }
+    parsedQuantity = q;
+  }
+  const resolvedOrderType = orderType === undefined || orderType === null || orderType === '' ? 'RETAIL' : orderType;
+  if (resolvedOrderType !== 'RETAIL' && resolvedOrderType !== 'WHOLESALE') {
+    return { ok: false, message: 'অর্ডারের ধরন খুচরা বা পাইকারী হতে হবে। Order type must be RETAIL or WHOLESALE.' };
   }
   if (deliveryMethod !== 'PICKUP' && deliveryMethod !== 'MAILING') {
-    return { ok: false, message: 'Delivery method must be PICKUP or MAILING.' };
+    return { ok: false, message: 'ডেলিভারি পদ্ধতি নির্বাচন করুন। Delivery method must be PICKUP or MAILING.' };
   }
   if (deliveryMethod === 'MAILING' && (!mailingAddress || !String(mailingAddress).trim())) {
-    return { ok: false, message: 'Mailing address is required when delivery method is mailing.' };
+    return { ok: false, message: 'মেইলিং ঠিকানা আবশ্যক। Mailing address is required when delivery method is mailing.' };
   }
   if (customerEmail && typeof customerEmail === 'string' && customerEmail.trim()) {
     const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
-    if (!ok) return { ok: false, message: 'Email is not a valid address.' };
+    if (!ok) return { ok: false, message: 'ইমেইল ঠিকানাটি সঠিক নয়। Email is not a valid address.' };
   }
 
   return {
@@ -55,9 +77,9 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
     data: {
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
-      charmColorAndStyle: charmColorAndStyle.trim(),
-      addInitial: wantsInitial,
-      initial: wantsInitial ? String(initial).trim() : null,
+      productDetails: productDetails.trim(),
+      quantity: parsedQuantity,
+      orderType: resolvedOrderType,
       deliveryMethod,
       mailingAddress: deliveryMethod === 'MAILING' ? String(mailingAddress).trim() : null,
       customerEmail: customerEmail ? String(customerEmail).trim() : null,
@@ -75,8 +97,8 @@ export const createCustomOrder = async (req: Request, res: Response): Promise<vo
     }
 
     const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
-    const prefix = settings?.orderPrefix || 'CO-';
-    const storeName = settings?.storeName || 'Ginag';
+    const prefix = settings?.orderPrefix || 'IG-';
+    const storeName = settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree';
 
     const orderNumber = generateOrderNumber(prefix);
 
@@ -90,9 +112,9 @@ export const createCustomOrder = async (req: Request, res: Response): Promise<vo
           orderNumber: order.orderNumber,
           customerName: order.customerName,
           customerPhone: order.customerPhone,
-          charmColorAndStyle: order.charmColorAndStyle,
-          addInitial: order.addInitial,
-          initial: order.initial,
+          productDetails: order.productDetails,
+          quantity: order.quantity,
+          orderType: order.orderType,
           deliveryMethod: order.deliveryMethod,
           mailingAddress: order.mailingAddress,
           storeName,
@@ -203,10 +225,134 @@ export const getCustomOrder = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ success: false, message: 'Order not found' });
       return;
     }
+
+    // Admins see any order; a logged-in customer only sees their own (matched by email).
+    const user = (req as any).user;
+    if (!isAdminUser(user)) {
+      if (!user?.email || !order.customerEmail || order.customerEmail.toLowerCase() !== user.email.toLowerCase()) {
+        res.status(403).json({ success: false, message: 'You are not allowed to view this order.' });
+        return;
+      }
+    }
+
     res.json({ success: true, data: order });
   } catch (error) {
     console.error('Get CustomOrder error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch order' });
+  }
+};
+
+export const updateCustomOrderDelivery = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    const { deliveryProvider, trackingUrl, deliveryStatus, deliveryNote, deliveredAt } = req.body || {};
+
+    const data: any = {};
+
+    if (deliveryStatus !== undefined) {
+      if (!VALID_DELIVERY_STATUSES.includes(deliveryStatus)) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid deliveryStatus. Must be one of: ${VALID_DELIVERY_STATUSES.join(', ')}.`,
+        });
+        return;
+      }
+      data.deliveryStatus = deliveryStatus as DeliveryStatusValue;
+
+      // Auto-stamp deliveredAt when transitioning to DELIVERED, unless caller passed an explicit value.
+      if (deliveryStatus === 'DELIVERED' && deliveredAt === undefined) {
+        data.deliveredAt = new Date();
+      }
+    }
+
+    if (deliveryProvider !== undefined) {
+      data.deliveryProvider = deliveryProvider ? String(deliveryProvider).trim() : null;
+    }
+
+    if (trackingUrl !== undefined) {
+      const url = trackingUrl ? String(trackingUrl).trim() : '';
+      if (url) {
+        if (!/^https?:\/\//i.test(url)) {
+          res.status(400).json({ success: false, message: 'trackingUrl must start with http:// or https://' });
+          return;
+        }
+        data.trackingUrl = url;
+      } else {
+        data.trackingUrl = null;
+      }
+    }
+
+    if (deliveryNote !== undefined) {
+      data.deliveryNote = deliveryNote ? String(deliveryNote) : null;
+    }
+
+    if (deliveredAt !== undefined) {
+      data.deliveredAt = deliveredAt ? new Date(deliveredAt) : null;
+    }
+
+    if (Object.keys(data).length === 0) {
+      res.status(400).json({ success: false, message: 'No delivery fields provided.' });
+      return;
+    }
+
+    const existing = await prisma.customOrder.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'Order not found' });
+      return;
+    }
+
+    const order = await prisma.customOrder.update({ where: { id }, data });
+
+    // Notify customer if status actually changed (and they have an email on file).
+    const statusChanged = data.deliveryStatus && data.deliveryStatus !== existing.deliveryStatus;
+    if (statusChanged && order.customerEmail) {
+      try {
+        const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+        const storeName = settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree';
+        const { html, text } = renderDeliveryStatusUpdate({
+          orderNumber: order.orderNumber,
+          customerName: order.customerName,
+          newStatus: order.deliveryStatus,
+          previousStatus: existing.deliveryStatus,
+          deliveryProvider: order.deliveryProvider,
+          trackingUrl: order.trackingUrl,
+          deliveryNote: order.deliveryNote,
+          storeName,
+          supportPhone: settings?.supportPhone || settings?.contactPhone,
+          supportEmail: settings?.supportEmail || settings?.contactEmail,
+        });
+        await sendMail({
+          to: order.customerEmail,
+          subject: `Delivery update — ${order.orderNumber} — ${order.deliveryStatus}`,
+          html,
+          text,
+          fromName: storeName,
+        });
+      } catch (mailErr) {
+        console.error('Delivery status email failed:', mailErr);
+      }
+    }
+
+    await logAction({
+      userId: (req as any).user?.id,
+      userRole: (req as any).user?.role,
+      action: 'UPDATE_CUSTOM_ORDER_DELIVERY',
+      entity: 'CustomOrder',
+      entityId: order.id,
+      details: {
+        from: existing.deliveryStatus,
+        to: order.deliveryStatus,
+        provider: order.deliveryProvider,
+        hasTrackingUrl: !!order.trackingUrl,
+      },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+
+    res.json({ success: true, data: order });
+  } catch (error) {
+    console.error('Update CustomOrder delivery error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update delivery info' });
   }
 };
 

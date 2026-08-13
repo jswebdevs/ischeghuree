@@ -22,7 +22,7 @@ export default function AdminLayout({
             - pt-16: Accounts for the 14h mobile top bar + 2px buffer on phones.
             - md:pt-6: Standard padding on desktop where the sidebar is sticky.
         */}
-                <main className="flex-1 p-4 pt-28 md:pt-6 md:p-6 lg:p-8">
+                <main className="flex-1 p-4 pt-16 md:pt-6 md:p-6 lg:p-8">
                     {children}
                 </main>
 

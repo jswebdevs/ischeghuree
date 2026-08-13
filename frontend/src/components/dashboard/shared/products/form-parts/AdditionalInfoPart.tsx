@@ -2,12 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { AlignLeft, List, Plus, Trash2, ShieldAlert, BookOpen, Layers, Settings2 } from "lucide-react";
+import type { ProductFormState } from "../ProductForm";
+
+type TextFieldKey = "specifications" | "usage" | "usefulness" | "awareness";
+
+interface FieldEditorProps {
+    label: string;
+    field: TextFieldKey;
+    value: string;
+    update: (fields: Partial<ProductFormState>) => void;
+    icon: React.ComponentType<{ size?: number }>;
+    isWarning?: boolean;
+}
 
 // Helper Component: Renders a field that can toggle between Paragraph and Bulleted List
-const FieldEditor = ({ label, field, value, update, icon: Icon, isWarning = false }: any) => {
+const FieldEditor = ({ label, field, value, update, icon: Icon, isWarning = false }: FieldEditorProps) => {
     const [descType, setDescType] = useState<"paragraph" | "list">("paragraph");
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- switch to list mode when the loaded value contains line breaks
         if (value?.includes('\n')) setDescType("list");
     }, [value]);
 
@@ -16,16 +29,16 @@ const FieldEditor = ({ label, field, value, update, icon: Icon, isWarning = fals
     const updateListItem = (index: number, val: string) => {
         const newList = [...listItems];
         newList[index] = val;
-        update({ [field]: newList.join("\n") });
+        update({ [field]: newList.join("\n") } as Partial<ProductFormState>);
     };
 
     const addListItem = () => {
-        update({ [field]: (value || "") + "\n" });
+        update({ [field]: (value || "") + "\n" } as Partial<ProductFormState>);
     };
 
     const removeListItem = (index: number) => {
         const newList = listItems.filter((_: string, i: number) => i !== index);
-        update({ [field]: newList.join("\n") });
+        update({ [field]: newList.join("\n") } as Partial<ProductFormState>);
     };
 
     const colorClass = isWarning ? "text-orange-500" : "text-muted-foreground";
@@ -60,7 +73,7 @@ const FieldEditor = ({ label, field, value, update, icon: Icon, isWarning = fals
             {descType === "paragraph" ? (
                 <textarea
                     value={value || ""}
-                    onChange={(e) => update({ [field]: e.target.value })}
+                    onChange={(e) => update({ [field]: e.target.value } as Partial<ProductFormState>)}
                     rows={4}
                     placeholder={`Enter ${label.toLowerCase()} details...`}
                     className={`w-full bg-background border border-border rounded-xl px-4 py-3 text-sm outline-none resize-none transition-all ${focusClass}`}
@@ -96,7 +109,12 @@ const FieldEditor = ({ label, field, value, update, icon: Icon, isWarning = fals
     );
 };
 
-export default function AdditionalInfoPart({ product, update }: any) {
+interface AdditionalInfoPartProps {
+    product: ProductFormState;
+    update: (fields: Partial<ProductFormState>) => void;
+}
+
+export default function AdditionalInfoPart({ product, update }: AdditionalInfoPartProps) {
     return (
         <div className="bg-card border border-border rounded-3xl p-4 md:p-8 shadow-theme-sm space-y-8">
             <h2 className="text-xl font-black text-foreground border-b border-border pb-4 tracking-tight">Part 4: Extended Details</h2>

@@ -9,7 +9,14 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
   loading: () => <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/10 rounded-2xl border border-border">Loading Editor...</div>
 });
 
-export default function DescriptionPart({ product, update }: any) {
+import type { ProductFormState } from "../ProductForm";
+
+interface DescriptionPartProps {
+  product: ProductFormState;
+  update: (fields: Partial<ProductFormState>) => void;
+}
+
+export default function DescriptionPart({ product, update }: DescriptionPartProps) {
   // Custom toolbar configuration (matching your blog settings)
   const quillModules = {
     toolbar: [

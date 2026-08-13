@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import { Tag as TagIcon, X, Globe } from "lucide-react";
+import type { ProductFormState } from "../ProductForm";
 
-export default function StatusTagsPart({ product, update }: any) {
+interface StatusTagsPartProps {
+  product: ProductFormState;
+  update: (fields: Partial<ProductFormState>) => void;
+}
+
+export default function StatusTagsPart({ product, update }: StatusTagsPartProps) {
   const [tagInput, setTagInput] = useState("");
 
   const statusOptions = ["DRAFT", "ACTIVE", "FEATURED", "HOT", "NEW", "FLASH_SALE", "ARCHIVED"];

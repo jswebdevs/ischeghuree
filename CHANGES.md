@@ -1,56 +1,118 @@
-# Changes — Custom-order products + dynamic Stripe/PayPal
+# Changes — Ische Ghuree rebrand (2026-08-12)
 
-## To apply
+Full rebrand of the copied jewelry storefront ("ginag" / "dreamecommerce") into
+**ইচ্ছে ঘুড়ি — Ische Ghuree**: jute bags + hair accessories, Dhaka. This file
+replaces the stale payments changelog — that Stripe/PayPal work was removed
+along with the whole checkout model; the site is now a catalog + custom-order
+**quote** flow only.
 
-Schema changes need to be pushed to your Postgres before the new endpoints work.
+## Brand source
 
-```powershell
-cd d:\Projects\ginag\ginag-backend
-npx prisma generate
-npx prisma db push
-```
+- Brand data extracted from the official Facebook page
+  (facebook.com/iccheghureeofficial) on 2026-08-12 into **BRAND.md** (identity,
+  contact, product lines, voice) and **DESIGN.md** (palette, typography,
+  content plan). Curated photos live in `images/facebook/`; the 8 production
+  product photos were renamed into `frontend/public/images/products/`.
+- New logo assets: `frontend/public/ische-ghuree.svg` (vector kite —
+  navbar/footer/favicon) and `frontend/public/ische-ghuree-logo.jpg`
+  (photo logo — hero/about/OG).
+- Contact everywhere: phone 01820-417426 · ischeghuree@gmail.com ·
+  Dhaka Uddan, Mohammadpur, Dhaka 1207 · hours "Always open" (সবসময় খোলা).
 
-`db push` is appropriate here because the project has no `prisma/migrations/` folder yet (no migration history). If you'd rather start tracking migrations, run `npx prisma migrate dev --name dynamic_payments_and_custom_orders` instead and it will create the first migration.
+## Schema (`backend/prisma/schema.prisma`)
 
-## What changed
+- **CustomOrder** rebuilt for the jute/accessories quote flow:
+  - `charmColorAndStyle` → **`productDetails`** (String, required — "কী বানাতে/নিতে চান — Product details")
+  - `addInitial` and `initial` **deleted** (jewelry engraving fields)
+  - **`quantity`** (Int, optional) added
+  - **`orderType`** added — new enum `OrderType { RETAIL WHOLESALE }`, default
+    `RETAIL` (labels "খুচরা — Retail" / "পাইকারী — Wholesale") — jute bags sell
+    both wholesale and retail
+  - `name/phone/email/deliveryMethod/mailingAddress/notes` unchanged
+- **SiteReview** model dropped (unused jewelry-era testimonials table).
+- `SiteSettings.orderPrefix` default changed to **`IG-`** — custom-order
+  numbers are now `IG-…`.
+- Homepage config: section key **`ginaGHero` → `kiteHero`**; component
+  `GinaGHero.tsx` → `KiteHero.tsx`.
 
-### Schema (`ginag-backend/prisma/schema.prisma`)
-- `Product.basePrice` → nullable
-- `Product.isCustomOrder` (Boolean, default false)
-- `Product.priceNote` (String, optional)
-- `Order.isCustomOrder` (Boolean, default false)
-- `Order.customNotes` (Text, optional)
-- `Order.totalAmount`, `deliveryFee`, `finalAmount`, `paymentMethod` → nullable (custom orders have no price at intake)
-- `OrderItem.variationId`, `price`, `totalPrice` → nullable
-- `OrderItem.isCustomOrder`, `customDetails` (Json) added
-- `SiteSettings.stripeEnabled`, `stripeSecretKey`, `paypalEnabled`, `paypalSecret`, `paypalEnv`
+## Public-surface bug fixes
 
-### Backend (read keys from DB on every request)
-- New `src/utils/payment.ts` — `getPaymentConfig()`, `getStripeClient()`, `capturePaypalOrder()`, `getPaypalOrder()`. Each call rereads settings, so toggling providers in the admin takes effect immediately without a restart.
-- `payment.controller.ts` — dynamic Stripe + new endpoints:
-  - `GET /payments/config` — public, returns enabled flags + publishable identifiers (no secrets)
-  - `POST /payments/stripe/create-intent` — uses dynamic config
-  - `POST /payments/paypal/capture` — server-side capture for verification
-  - `GET /payments/paypal/order/:id` — verify a PayPal order
-- `settings.controller.ts` — strips `stripeSecretKey` / `paypalSecret` from public responses (admins still get them); update accepts new fields and only writes secrets when caller actually sent them (so leaving them blank in the form preserves stored values).
-- `product.controller.ts` — accepts `isCustomOrder` + `priceNote`; allows null `basePrice` when custom.
-- `order.controller.ts`:
-  - `createOrder` — handles cart items with null prices (sets order amounts to null and `isCustomOrder=true`)
-  - `POST /orders/custom-request` (new) — quote intake; creates a pending order with no payment
-  - `PATCH /orders/:id/custom-price` (new, admin) — converts a custom request into a payable order
+- **DRAFT/ARCHIVED product leaks**: public product listing, detail, and search
+  endpoints now exclude `DRAFT` and `ARCHIVED` statuses
+  (`HIDDEN_STATUSES` in `backend/src/controllers/product.controller.ts`) —
+  previously unpublished products were visible to everyone.
+- **`/dashboard` 404**: added `frontend/src/app/dashboard/page.tsx`, which
+  role-redirects to the correct dashboard area instead of 404ing after login.
+- **Auth cookie mismatch**: the route proxy (`frontend/src/proxy.ts`) accepts
+  both `token` and `auth_token` cookies, so login state set by the API is
+  recognized by the middleware (previously users bounced back to login).
+- Added `frontend/src/app/error.tsx` and `not-found.tsx` (branded error/404
+  pages) and `frontend/src/app/icon.svg` (kite favicon).
 
-### Frontend
-- `lib/axios` flow already in place — components now call `/payments/config` for the public flags.
-- **Checkout** (`app/checkout/page.tsx`) — branches on `?customOrder=<productId>`:
-  - Quote flow: hides cart summary, hides payment, shows "Request Quote" CTA, posts to `/orders/custom-request`.
-  - Regular flow: reads `stripeEnabled`/`paypalEnabled`, hides disabled providers, falls back to "We'll invoice you" panel when both are off.
-- `_components/PaymentSection.tsx` — accepts `stripeEnabled`/`paypalEnabled`; method switcher only shown when both providers are on.
-- **Product card / detail** — when `isCustomOrder`:
-  - Card: shows amber "CUSTOM" badge + "Quote on request" copy + "On Order" status
-  - Detail: replaces price block with "Custom Order" panel, replaces "Add to Cart" with "Request a Quote" link to `/checkout?customOrder=<id>`
-- **Admin → Storefront → Payments** (new page at `/dashboard/admin/storefront/payments`) — toggles + key fields for Stripe and PayPal, with sandbox/live switcher and "leave blank to keep stored secret" UX.
-- **Admin → Products → Create/Edit** — `BasicInfoPart` gets the custom-order toggle + a `priceNote` input that appears only when the toggle is on.
+## Dead code / dead config deleted
 
-## Where the brand images live
+- `backend/src/routes/seed.routes.ts` (HTTP-exposed seeding endpoint) and
+  `backend/src/utils/cron.ts` (orphan cron util).
+- `frontend/src/context/AuthContext.tsx`, `frontend/src/services/auth.service.ts`,
+  `frontend/src/store/useLangaugeStore.ts`, `frontend/src/store/useProductStore.ts`,
+  `frontend/src/components/shared/navbar/PCCategoryBar.tsx` — unreferenced.
+- `frontend/public/.htaccess` (Apache config, dead in Next.js — carried the old
+  `dreamback.jswebdevs.com` API host) and `frontend/public/dreamecommerce.svg`
+  (old logo).
+- `ENTERPRISE_AUDIT.md` (stale audit of the donor codebase).
+- No payments code remains: no Stripe/PayPal utils, endpoints, or admin pages.
 
-`/images/Hero.jpeg` and `/images/checkout.jpeg` are reference designs — they describe the look you want for the GinaG hero and order form, not images that get embedded as-is. The existing `app/checkout/page.tsx` already mirrors the order-form fields from the reference (Name, Cell, Charm color/style, Initial Y/N, Pickup/Mailing). Move them into `ginag-frontend/public/images/` if you want to ship them as actual asset files for a branded hero on the homepage.
+## Seeds
+
+- `backend/prisma/seed.ts` — super-admin user (run: `pnpm run prisma:seed`).
+- `backend/src/scripts/seed_pages.ts` — bilingual storefront pages (About,
+  Contact, Shipping/Delivery, Return & Exchange, Privacy, Terms…) rewritten
+  for a small Dhaka delivery business
+  (run: `pnpm exec ts-node src/scripts/seed_pages.ts`).
+
+## Theming, fonts, currency
+
+- Tailwind v4 theme tokens per DESIGN.md §1: sky-blue primary
+  (hsl 204 80% 40%), jute-tan secondary, kite-magenta accent; dark theme is
+  deep night blue. Decorative kite facet colors as CSS vars `--kite-cyan`,
+  `--kite-orange`, `--kite-magenta`, `--kite-green` in `globals.css`.
+  Components use only token classes (`bg-primary`, `text-foreground`, …).
+- Fonts via next/font Google: **Noto Serif Bengali** (headings,
+  `--font-heading` / `font-heading`) + **Hind Siliguri** (body, `--font-body`).
+- Marquee CSS renamed `ginag-marquee-*` → `ig-marquee-*`.
+- Currency is ৳ / BDT everywhere, read from `SettingsContext` `useCurrency` —
+  no hardcoded `$`.
+
+## Tooling / repo state
+
+- Package manager standardized on **pnpm** (`pnpm-lock.yaml` +
+  `pnpm-workspace.yaml` with `allowBuilds` for bcrypt/sharp/prisma-engines/
+  ffmpeg-static in both subprojects); npm `package-lock.json` files removed
+  from use. All docs now show pnpm commands.
+- `.env.example` templates added for both subprojects; README.md, CLAUDE.md and
+  backend/README.md rewritten (both READMEs were UTF-16 Dream-era garbage).
+- `graphify-out/cost.json` and `graphify-out/.graphify_labels.json` gitignored
+  (tool-local artifacts; the rest of graphify-out stays tracked).
+
+## Required operator steps (deploy checklist)
+
+1. **Install**: fresh `pnpm install` in `backend/` and `frontend/` (the copied
+   node_modules trees were repaired in place but should be reinstalled).
+2. **Database**: from `backend/` run `pnpm exec prisma generate` then
+   `pnpm exec prisma db push` against the new Supabase project (no migration
+   history — db push is the sync mechanism). The CustomOrder changes are
+   destructive for the old charm/initial columns.
+3. **Seeds**: `pnpm run prisma:seed`, then
+   `pnpm exec ts-node src/scripts/seed_pages.ts`.
+4. **Vercel env — frontend**: set `NEXT_PUBLIC_API_URL` to the new backend
+   deployment (`…/api/v1`) and `NEXT_PUBLIC_CLIENT_URL` to the new storefront
+   origin (old values pointed at ginag-backend.vercel.app / ggpursedecor.com).
+5. **Vercel env — backend**: set `CLIENT_URL`, `CORS_ALLOWED_ORIGINS`, and
+   `CORS_ALLOWED_ORIGIN_PATTERNS` to the Ische Ghuree domains + Vercel preview
+   patterns (remove the ginag-frontend*.vercel.app / ggpursedecor.com
+   patterns).
+6. **Supabase storage host**: verify `images.remotePatterns` in
+   `frontend/next.config.ts` allows the **new** Supabase project host
+   (the DB moved projects — an old host entry there blocks product images
+   through next/image).
+7. Change the seeded super-admin password immediately after first login.

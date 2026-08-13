@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 
-export default function ProductTabs({ product }: { product: any }) {
+interface ProductTabsData {
+    longDesc?: string | null;
+    specifications?: string | null;
+    material?: string | null;
+    usage?: string | null;
+    usefulness?: string | null;
+    awareness?: string | null;
+}
+
+export default function ProductTabs({ product }: { product: ProductTabsData }) {
     const allTabs = [
         { id: "desc", label: "Description", content: product.longDesc },
         { id: "spec", label: "Specifications", content: product.specifications },
@@ -12,7 +21,10 @@ export default function ProductTabs({ product }: { product: any }) {
         { id: "awareness", label: "Awareness", content: product.awareness },
     ];
 
-    const activeTabs = allTabs.filter(tab => tab.content && String(tab.content).trim() !== "");
+    const activeTabs = allTabs.filter(
+        (tab): tab is (typeof allTabs)[number] & { content: string } =>
+            !!tab.content && String(tab.content).trim() !== ""
+    );
 
     const [currentTab, setCurrentTab] = useState(activeTabs[0]?.id || "desc");
 

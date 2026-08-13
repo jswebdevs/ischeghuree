@@ -2,18 +2,28 @@
 
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
-import { UploadCloud, Image as ImageIcon, Trash2, Copy, Check, Loader2, X, Film, Search } from "lucide-react";
+import { UploadCloud, Trash2, Copy, Check, Loader2, X, Film, Search } from "lucide-react";
 import Swal from "sweetalert2";
+
+export interface MediaItem {
+  id: string;
+  filename?: string;
+  title?: string;
+  originalUrl?: string;
+  thumbUrl?: string;
+}
 
 interface MediaManagerProps {
   isPicker?: boolean;
   multiple?: boolean;
-  onSelect?: (media: any | any[]) => void;
+  // Method syntax (bivariant params) so single-select consumers can type
+  // their handler as (media: MediaItem) => void.
+  onSelect?(media: MediaItem | MediaItem[]): void;
 }
 
 export default function MediaManager({ isPicker = false, multiple = false, onSelect }: MediaManagerProps) {
   const [activeTab, setActiveTab] = useState<"upload" | "library">("library");
-  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Search & Infinite Scroll States
@@ -21,8 +31,8 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   const [visibleCount, setVisibleCount] = useState(20);
 
   // Selection & Upload States
-  const [previewItem, setPreviewItem] = useState<any | null>(null);
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -39,11 +49,13 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchMedia flips the loading flag synchronously before its async fetch
     if (activeTab === "library") fetchMedia();
   }, [activeTab]);
 
   // Reset pagination when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional pagination reset when the search/tab changes
     setVisibleCount(20);
   }, [searchQuery, activeTab]);
 
@@ -102,11 +114,12 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
       setActiveTab("library");
       fetchMedia();
       Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Upload complete!', showConfirmButton: false, timer: 1500 });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Upload failed:", error);
+      const apiMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
       Swal.fire({
         title: "Upload Failed",
-        text: error.response?.data?.message || "Failed to upload media. Ensure backend uses upload.array('files').",
+        text: apiMessage || "Failed to upload media. Ensure backend uses upload.array('files').",
         icon: "error",
         confirmButtonColor: "#0ea5e9"
       });
@@ -164,7 +177,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleItemClick = (item: any) => {
+  const handleItemClick = (item: MediaItem) => {
     const isAlreadySelected = selectedItems.some(i => i.id === item.id);
 
     if (multiple || !isPicker) {
@@ -183,7 +196,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
 
   const isSelected = (id: string) => selectedItems.some(i => i.id === id);
 
-  const isVideo = (url: string) => {
+  const isVideo = (url?: string) => {
     if (!url) return false;
     return /\.(mp4|webm|ogg|mov)$/i.test(url);
   };
@@ -276,7 +289,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
               ) : filteredItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
                   <Search className="w-12 h-12 mb-4 opacity-20" />
-                  <p className="font-medium">No media files found matching "{searchQuery}".</p>
+                  <p className="font-medium">No media files found matching &quot;{searchQuery}&quot;.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 auto-rows-max">
@@ -298,6 +311,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                             onMouseLeave={(e) => e.currentTarget.pause()}
                           />
                         ) : (
+                          // eslint-disable-next-line @next/next/no-img-element -- CDN media thumbnail with unknown dimensions
                           <img
                             src={item.thumbUrl || item.originalUrl}
                             alt={item.title || "Media"}
@@ -341,7 +355,8 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                 {isVideo(previewItem.originalUrl) ? (
                   <video src={previewItem.originalUrl} controls className="max-w-full max-h-full object-contain rounded-lg drop-shadow-md" />
                 ) : (
-                  <img src={previewItem.originalUrl} alt={previewItem.title} className="max-w-full max-h-full object-contain drop-shadow-md" />
+                  // eslint-disable-next-line @next/next/no-img-element -- CDN media preview with unknown dimensions
+                  <img src={previewItem.originalUrl} alt={previewItem.title ?? "Media"} className="max-w-full max-h-full object-contain drop-shadow-md" />
                 )}
               </div>
 
@@ -356,7 +371,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                 <label className="text-muted-foreground font-bold text-xs uppercase tracking-wider mb-2 block">File URL</label>
                 <div className="flex items-center gap-2">
                   <input type="text" readOnly value={previewItem.originalUrl} className="w-full bg-muted border border-border rounded-lg p-2 text-xs text-foreground outline-none" />
-                  <button onClick={() => handleCopyUrl(previewItem.originalUrl)} className="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors shrink-0" title="Copy URL">
+                  <button onClick={() => handleCopyUrl(previewItem.originalUrl ?? "")} className="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors shrink-0" title="Copy URL">
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
                 </div>

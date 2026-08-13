@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Search, Loader2, Users } from "lucide-react";
-import UserTable from "../../super-admin/_components/UserTable";
+import UserTable, { type UserRow } from "../../super-admin/_components/UserTable";
 import Swal from "sweetalert2";
+import type { AxiosError } from "axios";
 
 export default function AdminCustomersPage() {
-    const [customers, setCustomers] = useState<any[]>([]);
+    const [customers, setCustomers] = useState<UserRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
@@ -23,6 +24,7 @@ export default function AdminCustomersPage() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
         fetchCustomers();
     }, []);
 
@@ -56,10 +58,11 @@ export default function AdminCustomersPage() {
                     }
                 });
                 fetchCustomers();
-            } catch (error: any) {
+            } catch (error) {
+                const axiosError = error as AxiosError<{ message?: string }>;
                 Swal.fire({
                     title: 'Error',
-                    text: error.response?.data?.message || 'Delete failed',
+                    text: axiosError.response?.data?.message || 'Delete failed',
                     icon: 'error',
                     background: "hsl(var(--card))",
                     color: "hsl(var(--foreground))",

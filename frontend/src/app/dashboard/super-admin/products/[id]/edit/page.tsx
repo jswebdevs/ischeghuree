@@ -7,11 +7,17 @@ import api from "@/lib/axios";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import ProductForm from "@/components/dashboard/shared/products/ProductForm";
 
+interface ProductRow {
+  id: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
 export default function EditProductPage() {
   const params = useParams();
   const id = params.id as string;
   
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<ProductRow | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +25,7 @@ export default function EditProductPage() {
       try {
         // Fetching from the list and finding by ID
         const res = await api.get(`/products?limit=100`); 
-        const found = res.data.data?.find((p: any) => p.id === id);
+        const found = res.data.data?.find((p: ProductRow) => p.id === id);
         if (found) setProduct(found);
       } catch (err) {
         console.error("Failed to load product", err);

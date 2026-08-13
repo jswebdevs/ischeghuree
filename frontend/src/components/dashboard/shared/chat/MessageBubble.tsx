@@ -1,11 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
+import type { AdminChatMessage } from "./types";
 
-export default function MessageBubble({ message }: { message: any }) {
+export default function MessageBubble({ message }: { message: AdminChatMessage }) {
     const isUser = message.senderType === "USER";
     const isBot = message.senderType === "BOT";
-    const isAgent = message.senderType === "AGENT";
 
     return (
         <div className={`flex w-full ${isUser ? "justify-start" : "justify-end"}`}>
@@ -23,11 +23,12 @@ export default function MessageBubble({ message }: { message: any }) {
                     {/* Image Attachment (If Any) */}
                     {message.attachmentUrl && (
                         <div className="mb-2 rounded-xl overflow-hidden border border-black/10">
+                            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded attachment URL with unknown dimensions */}
                             <img
                                 src={message.attachmentUrl}
                                 alt="Attachment"
                                 className="w-full max-h-60 object-cover hover:scale-105 transition-transform cursor-pointer"
-                                onClick={() => window.open(message.attachmentUrl, '_blank')}
+                                onClick={() => window.open(message.attachmentUrl ?? undefined, '_blank')}
                             />
                         </div>
                     )}

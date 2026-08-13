@@ -26,62 +26,99 @@ const TABS: { id: TabId; label: string; icon: IconComp }[] = [
   { id: "banner",      label: "Sticky Banner",  icon: MessageSquare as IconComp },
 ];
 
+// ─── Section config shapes ────────────────────────────────────────────────────
+
+interface HeroConfig {
+  brandName: string;
+  headline: string;
+  subheadline: string;
+  tagline: string;
+  image: string;
+  contactPhone: string;
+  contactEmail: string;
+  whatsappLink: string;
+}
+interface StoryHighlight { icon: string; label: string }
+interface StoryConfig {
+  title: string;
+  paragraphs: string[];
+  tagline: string;
+  highlights: StoryHighlight[];
+}
+interface HowItWorksStep { icon: string; number: string; title: string; description: string }
+interface HowItWorksConfig {
+  title: string;
+  subtitle: string;
+  ctaLine: string;
+  ctaBtnText: string;
+  steps: HowItWorksStep[];
+}
+interface FaqItem { question: string; answer: string }
+interface FaqConfig { title: string; subtitle: string; faqs: FaqItem[] }
+interface BannerConfig { text: string; btnText: string }
+
+interface SectionConfigs {
+  hero: HeroConfig;
+  story: StoryConfig;
+  howItWorks: HowItWorksConfig;
+  faq: FaqConfig;
+  banner: BannerConfig;
+}
+
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
-const DEFAULTS: Record<TabId, any> = {
+const DEFAULTS: SectionConfigs = {
   hero: {
-    brandName: "GinaG",
-    headline: "PURSE CHARMS AND CHAINS",
-    subheadline: "GINA ALEXANDER-GREENLEE",
-    tagline: "Handmade custom charms, designed just for you.",
-    imageUrl: "",
-    contactPhone: "",
-    contactEmail: "",
+    brandName: "ইচ্ছে ঘুড়ি — Ische Ghuree",
+    headline: "আভিজাত্যের ছোঁয়া…",
+    subheadline: "A touch of elegance…",
+    tagline:
+      "পরিবেশবান্ধব পাটের ব্যাগ আর বিশ্বমানের হেয়ার অ্যাক্সেসরিজ — আবহমান বাংলার ঐতিহ্য, আপনার দরজায়। Eco-friendly jute bags & world-class hair accessories, delivered across Dhaka.",
+    image: "/ische-ghuree-logo.jpg",
+    contactPhone: "01820-417426",
+    contactEmail: "ischeghuree@gmail.com",
     whatsappLink: "",
-    shopBtnText: "Shop Now",
-    whatsappBtnText: "Customize via WhatsApp",
-    trustItems: ["Handmade", "Custom Design", "Fast Delivery"],
   },
   story: {
-    title: "Made Just for You",
+    title: "ইচ্ছে ঘুড়ির গল্প",
     paragraphs: [
-      "Every charm we create tells a story — your story.",
-      "We don't sell mass-produced products. Each piece is handcrafted after your order, based on your personal style, favorite colors, and unique ideas.",
-      "From choosing beads to final design, we carefully craft something that feels truly yours.",
+      "২০২০ সালের আগস্টে ঢাকার মোহাম্মদপুরে ইচ্ছে ঘুড়ির যাত্রা শুরু — ছোটবেলার ঘুড়ির মতো ইচ্ছেগুলোকে আকাশে ওড়ানোর স্বপ্ন নিয়ে। Ische Ghuree took flight from Mohammadpur, Dhaka in August 2020.",
+      "বাংলার সোনালী আঁশ পাটে বোনা পরিবেশবান্ধব ব্যাগ, আর বিশ্বমানের হেয়ার অ্যাক্সেসরিজ — প্রতিটি পণ্যে আভিজাত্যের ছোঁয়া। Eco-friendly jute bags and world-class hair accessories, each with a touch of elegance.",
+      "পাইকারী হোক বা খুচরা — অর্ডার করুন ফোনে, ডেলিভারি পৌঁছে যাবে আপনার দরজায়। Wholesale or retail — order by phone and we deliver to your door.",
     ],
-    tagline: "Because your accessories should be as unique as you.",
+    tagline: "আভিজাত্যের ছোঁয়া… A touch of elegance…",
     highlights: [
-      { icon: "Heart", label: "Made with Love" },
-      { icon: "Star",  label: "Unique & One-of-a-Kind" },
-      { icon: "Sparkles", label: "Your Vision, Our Craft" },
+      { icon: "Heart",    label: "ভালোবাসায় তৈরি — Made with care" },
+      { icon: "Star",     label: "বিশ্বমানের মান — World-class quality" },
+      { icon: "Sparkles", label: "আবহমান বাংলার ঐতিহ্য — Heritage of Bengal" },
     ],
   },
   howItWorks: {
-    title: "How It Works",
-    subtitle: "Simple steps to your perfect charm",
-    ctaLine: "For faster communication, connect with us on WhatsApp anytime",
-    ctaBtnText: "Chat on WhatsApp",
+    title: "কীভাবে অর্ডার করবেন",
+    subtitle: "How it works — browse, call, confirm, delivery",
+    ctaLine: "দ্রুত যোগাযোগের জন্য হোয়াটসঅ্যাপে মেসেজ করুন — Message us on WhatsApp any time",
+    ctaBtnText: "হোয়াটসঅ্যাপে চ্যাট — Chat on WhatsApp",
     steps: [
-      { icon: "LuShoppingBag",   number: "01", title: "Place Your Order",       description: "Choose your favorite design and place your order on our store." },
-      { icon: "LuMessageCircle", number: "02", title: "We Contact You",          description: "We reach out on WhatsApp for customization details." },
-      { icon: "LuPalette",       number: "03", title: "Customize Your Design",   description: "Select colors, beads, initials, and your personal style." },
-      { icon: "LuPackage",       number: "04", title: "We Create & Deliver",     description: "Your handmade charm is carefully crafted and shipped to you." },
+      { icon: "LuShoppingBag",   number: "01", title: "পছন্দ করুন — Browse",        description: "শপ থেকে আপনার পছন্দের পাটের ব্যাগ বা হেয়ার অ্যাক্সেসরিজ বেছে নিন। Pick your favourite from the shop." },
+      { icon: "LuPhone",         number: "02", title: "কল বা কোট — Call / Quote",   description: "01820-417426 নম্বরে কল করুন বা অর্ডার ফর্ম পূরণ করুন। Call us or submit the order form." },
+      { icon: "LuMessageCircle", number: "03", title: "নিশ্চিত করুন — Confirm",     description: "দাম, পরিমাণ (পাইকারী/খুচরা) ও ডেলিভারি ঠিক করে অর্ডার নিশ্চিত হয়। We confirm price, quantity and delivery." },
+      { icon: "LuPackage",       number: "04", title: "ডেলিভারি — Delivery",        description: "সারা ঢাকায় দ্রুত হোম ডেলিভারি। Fast home delivery across Dhaka." },
     ],
   },
   faq: {
-    title: "Frequently Asked Questions",
-    subtitle: "Everything you need to know before ordering",
+    title: "সচরাচর জিজ্ঞাসা",
+    subtitle: "Frequently asked questions — everything before you order",
     faqs: [
-      { question: "Is this product ready-made?",      answer: "No, all products are handmade after your order. Each charm is uniquely crafted especially for you." },
-      { question: "How do I customize my charm?",     answer: "We will contact you on WhatsApp after your order to discuss colors, initials, style, and any preferences." },
-      { question: "How long does it take?",           answer: "Production takes 2–5 business days. Delivery typically takes 3–15 days depending on your location." },
-      { question: "Can I choose colors and initials?",answer: "Yes! Full customization is available. You can choose your favorite colors, initials, bead styles, and more." },
-      { question: "Do you offer bulk orders?",        answer: "Yes, we offer bulk orders with special pricing. Contact us via WhatsApp for details." },
+      { question: "পাইকারী অর্ডার করা যাবে কি? — Do you take wholesale orders?",          answer: "হ্যাঁ! পাটের ব্যাগ পাইকারী ও খুচরা দুইভাবেই পাবেন। বিশেষ দামের জন্য কল করুন: 01820-417426। Yes — jute bags are available both wholesale and retail." },
+      { question: "ডেলিভারি কোথায় কোথায় হয়? — Where do you deliver?",                    answer: "ঢাকার সব এলাকায় হোম ডেলিভারি দিই; ঢাকার বাইরে কুরিয়ারে পাঠানো যায়। We deliver all over Dhaka, and by courier outside Dhaka." },
+      { question: "কীভাবে দাম জানব? — How do I get a price?",                             answer: "পণ্যের পাতায় 'Request a Quote' চাপুন বা সরাসরি কল করুন — আমরা দাম ও ডেলিভারি নিশ্চিত করব। Request a quote or call us and we will confirm the price." },
+      { question: "পাটের ব্যাগ কি সত্যিই পরিবেশবান্ধব? — Are the jute bags eco-friendly?", answer: "হ্যাঁ — পাট বাংলার সোনালী আঁশ; আমাদের ব্যাগ প্রাকৃতিক ও পুনর্ব্যবহারযোগ্য। Jute is Bengal's golden fibre — natural and reusable." },
+      { question: "দোকান কখন খোলা? — When are you open?",                                 answer: "আমরা সবসময় খোলা — Always open। যেকোনো সময় কল বা মেসেজ করুন। Call or message any time." },
     ],
   },
   banner: {
-    text: "Order now – We will contact you on WhatsApp for full customization",
-    btnText: "Order Now",
+    text: "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426",
+    btnText: "অর্ডার করুন — Order Now",
   },
 };
 
@@ -90,14 +127,14 @@ const DEFAULTS: Record<TabId, any> = {
 export default function HomepageAdminPage() {
   const [activeTab, setActiveTab] = useState<TabId>("hero");
   const [saving, setSaving]       = useState<TabId | null>(null);
-  const [configs, setConfigs]     = useState<Record<TabId, any>>({ ...DEFAULTS });
+  const [configs, setConfigs]     = useState<SectionConfigs>({ ...DEFAULTS });
 
   const fetchAll = useCallback(async () => {
     try {
       const { data } = await api.get("/settings/homepage");
       if (data.success && data.data) {
         setConfigs(prev => ({
-          hero:       data.data.ginaGHero    ?? prev.hero,
+          hero:       data.data.kiteHero     ?? prev.hero,
           story:      data.data.story        ?? prev.story,
           howItWorks: data.data.howItWorks   ?? prev.howItWorks,
           faq:        data.data.faq          ?? prev.faq,
@@ -109,14 +146,17 @@ export default function HomepageAdminPage() {
     }
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
+    fetchAll();
+  }, [fetchAll]);
 
-  const update = (tab: TabId, field: string, value: any) =>
-    setConfigs(prev => ({ ...prev, [tab]: { ...prev[tab], [field]: value } }));
+  const update = (tab: TabId, field: string, value: unknown) =>
+    setConfigs(prev => ({ ...prev, [tab]: { ...prev[tab], [field]: value } } as SectionConfigs));
 
   const save = async (tab: TabId) => {
     setSaving(tab);
-    const sectionKey = tab === "hero" ? "ginaGHero" : tab === "banner" ? "stickyBanner" : tab;
+    const sectionKey = tab === "hero" ? "kiteHero" : tab === "banner" ? "stickyBanner" : tab;
     try {
       await api.patch(`/settings/homepage/${sectionKey}`, configs[tab]);
       toast.success("Section saved successfully");
@@ -174,31 +214,25 @@ export default function HomepageAdminPage() {
               <SectionGrid>
                 {/* Left: text fields */}
                 <FieldGroup title="Text Content" icon={<Type className="w-5 h-5 text-primary" />}>
-                  <Field label="Brand Name" hint="Shown as a fallback wordmark when no hero image is set.">
+                  <Field label="Brand Name" hint="Shown in the small kicker pill above the headline. e.g. 'ইচ্ছে ঘুড়ি — Ische Ghuree'.">
                     <Input value={configs.hero.brandName || ""} onChange={v => update("hero", "brandName", v)} />
                   </Field>
-                  <Field label="Headline" hint="The big uppercase title under the image. e.g. 'PURSE CHARMS AND CHAINS'.">
+                  <Field label="Headline" hint="The big Bangla display line. e.g. 'আভিজাত্যের ছোঁয়া…'.">
                     <Input value={configs.hero.headline} onChange={v => update("hero", "headline", v)} />
                   </Field>
-                  <Field label="Subheadline" hint="Smaller tracked-out line under the headline. e.g. 'GINA ALEXANDER-GREENLEE'.">
+                  <Field label="Subheadline" hint="Muted English echo under the headline. e.g. 'A touch of elegance…'.">
                     <Input value={configs.hero.subheadline} onChange={v => update("hero", "subheadline", v)} />
                   </Field>
-                  <Field label="Tagline" hint="One-sentence description shown under the subheadline.">
+                  <Field label="Tagline" hint="Short bilingual description shown under the headline stack.">
                     <Textarea value={configs.hero.tagline || ""} onChange={v => update("hero", "tagline", v)} rows={2} />
                   </Field>
-                  <Field label="Contact Phone" hint="Rendered as a tap-to-call link in the hero. Leave blank to hide.">
+                  <Field label="Contact Phone" hint="Rendered as a tap-to-call link in the hero. e.g. 01820-417426.">
                     <Input value={configs.hero.contactPhone || ""} onChange={v => update("hero", "contactPhone", v)} />
                   </Field>
-                  <Field label="Contact Email" hint="Rendered as a mailto link in the hero. Leave blank to hide.">
+                  <Field label="Contact Email" hint="Rendered as a mailto link in the hero. e.g. ischeghuree@gmail.com.">
                     <Input value={configs.hero.contactEmail || ""} onChange={v => update("hero", "contactEmail", v)} />
                   </Field>
-                  <Field label="Shop Button Text">
-                    <Input value={configs.hero.shopBtnText} onChange={v => update("hero", "shopBtnText", v)} />
-                  </Field>
-                  <Field label="WhatsApp Button Text">
-                    <Input value={configs.hero.whatsappBtnText} onChange={v => update("hero", "whatsappBtnText", v)} />
-                  </Field>
-                  <Field label="WhatsApp Link" hint="Full URL used for both hero button and the 'Chat on WhatsApp' CTA before FAQ">
+                  <Field label="WhatsApp Link" hint="Full URL used by the sticky banner button and the 'Chat on WhatsApp' CTA before FAQ">
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -206,7 +240,7 @@ export default function HomepageAdminPage() {
                           type="url"
                           value={configs.hero.whatsappLink || ""}
                           onChange={e => update("hero", "whatsappLink", e.target.value)}
-                          placeholder="https://wa.me/1234567890?text=Hi"
+                          placeholder="https://wa.me/8801820417426?text=Hi"
                           className="w-full bg-muted/30 border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:border-primary outline-none transition-all"
                         />
                       </div>
@@ -228,20 +262,11 @@ export default function HomepageAdminPage() {
                 {/* Right: image picker */}
                 <FieldGroup title="Hero Image" icon={<ImageIcon className="w-5 h-5 text-primary" />}>
                   <HeroImagePicker
-                    imageUrl={configs.hero.imageUrl || ""}
-                    onChange={url => update("hero", "imageUrl", url)}
+                    imageUrl={configs.hero.image || ""}
+                    onChange={url => update("hero", "image", url)}
                   />
                 </FieldGroup>
               </SectionGrid>
-
-              <div className="mt-10">
-                <StringList
-                  label="Trust Items  (✔ badges shown below the CTA buttons)"
-                  items={configs.hero.trustItems || []}
-                  onChange={items => update("hero", "trustItems", items)}
-                  placeholder="e.g. Handmade"
-                />
-              </div>
             </SectionPanel>
           )}
 
@@ -349,7 +374,7 @@ export default function HomepageAdminPage() {
                 {/* Live preview */}
                 <div className="rounded-2xl overflow-hidden border border-border">
                   <div className="bg-primary text-primary-foreground py-2.5 px-4 flex items-center justify-between gap-3">
-                    <p className="text-sm font-bold truncate">👉 {configs.banner.text}</p>
+                    <p className="text-sm font-bold truncate">🪁 {configs.banner.text}</p>
                     <span className="shrink-0 px-4 py-1.5 bg-primary-foreground text-primary rounded-full text-xs font-black uppercase">
                       {configs.banner.btnText}
                     </span>
@@ -382,6 +407,7 @@ function HeroImagePicker({ imageUrl, onChange }: { imageUrl: string; onChange: (
       >
         {imageUrl ? (
           <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- dynamic media-library URL with unknown dimensions; simple cover preview */}
             <img src={imageUrl} alt="Hero" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <div className="bg-background/90 rounded-xl px-4 py-2 text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
@@ -578,7 +604,7 @@ function IconLabelList({ label, items, onChange }: {
 
 // ─── Step List (How It Works) — full icon CRUD ────────────────────────────────
 
-function StepList({ steps, onChange }: { steps: any[]; onChange: (s: any[]) => void }) {
+function StepList({ steps, onChange }: { steps: HowItWorksStep[]; onChange: (s: HowItWorksStep[]) => void }) {
   const [picker, setPicker] = useState<number | null>(null);
 
   const add    = ()           => onChange([...steps, { icon: "LuStar", number: String(steps.length + 1).padStart(2, "0"), title: "New Step", description: "" }]);
@@ -661,7 +687,7 @@ function StepList({ steps, onChange }: { steps: any[]; onChange: (s: any[]) => v
 
 // ─── FAQ List ─────────────────────────────────────────────────────────────────
 
-function FAQList({ faqs, onChange }: { faqs: any[]; onChange: (f: any[]) => void }) {
+function FAQList({ faqs, onChange }: { faqs: FaqItem[]; onChange: (f: FaqItem[]) => void }) {
   const [expanded, setExpanded] = useState<number | null>(0);
 
   const add    = ()           => { onChange([...faqs, { question: "New Question?", answer: "" }]); setExpanded(faqs.length); };

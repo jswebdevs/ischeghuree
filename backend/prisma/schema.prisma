@@ -111,7 +111,6 @@ model Media {
   linkedCategoryFeatured Category[]    @relation("CategoryFeatured")
   linkedProductFeatured Product[]      @relation("ProductFeatured")
   linkedProductGallery  Product[]      @relation("ProductGallery")
-  linkedSiteReviews     SiteReview[]   @relation("SiteReviewAvatar")
 
   linkedStoreLogos      SiteSettings[] @relation("StoreLogo")
   linkedStoreFavicons   SiteSettings[] @relation("StoreFavicon")
@@ -145,7 +144,7 @@ model HeroSection {
   title       String
   subtitle    String?
   description String?  @db.Text
-  buttonText  String   @default("ORDER NOW")
+  buttonText  String   @default("অর্ডার করুন — Order Now")
   buttonLink  String   @default("/order-now")
   badgeLabel  String?
   badgeText   String?
@@ -236,9 +235,9 @@ model CustomOrder {
   orderNumber         String              @unique
   customerName        String
   customerPhone       String
-  charmColorAndStyle  String              @db.Text
-  addInitial          Boolean             @default(false)
-  initial             String?
+  productDetails      String              @db.Text
+  quantity            Int?
+  orderType           OrderType           @default(RETAIL)
   deliveryMethod      DeliveryMethod
   mailingAddress      String?             @db.Text
   customerEmail       String?
@@ -259,6 +258,11 @@ model CustomOrder {
   @@index([status, createdAt])
   @@index([customerEmail])
   @@index([deliveryStatus])
+}
+
+enum OrderType {
+  RETAIL
+  WHOLESALE
 }
 
 enum DeliveryMethod {
@@ -282,24 +286,6 @@ enum DeliveryStatus {
   DELIVERED
   RETURNED
   CANCELLED
-}
-
-model SiteReview {
-  id           String   @id @default(uuid())
-  avatarID     String?
-  reviewAvatar Media?   @relation("SiteReviewAvatar", fields: [avatarID], references: [id])
-  name         String
-  rating       Int
-  comment      String?
-  status       status   @default(PENDING)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-enum status {
-  PENDING
-  APPROVED
-  REJECTED
 }
 
 model AuditLog {
@@ -332,7 +318,7 @@ model PhoneVerification {
 
 model SiteSettings {
   id                 String   @id @default("singleton")
-  storeName          String   @default("Ginag")
+  storeName          String   @default("ইচ্ছে ঘুড়ি — Ische Ghuree")
   tagline            String?
   companySlogan      String?
   supportEmail       String?
@@ -346,11 +332,11 @@ model SiteSettings {
   favicon            Media?   @relation("StoreFavicon", fields: [faviconId], references: [id])
   ogImageId          String?
   ogImage            Media?   @relation("StoreOgImage", fields: [ogImageId], references: [id])
-  currencyCode       String   @default("USD")
-  currencySymbol     String   @default("$")
-  timezone           String   @default("America/Chicago")
+  currencyCode       String   @default("BDT")
+  currencySymbol     String   @default("৳")
+  timezone           String   @default("Asia/Dhaka")
   address            String?
-  orderPrefix        String   @default("CO-")
+  orderPrefix        String   @default("IG-")
   maintenanceMode    Boolean  @default(false)
   maintenanceMessage String?
   googlePlaceId      String?

@@ -5,13 +5,60 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { Save, Loader2 } from "lucide-react";
+import type { AxiosError } from "axios";
 
 import FormBasicInfo from "./FormBasicInfo";
 import FormAvatar from "./FormAvatar";
 import FormStatus from "./FormStatus";
 import FormAddresses from "./FormAddresses";
 
-export default function AdminForm({ initialData }: { initialData?: any }) {
+export interface AdminAddress {
+    type: string;
+    isDefault: boolean;
+    house?: string;
+    road?: string;
+    area?: string;
+    postalCode?: string;
+    thana?: string;
+    district?: string;
+    division?: string;
+    country?: string;
+}
+
+export interface AdminFormData {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+    gender: string;
+    dob: string;
+    avatar: string;
+    status: string;
+    addresses: AdminAddress[];
+}
+
+export interface AdminFormSectionProps {
+    data: AdminFormData;
+    update: (fields: Partial<AdminFormData>) => void;
+}
+
+export interface AdminInitialData {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    email?: string;
+    phone?: string | null;
+    gender?: string | null;
+    dob?: string | null;
+    avatar?: string | null;
+    status?: string;
+    addresses?: AdminAddress[];
+}
+
+export default function AdminForm({ initialData }: { initialData?: AdminInitialData }) {
     const router = useRouter();
     const isEdit = !!initialData;
 
@@ -26,13 +73,14 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
         dob: "",
         avatar: "",
         status: "ACTIVE",
-        addresses: [] as any[],
+        addresses: [] as AdminAddress[],
     });
 
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (initialData) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional one-shot sync of the loaded record into local form state
             setAdminData({
                 firstName: initialData.firstName || "",
                 lastName: initialData.lastName || "",
@@ -70,15 +118,16 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { password, ...rest } = basePayload;
                 const finalPayload = adminData.password ? { ...rest, password: adminData.password } : rest;
-                await api.patch(`/users/admins/${initialData.id}`, finalPayload);
+                await api.patch(`/users/admins/${initialData?.id}`, finalPayload);
             } else {
                 await api.post("/users/admins", basePayload);
             }
 
             Swal.fire("Success", `Admin ${isEdit ? 'updated' : 'created'} successfully`, "success");
             router.push("/dashboard/super-admin/admins");
-        } catch (err: any) {
-            Swal.fire("Error", err.response?.data?.message || "Internal Server Error", "error");
+        } catch (err) {
+            const axiosError = err as AxiosError<{ message?: string }>;
+            Swal.fire("Error", axiosError.response?.data?.message || "Internal Server Error", "error");
         } finally {
             setLoading(false);
         }

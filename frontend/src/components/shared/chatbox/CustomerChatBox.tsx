@@ -4,16 +4,23 @@ import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { Send, Headset, AlertCircle } from "lucide-react";
 
+interface ChatMessage {
+    id?: string;
+    senderType?: string;
+    content?: string;
+    attachmentUrl?: string | null;
+}
+
 export default function CustomerChatBox({ token }: { token: string }) {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [connected, setConnected] = useState(false);
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:5000";
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:4000";
         const newSocket = io(baseUrl, {
             auth: { token },
             withCredentials: true,
@@ -34,14 +41,15 @@ export default function CustomerChatBox({ token }: { token: string }) {
             setConnected(false);
         });
 
-        newSocket.on('chat_history', (history: any[]) => {
+        newSocket.on('chat_history', (history: ChatMessage[]) => {
             setMessages(history);
         });
 
-        newSocket.on('receive_message', (msg: any) => {
+        newSocket.on('receive_message', (msg: ChatMessage) => {
             setMessages((prev) => [...prev, msg]);
         });
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- the socket can only be created client-side, inside this effect
         setSocket(newSocket);
 
         return () => { newSocket.disconnect(); };
@@ -58,7 +66,7 @@ export default function CustomerChatBox({ token }: { token: string }) {
     };
 
     // 🔥 NEW: Helper function to turn plain URLs into clickable, wrapping links!
-    const renderMessageContent = (content: string) => {
+    const renderMessageContent = (content?: string) => {
         if (!content) return null;
 
         // Regex to detect URLs
@@ -104,7 +112,7 @@ export default function CustomerChatBox({ token }: { token: string }) {
                     </div>
                 )}
 
-                {messages.map((msg: any, idx: number) => {
+                {messages.map((msg, idx) => {
                     const isUser = msg.senderType === 'USER';
                     return (
                         <div key={msg.id || idx} className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
@@ -113,6 +121,7 @@ export default function CustomerChatBox({ token }: { token: string }) {
                                 : "bg-card text-foreground border border-border rounded-tl-none shadow-sm"
                                 }`}>
                                 {msg.attachmentUrl && (
+                                    // eslint-disable-next-line @next/next/no-img-element -- user-uploaded attachment URL with unknown dimensions
                                     <img src={msg.attachmentUrl} alt="attachment" className="w-full rounded-xl mb-2" />
                                 )}
 

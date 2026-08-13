@@ -6,17 +6,34 @@ import { MessageCircle } from "lucide-react";
 import IconRenderer from "@/components/shared/IconRenderer";
 import api from "@/lib/axios";
 
+interface HowItWorksStep {
+  number?: string;
+  icon?: string;
+  title?: string;
+  description?: string;
+}
+
+interface HowItWorksData {
+  title?: string;
+  subtitle?: string;
+  steps?: HowItWorksStep[];
+  whatsappLink?: string;
+  ctaLine?: string;
+  ctaBtnText?: string;
+}
+
 interface HowItWorksProps {
-  data?: any;
+  data?: HowItWorksData | null;
   whatsappLink?: string;
 }
 
 export default function HowItWorks({ data: initialData, whatsappLink: initialWaLink }: HowItWorksProps) {
-  const [data, setData] = useState<any>(initialData);
+  const [data, setData] = useState<HowItWorksData | null | undefined>(initialData);
   const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
     if (!initialData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
       setLoading(true);
       api.get("/settings/homepage")
         .then(res => {
@@ -47,7 +64,7 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
 
   if (!data) return null;
 
-  const steps: any[] = data.steps?.length > 0 ? data.steps : [];
+  const steps = data.steps ?? [];
   const waLink = initialWaLink || data.whatsappLink || "";
 
   return (
@@ -65,16 +82,16 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
             viewport={{ once: true }}
             className="text-[10px] font-black text-primary tracking-[0.5em] uppercase block mb-4"
           >
-            Our Process
+            আমাদের প্রক্রিয়া · Our Process
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter uppercase"
+            className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold text-heading"
           >
-            {data.title || "How It Works"}
+            {data.title || "কীভাবে অর্ডার করবেন"}
           </motion.h2>
           {data.subtitle && (
             <motion.p
@@ -91,7 +108,7 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
 
         {/* Steps */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
-          {steps.map((step: any, index: number) => (
+          {steps.map((step, index) => (
             <motion.div
               key={step.number || index}
               initial={{ opacity: 0, y: 30 }}
@@ -135,7 +152,7 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
             className="mt-12 md:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 p-6 md:p-8 bg-muted/20 border border-border/50 rounded-[2rem]"
           >
             <p className="text-foreground font-medium text-center sm:text-left text-sm md:text-base">
-              📲 {data.ctaLine || "Order now – We will contact you on WhatsApp for full customization"}
+              📲 {data.ctaLine || "দ্রুত যোগাযোগের জন্য হোয়াটসঅ্যাপে মেসেজ করুন — Message us on WhatsApp any time"}
             </p>
             {waLink && (
               <a
@@ -145,7 +162,7 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
                 className="shrink-0 inline-flex items-center gap-2 px-6 md:px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-green-500/20"
               >
                 <MessageCircle className="w-4 h-4" />
-                {data.ctaBtnText || "Chat on WhatsApp"}
+                {data.ctaBtnText || "হোয়াটসঅ্যাপে চ্যাট — Chat on WhatsApp"}
               </a>
             )}
           </motion.div>

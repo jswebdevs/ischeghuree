@@ -11,8 +11,8 @@ export default function CustomerChatsPage() {
     const stored =
       localStorage.getItem("token") ||
       document.cookie.split("; ").find((r) => r.startsWith("auth_token="))?.split("=")[1] ||
-      document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1] ||
       null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of browser storage after mount; localStorage/cookies are unavailable during SSR
     setToken(stored);
   }, []);
 
@@ -33,7 +33,7 @@ export default function CustomerChatsPage() {
           <CustomerChatBox token={token} />
         ) : (
           <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground p-8 text-center">
-            We couldn't find your session. Try logging out and back in.
+            We couldn&apos;t find your session. Try logging out and back in.
           </div>
         )}
       </div>

@@ -1,313 +1,331 @@
-# Graph Report - ginag  (2026-05-08)
+# Graph Report - .  (2026-08-12)
 
 ## Corpus Check
-- 238 files · ~114,296 words
+- 259 files · ~116,590 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 994 nodes · 1674 edges · 119 communities (102 shown, 17 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 118 edges (avg confidence: 0.8)
-- Token cost: 0 input · 0 output
+- 1048 nodes · 1579 edges · 90 communities (59 shown, 31 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 19 edges (avg confidence: 0.9)
+- Token cost: 168,040 input · 3,056 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 20|Community 20]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Community 22|Community 22]]
-- [[_COMMUNITY_Community 23|Community 23]]
-- [[_COMMUNITY_Community 24|Community 24]]
-- [[_COMMUNITY_Community 25|Community 25]]
-- [[_COMMUNITY_Community 26|Community 26]]
-- [[_COMMUNITY_Community 27|Community 27]]
-- [[_COMMUNITY_Community 30|Community 30]]
-- [[_COMMUNITY_Community 32|Community 32]]
-- [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 35|Community 35]]
-- [[_COMMUNITY_Community 36|Community 36]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
-- [[_COMMUNITY_Community 49|Community 49]]
-- [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
-- [[_COMMUNITY_Community 53|Community 53]]
-- [[_COMMUNITY_Community 54|Community 54]]
-- [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 59|Community 59]]
-- [[_COMMUNITY_Community 61|Community 61]]
-- [[_COMMUNITY_Community 62|Community 62]]
-- [[_COMMUNITY_Community 63|Community 63]]
-- [[_COMMUNITY_Community 64|Community 64]]
-- [[_COMMUNITY_Community 66|Community 66]]
-- [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 72|Community 72]]
-- [[_COMMUNITY_Community 73|Community 73]]
-- [[_COMMUNITY_Community 81|Community 81]]
-- [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
+- [[_COMMUNITY_Media Upload & Audit|Media Upload & Audit]]
+- [[_COMMUNITY_Project Docs & Skills|Project Docs & Skills]]
+- [[_COMMUNITY_Categories & Footer Config|Categories & Footer Config]]
+- [[_COMMUNITY_Frontend Dependencies|Frontend Dependencies]]
+- [[_COMMUNITY_Admin Forms & Addresses|Admin Forms & Addresses]]
+- [[_COMMUNITY_Root Layout & Theming|Root Layout & Theming]]
+- [[_COMMUNITY_Homepage Featured Sections|Homepage Featured Sections]]
+- [[_COMMUNITY_Auth & Rate Limiting|Auth & Rate Limiting]]
+- [[_COMMUNITY_Static Info Pages|Static Info Pages]]
+- [[_COMMUNITY_Backend Dependencies|Backend Dependencies]]
+- [[_COMMUNITY_Product Detail & 360 Viewer|Product Detail & 360 Viewer]]
+- [[_COMMUNITY_Custom Order Controller|Custom Order Controller]]
+- [[_COMMUNITY_Product Form Parts|Product Form Parts]]
+- [[_COMMUNITY_Backend TSConfig|Backend TSConfig]]
+- [[_COMMUNITY_Frontend TSConfig|Frontend TSConfig]]
+- [[_COMMUNITY_Dynamic Storefront Pages|Dynamic Storefront Pages]]
+- [[_COMMUNITY_Backend Dev Dependencies|Backend Dev Dependencies]]
+- [[_COMMUNITY_Admin Orders Inbox|Admin Orders Inbox]]
+- [[_COMMUNITY_Dashboard Layouts|Dashboard Layouts]]
+- [[_COMMUNITY_Homepage Product Grids|Homepage Product Grids]]
+- [[_COMMUNITY_Contact & Manifest|Contact & Manifest]]
+- [[_COMMUNITY_Homepage Composition|Homepage Composition]]
+- [[_COMMUNITY_Prisma Client & Analytics|Prisma Client & Analytics]]
+- [[_COMMUNITY_Google Reviews & Search|Google Reviews & Search]]
+- [[_COMMUNITY_Category Management UI|Category Management UI]]
+- [[_COMMUNITY_Custom Order Form|Custom Order Form]]
+- [[_COMMUNITY_Admin Users Table|Admin Users Table]]
+- [[_COMMUNITY_Skills Install Script|Skills Install Script]]
+- [[_COMMUNITY_Shop Filter Sidebar|Shop Filter Sidebar]]
+- [[_COMMUNITY_Backend Package Metadata|Backend Package Metadata]]
+- [[_COMMUNITY_Customer Orders Page|Customer Orders Page]]
+- [[_COMMUNITY_Backend npm Scripts|Backend npm Scripts]]
+- [[_COMMUNITY_Login & Role Redirect|Login & Role Redirect]]
+- [[_COMMUNITY_Customer Chat Widget|Customer Chat Widget]]
+- [[_COMMUNITY_Pages Controller|Pages Controller]]
+- [[_COMMUNITY_Theme Controller|Theme Controller]]
+- [[_COMMUNITY_Products Management UI|Products Management UI]]
+- [[_COMMUNITY_Chat Controller & Routes|Chat Controller & Routes]]
+- [[_COMMUNITY_Site Settings Controller|Site Settings Controller]]
+- [[_COMMUNITY_Social Links API|Social Links API]]
+- [[_COMMUNITY_Customer Profile Pages|Customer Profile Pages]]
+- [[_COMMUNITY_Shipping Policy Pages|Shipping Policy Pages]]
+- [[_COMMUNITY_Cancellation Policy Pages|Cancellation Policy Pages]]
+- [[_COMMUNITY_Hero Create & Edit|Hero Create & Edit]]
+- [[_COMMUNITY_Special Collections API|Special Collections API]]
+- [[_COMMUNITY_Order Hero Section|Order Hero Section]]
+- [[_COMMUNITY_Pages Seed Script|Pages Seed Script]]
+- [[_COMMUNITY_Customer Addresses Page|Customer Addresses Page]]
+- [[_COMMUNITY_Storefront Pages Dashboard|Storefront Pages Dashboard]]
+- [[_COMMUNITY_Hero Management|Hero Management]]
+- [[_COMMUNITY_Shop Page|Shop Page]]
+- [[_COMMUNITY_Superadmin Dashboard|Superadmin Dashboard]]
+- [[_COMMUNITY_Exchange Policy Template|Exchange Policy Template]]
+- [[_COMMUNITY_Theme Colors Page|Theme Colors Page]]
+- [[_COMMUNITY_Admin Dashboard|Admin Dashboard]]
+- [[_COMMUNITY_Sitemap Generation|Sitemap Generation]]
+- [[_COMMUNITY_Customer Layout & Sidebar|Customer Layout & Sidebar]]
+- [[_COMMUNITY_Footer Social Icons|Footer Social Icons]]
+- [[_COMMUNITY_Google Reviews Section|Google Reviews Section]]
+- [[_COMMUNITY_Superadmin Layout|Superadmin Layout]]
+- [[_COMMUNITY_Privacy Policy Template|Privacy Policy Template]]
+- [[_COMMUNITY_Terms of Service Template|Terms of Service Template]]
+- [[_COMMUNITY_Admin Table|Admin Table]]
+- [[_COMMUNITY_Color Form|Color Form]]
+- [[_COMMUNITY_Color Table|Color Table]]
+- [[_COMMUNITY_Products Index Page|Products Index Page]]
+- [[_COMMUNITY_Industrial Process Section|Industrial Process Section]]
+- [[_COMMUNITY_Personalization Blueprint|Personalization Blueprint]]
+- [[_COMMUNITY_Technical Integrity Section|Technical Integrity Section]]
+- [[_COMMUNITY_API Proxy|API Proxy]]
+- [[_COMMUNITY_Language Store|Language Store]]
+- [[_COMMUNITY_Return & Refund Template|Return & Refund Template]]
+- [[_COMMUNITY_ESLint Config|ESLint Config]]
+- [[_COMMUNITY_Next Config|Next Config]]
+- [[_COMMUNITY_PostCSS Config|PostCSS Config]]
+- [[_COMMUNITY_Brand Logo Identity|Brand Logo Identity]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `logAction()` - 77 edges
-2. `useCurrency()` - 37 edges
-3. `update()` - 30 edges
-4. `protect()` - 22 edges
-5. `authorize()` - 22 edges
-6. `getPageBySlug()` - 12 edges
-7. `getGlobalSettings()` - 9 edges
-8. `createCustomOrder()` - 7 edges
-9. `generateMetadata()` - 7 edges
-10. `getPaymentConfig()` - 7 edges
+1. `api` - 63 edges
+2. `logAction()` - 48 edges
+3. `getPageBySlug()` - 29 edges
+4. `useUserStore` - 24 edges
+5. `compilerOptions` - 16 edges
+6. `compilerOptions` - 16 edges
+7. `protect()` - 15 edges
+8. `authorize()` - 15 edges
+9. `getGlobalSettings()` - 12 edges
+10. `scripts` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `addToCart()` --calls--> `handleAddToCart()`  [INFERRED]
-  ginag-backend/src/controllers/cart.controller.ts → ginag-frontend/src/app/dashboard/customer/wishlist/page.tsx
-- `getHomepageConfig()` --calls--> `Home()`  [INFERRED]
-  ginag-backend/src/controllers/settings.controller.ts → ginag-frontend/src/app/page.tsx
-- `getHomepageConfig()` --calls--> `OrderNowPage()`  [INFERRED]
-  ginag-backend/src/controllers/settings.controller.ts → ginag-frontend/src/app/order-now/page.tsx
-- `updateVariation()` --calls--> `handleUpdateVariation()`  [INFERRED]
-  ginag-backend/src/controllers/variation.controller.ts → ginag-frontend/src/app/dashboard/customer/cart/page.tsx
-- `generateMetadata()` --calls--> `getGlobalSettings()`  [INFERRED]
-  ginag-frontend/src/app/layout.tsx → ginag-frontend/src/lib/getSettings.ts
+- `Role-Based Access Control (Super Admin/Admin/Customer)` --semantically_similar_to--> `Next.js 16 App Router Conventions`  [INFERRED] [semantically similar]
+  backend/README.md → .claude/skills/next-app-router/SKILL.md
+- `dreamreload (create-next-app README)` --semantically_similar_to--> `Dream E-commerce Backend (README)`  [INFERRED] [semantically similar]
+  frontend/README.md → backend/README.md
+- `Custom-Order Quote Flow` --semantically_similar_to--> `CustomOrder Model`  [INFERRED] [semantically similar]
+  CHANGES.md → .claude/skills/prisma/SKILL.md
+- `Gemstone Theme API` --semantically_similar_to--> `StoreTheme Model`  [INFERRED] [semantically similar]
+  backend/README.md → .claude/skills/prisma/SKILL.md
+- `dreamreload (create-next-app README)` --conceptually_related_to--> `Ginag Frontend (Next 16 + React 19 + Tailwind v4)`  [AMBIGUOUS]
+  frontend/README.md → CLAUDE.md
 
-## Communities (119 total, 17 thin omitted)
+## Import Cycles
+- None detected.
 
-### Community 0 - "Community 0"
+## Hyperedges (group relationships)
+- **Media Upload Pipeline Stages** — cloudinary_media_skill_multer_memory_storage, cloudinary_media_skill_converttowebp, cloudinary_media_skill_converttowebm, cloudinary_media_skill_cloudinary_streaming_upload, cloudinary_media_skill_media_model [EXTRACTED 1.00]
+- **Ginag Project Skill Registry** — claude_skills_registry, graphify_skill_graphify, prisma_skill_prisma_7_workflow, nodemailer_gmail_skill_nodemailer_gmail, next_app_router_skill_next_app_router, tailwind_v4_theme_skill_theme_tokens, react_hook_form_zod_skill_schema_first_forms, cloudinary_media_skill_cloudinary_media_pipeline [EXTRACTED 1.00]
+- **Custom Order Feature Flow** — changes_custom_order_flow, changes_checkout_branching, prisma_skill_customorder_model, react_hook_form_zod_skill_superrefine_conditional_validation, nodemailer_gmail_skill_renderorderconfirmation [INFERRED 0.85]
+
+## Communities (90 total, 31 thin omitted)
+
+### Community 0 - "Media Upload & Audit"
 Cohesion: 0.05
-Nodes (10): fetchCategories(), getCategories(), handleCreateNew(), handleDelete(), handleEdit(), handleView(), edit(), resetIcon() (+2 more)
+Nodes (65): storage, upload, deleteAllAuditLogs(), deleteAuditLog(), getAuditLogById(), getAuditLogs(), logAction(), createCategory() (+57 more)
 
-### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (27): convertFile(), convertToWebM(), convertToWebP(), createMedia(), deleteMedia(), getAllMedia(), getMediaById(), updateMedia() (+19 more)
+### Community 1 - "Project Docs & Skills"
+Cohesion: 0.06
+Nodes (51): Backend pnpm allowBuilds (prisma/sharp/ffmpeg-static/bcrypt), Dream E-commerce Backend (README), Gemstone Theme API, Md. Jamil Shikder (author, Rajseba Design Studio), Multi-identifier Login (Email/Phone/Username), Role-Based Access Control (Super Admin/Admin/Customer), Checkout customOrder Branching, Custom-Order Quote Flow (+43 more)
 
-### Community 3 - "Community 3"
-Cohesion: 0.1
-Nodes (14): fetchAdmins(), handleDelete(), fetchCustomers(), handleDelete(), fetchUsers(), handleDelete(), fetchUsers(), handleDelete() (+6 more)
+### Community 2 - "Categories & Footer Config"
+Cohesion: 0.05
+Nodes (21): CategoriesPage(), getCategories(), metadata, DEFAULT_CONFIG, FooterConfig, FooterContact, FooterLink, generateMetadata() (+13 more)
 
-### Community 5 - "Community 5"
-Cohesion: 0.15
-Nodes (6): TrustBar(), useCurrency(), useSettings(), FormCouponRules(), fetchInsights(), SearchContent()
+### Community 3 - "Frontend Dependencies"
+Cohesion: 0.04
+Nodes (48): dependencies, axios, date-fns, framer-motion, @hookform/resolvers, js-cookie, lucide-react, next (+40 more)
 
-### Community 6 - "Community 6"
-Cohesion: 0.13
-Nodes (8): handleMouseMove(), isVideo(), fetchAllCategories(), fetchCategory(), fetchCategoryProducts(), fetchProduct(), generateMetadata(), ProductDetailsPage()
+### Community 4 - "Admin Forms & Addresses"
+Cohesion: 0.05
+Nodes (14): AdminForm(), ADDRESS_TYPES, AddressInputProps, DIVISIONS, FormBasicInfo(), FormStatus(), PageFormProps, ReactQuill (+6 more)
 
-### Community 7 - "Community 7"
-Cohesion: 0.13
-Nodes (6): handleRemoveItem(), handleUpdateQuantity(), handleUpdateVariation(), CreateOrderPage(), EditOrderPage(), removeItem()
+### Community 5 - "Root Layout & Theming"
+Cohesion: 0.06
+Nodes (29): RootLayout(), FALLBACK_DARK, FALLBACK_LIGHT, Props, ThemeProvider(), AuthContext, AuthContextType, AuthProvider() (+21 more)
 
-### Community 8 - "Community 8"
-Cohesion: 0.12
-Nodes (3): handleImageUpload(), handleSendMessage(), AdminMessagesPage()
+### Community 6 - "Homepage Featured Sections"
+Cohesion: 0.08
+Nodes (7): bgColors, IconLibrary, Testimonial, api, IconRenderer, HowItWorksProps, authService
 
-### Community 9 - "Community 9"
-Cohesion: 0.17
-Nodes (6): getGoogleReviews(), globalSearch(), getCollectionByTag(), getSpecialCollection(), setupChatSocket(), main()
+### Community 7 - "Auth & Rate Limiting"
+Cohesion: 0.09
+Nodes (16): login(), globalErrorHandler(), apiLimiter, authLimiter, writeLimiter, router, router, setupChatSocket() (+8 more)
 
-### Community 10 - "Community 10"
+### Community 8 - "Static Info Pages"
 Cohesion: 0.14
-Nodes (3): cn(), formatRange(), ProductCard()
+Nodes (14): AboutContent(), generateMetadata(), ExchangeContent(), generateMetadata(), FAQContent(), generateMetadata(), getPageBySlug(), generateMetadata() (+6 more)
 
-### Community 11 - "Community 11"
-Cohesion: 0.13
-Nodes (5): CreateProductPage(), EditProductPage(), toggleCategory(), handleTagKeyDown(), removeTag()
+### Community 9 - "Backend Dependencies"
+Cohesion: 0.08
+Nodes (24): dependencies, axios, bcrypt, bcryptjs, cloudinary, cookie-parser, cors, dotenv (+16 more)
 
-### Community 12 - "Community 12"
-Cohesion: 0.21
-Nodes (13): createPage(), deletePage(), generateSlug(), getAllPages(), getPageBySlug(), updatePage(), getHomepageConfig(), getSettings() (+5 more)
+### Community 10 - "Product Detail & 360 Viewer"
+Cohesion: 0.11
+Nodes (14): generateMetadata(), Frame, Product360Viewer(), Props, GalleryImage, ProductGalleryProps, formatRange(), ProductInfo() (+6 more)
 
-### Community 14 - "Community 14"
-Cohesion: 0.23
-Nodes (14): addAttribute(), addValue(), deleteVar(), generateMatrix(), handleKeyDown(), handleMediaSelect(), removeAttribute(), removeValue() (+6 more)
+### Community 11 - "Custom Order Controller"
+Cohesion: 0.18
+Nodes (18): createCustomOrder(), deleteCustomOrder(), DeliveryStatusValue, generateOrderNumber(), getCustomOrder(), isAdminUser(), listCustomOrders(), listMyCustomOrders() (+10 more)
 
-### Community 16 - "Community 16"
-Cohesion: 0.13
-Nodes (14): Accessibility, code:powershell (cd d:\Projects\ginag\ginag-backend), Concurrency / reliability, Ginag — Enterprise Readiness Audit, How to apply schema changes, P0 (block production, fix this sprint), P1 (next sprint), P2 (backlog) (+6 more)
+### Community 12 - "Product Form Parts"
+Cohesion: 0.10
+Nodes (5): DescriptionPart(), ReactQuill, Frame, Model3d, Props
 
-### Community 17 - "Community 17"
-Cohesion: 0.26
-Nodes (9): generateDailyStatSnapshot(), getChartData(), getDashboardOverview(), addToWishlist(), getAllWishlists(), getWishlist(), removeFromWishlist(), authorize() (+1 more)
+### Community 13 - "Backend TSConfig"
+Cohesion: 0.10
+Nodes (19): compilerOptions, baseUrl, esModuleInterop, forceConsistentCasingInFileNames, module, moduleResolution, noEmitOnError, noImplicitAny (+11 more)
 
-### Community 18 - "Community 18"
-Cohesion: 0.32
-Nodes (13): logAction(), cancelOrder(), createAdminOrder(), createCustomOrderRequest(), createOrder(), deleteOrder(), getAllOrders(), getCartIdentifier() (+5 more)
+### Community 14 - "Frontend TSConfig"
+Cohesion: 0.10
+Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
-### Community 19 - "Community 19"
+### Community 15 - "Dynamic Storefront Pages"
+Cohesion: 0.11
+Nodes (5): RESERVED, AboutTemplateProps, ContactTemplateProps, FAQTemplateProps, ProcessTemplateProps
+
+### Community 16 - "Backend Dev Dependencies"
+Cohesion: 0.12
+Nodes (17): devDependencies, nodemon, prisma, ts-node, @types/bcrypt, @types/cookie-parser, @types/cors, @types/express (+9 more)
+
+### Community 17 - "Admin Orders Inbox"
+Cohesion: 0.12
+Nodes (9): CustomOrder, DELIVERY_STATUS_STYLE, DELIVERY_STATUSES, DeliveryDraft, DeliveryStatus, OrdersInbox(), OrderStatus, STATUS_STYLE (+1 more)
+
+### Community 18 - "Dashboard Layouts"
 Cohesion: 0.19
-Nodes (3): login(), initCronJobs(), generateToken()
+Nodes (9): AuditLogsPage(), ChatLogin(), UserDashboardPage(), RegisterPage(), AdminSidebar(), Role, User, UserState (+1 more)
 
-### Community 20 - "Community 20"
-Cohesion: 0.29
-Nodes (11): createCustomOrder(), deleteCustomOrder(), generateOrderNumber(), getCustomOrder(), listCustomOrders(), listMyCustomOrders(), updateCustomOrderStatus(), validateBody() (+3 more)
+### Community 19 - "Homepage Product Grids"
+Cohesion: 0.13
+Nodes (4): FeaturedProductsProps, formatRange(), ProductCard(), ProductCardProps
 
-### Community 21 - "Community 21"
-Cohesion: 0.21
-Nodes (4): manifest(), getGlobalSettings(), getHomepageConfig(), OrderNowPage()
-
-### Community 22 - "Community 22"
-Cohesion: 0.27
-Nodes (12): addReview(), addSiteReview(), checkEligibility(), deleteReview(), deleteSiteReview(), getAllReviews(), getAllSiteReviews(), getProductReviews() (+4 more)
-
-### Community 24 - "Community 24"
-Cohesion: 0.19
-Nodes (4): generateSlug(), handleSubmit(), CreateBlogPage(), EditBlogPage()
-
-### Community 26 - "Community 26"
-Cohesion: 0.44
-Nodes (9): capturePaypal(), createStripeIntent(), getPublicPaymentConfig(), verifyPaypalOrder(), capturePaypalOrder(), getPaymentConfig(), getPaypalAccessToken(), getPaypalOrder() (+1 more)
-
-### Community 27 - "Community 27"
-Cohesion: 0.21
-Nodes (4): fetchMedia(), handleBulkDelete(), handleFileUpload(), MediaLibraryPage()
-
-### Community 32 - "Community 32"
-Cohesion: 0.36
-Nodes (5): handleLogin(), getSmartRedirect(), handleSubmit(), getDashboardRedirectPath(), getHighestRole()
-
-### Community 36 - "Community 36"
-Cohesion: 0.42
-Nodes (8): addToCart(), clearCart(), getAllCarts(), getCart(), getCartIdentifier(), removeCartItem(), updateCartItem(), updateCartItemVariation()
-
-### Community 37 - "Community 37"
-Cohesion: 0.24
-Nodes (3): OrderTable(), fetchOrders(), fetchRefundOrders()
-
-### Community 41 - "Community 41"
+### Community 20 - "Contact & Manifest"
 Cohesion: 0.22
-Nodes (8): Backend (read keys from DB on every request), Changes — Custom-order products + dynamic Stripe/PayPal, code:powershell (cd d:\Projects\ginag\ginag-backend), Frontend, Schema (`ginag-backend/prisma/schema.prisma`), To apply, What changed, Where the brand images live
+Nodes (10): generateMetadata(), manifest(), ContactContent(), generateMetadata(), Footer(), getPublicSocialLinks(), getGlobalSettings(), getHomepageConfig() (+2 more)
 
-### Community 42 - "Community 42"
-Cohesion: 0.44
-Nodes (7): cleanPrice(), createProduct(), deleteProduct(), getProductBySlug(), getProductFilters(), getProducts(), updateProduct()
+### Community 21 - "Homepage Composition"
+Cohesion: 0.13
+Nodes (9): FAQSection, FeaturedProducts, GoogleReviewsSection, Home(), HowItWorks, StorySection, GinaGHeroProps, getFeaturedProducts() (+1 more)
 
-### Community 43 - "Community 43"
+### Community 22 - "Prisma Client & Analytics"
+Cohesion: 0.19
+Nodes (9): adapter, globalForPrisma, getChartData(), getDashboardOverview(), authorize(), protect(), Request, router (+1 more)
+
+### Community 23 - "Google Reviews & Search"
+Cohesion: 0.16
+Nodes (11): CachedReviews, getGoogleReviews(), globalSearch(), router, router, moduleRoutes, router, router (+3 more)
+
+### Community 24 - "Category Management UI"
+Cohesion: 0.16
+Nodes (4): CategoryFormProps, CategoryTableProps, SortKey, ViewCategoryModalProps
+
+### Community 26 - "Custom Order Form"
+Cohesion: 0.14
+Nodes (9): BOTTOM_RIGHT_DOTS, FormValues, Schema, SquareCheckbox, SquareCheckboxProps, TOP_RIGHT_DOTS, UnderlineField, UnderlineFieldProps (+1 more)
+
+### Community 27 - "Admin Users Table"
+Cohesion: 0.15
+Nodes (3): STATUS_STYLE, UserRow, UserTableProps
+
+### Community 28 - "Skills Install Script"
+Cohesion: 0.42
+Nodes (12): skills.sh script, err(), graphify_install(), graphify_status(), graphify_uninstall(), local_skills_install(), local_skills_status(), local_skills_uninstall() (+4 more)
+
+### Community 29 - "Shop Filter Sidebar"
+Cohesion: 0.26
+Nodes (8): AccordionSection(), AccordionSectionProps, NicheFilterSidebar(), cn(), ProductShowcase(), Filters, ProductState, useProductStore
+
+### Community 30 - "Backend Package Metadata"
+Cohesion: 0.18
+Nodes (10): author, description, keywords, license, main, name, prisma, seed (+2 more)
+
+### Community 31 - "Customer Orders Page"
+Cohesion: 0.18
+Nodes (7): CustomOrder, DELIVERY_LABEL, DELIVERY_STATUS_STYLE, DELIVERY_TIMELINE, DeliveryStatus, OrderStatus, STATUS_STYLE
+
+### Community 32 - "Backend npm Scripts"
+Cohesion: 0.20
+Nodes (10): scripts, build, dev, postinstall, prisma:generate, prisma:migrate, prisma:seed, start (+2 more)
+
+### Community 33 - "Login & Role Redirect"
+Cohesion: 0.33
+Nodes (5): LoginForm(), getDashboardRedirectPath(), getHighestRole(), Role, ROLE_HIERARCHY
+
+### Community 35 - "Pages Controller"
+Cohesion: 0.39
+Nodes (7): createPage(), deletePage(), generateSlug(), getAllPages(), getPageBySlug(), updatePage(), optionalAuth()
+
+### Community 36 - "Theme Controller"
 Cohesion: 0.42
 Nodes (7): createTheme(), deleteTheme(), getActiveTheme(), getAllThemes(), getPublicThemes(), toggleThemeProperty(), updateTheme()
 
-### Community 44 - "Community 44"
-Cohesion: 0.5
-Nodes (6): createCategory(), deleteCategory(), generateSlug(), getCategories(), getCategoryBySlug(), updateCategory()
+### Community 38 - "Chat Controller & Routes"
+Cohesion: 0.43
+Nodes (6): adminSendMessage(), bulkUpdateSessionStatus(), getAllSessions(), getSessionHistory(), updateSessionStatus(), router
 
-### Community 45 - "Community 45"
-Cohesion: 0.46
-Nodes (6): createCoupon(), deleteCoupon(), getCouponById(), getCoupons(), updateCoupon(), validateCoupon()
+### Community 39 - "Site Settings Controller"
+Cohesion: 0.50
+Nodes (6): getHomepageConfig(), getSettings(), isAdmin(), stripSecrets(), updateHomepageSection(), updateSettings()
 
-### Community 46 - "Community 46"
-Cohesion: 0.5
-Nodes (6): createBlog(), deleteBlog(), generateSlug(), getAllBlogs(), getBlogBySlug(), updateBlog()
+### Community 40 - "Social Links API"
+Cohesion: 0.43
+Nodes (6): createSocialLink(), deleteSocialLink(), getAllSocialLinks(), getPublicSocialLinks(), updateSocialLink(), router
 
-### Community 49 - "Community 49"
-Cohesion: 0.38
-Nodes (4): fetchProducts(), fetchWishlist(), handleApplyFilters(), handleWishlistToggle()
+### Community 42 - "Shipping Policy Pages"
+Cohesion: 0.25
+Nodes (4): generateMetadata(), ShippingContent(), deliveryStages, ShippingPolicyTemplateProps
 
-### Community 51 - "Community 51"
-Cohesion: 0.48
-Nodes (6): addListItem(), generateCode(), handleNameChange(), removeListItem(), updateListItem(), update()
-
-### Community 52 - "Community 52"
-Cohesion: 0.52
-Nodes (5): createHeroSection(), deleteHeroSection(), getActiveHeroSections(), getAllHeroSections(), updateHeroSection()
-
-### Community 53 - "Community 53"
-Cohesion: 0.52
-Nodes (5): createCategory(), deleteCategory(), getCategories(), getCategoryBySlug(), updateCategory()
-
-### Community 54 - "Community 54"
-Cohesion: 0.52
-Nodes (5): createSocialLink(), deleteSocialLink(), getAllSocialLinks(), getPublicSocialLinks(), updateSocialLink()
-
-### Community 55 - "Community 55"
-Cohesion: 0.52
-Nodes (5): adminSendMessage(), bulkUpdateSessionStatus(), getAllSessions(), getSessionHistory(), updateSessionStatus()
-
-### Community 56 - "Community 56"
-Cohesion: 0.52
-Nodes (5): createVariations(), deleteVariation(), getAllVariations(), getVariationById(), updateVariation()
-
-### Community 59 - "Community 59"
-Cohesion: 0.38
-Nodes (3): BlogDashboard(), fetchBlogs(), handleDelete()
-
-### Community 62 - "Community 62"
+### Community 43 - "Cancellation Policy Pages"
 Cohesion: 0.33
-Nodes (4): handleFeaturedSelect(), handleGallerySelect(), removeFeatured(), removeGalleryImage()
+Nodes (4): CancellationContent(), generateMetadata(), CancellationTemplate(), CancellationTemplateProps
 
-### Community 63 - "Community 63"
-Cohesion: 0.33
-Nodes (5): Common commands, Conventions, Ginag, graphify, Skills
-
-### Community 64 - "Community 64"
-Cohesion: 0.6
-Nodes (4): deleteAllAuditLogs(), deleteAuditLog(), getAuditLogById(), getAuditLogs()
-
-### Community 66 - "Community 66"
-Cohesion: 0.4
-Nodes (3): fetchWishlist(), handleAddToCart(), handleRemove()
-
-### Community 67 - "Community 67"
+### Community 45 - "Special Collections API"
 Cohesion: 0.47
-Nodes (3): BlogCategoryDashboard(), fetchCategories(), handleDelete()
+Nodes (4): getCollectionByTag(), getSpecialCollection(), productCardIncludes, router
 
-### Community 72 - "Community 72"
-Cohesion: 0.4
-Nodes (4): code:bash (npm run dev), Deploy on Vercel, Getting Started, Learn More
+### Community 47 - "Pages Seed Script"
+Cohesion: 0.33
+Nodes (4): adapter, pages, pool, prisma
 
-### Community 81 - "Community 81"
-Cohesion: 0.5
-Nodes (3): addListItem(), removeListItem(), updateListItem()
+### Community 48 - "Customer Addresses Page"
+Cohesion: 0.40
+Nodes (3): Address, AddressType, initialFormState
 
-### Community 82 - "Community 82"
-Cohesion: 0.5
-Nodes (3): handleAddAddress(), removeAddress(), setDefault()
+### Community 53 - "Exchange Policy Template"
+Cohesion: 0.40
+Nodes (3): doesntQualifyItems, ExchangePolicyTemplateProps, qualifiesItems
+
+### Community 56 - "Sitemap Generation"
+Cohesion: 0.67
+Nodes (3): fetchSlugs(), sitemap(), staticRoutes
+
+## Ambiguous Edges - Review These
+- `Ginag Backend (Express 5 + Prisma 7 + Supabase)` → `Dream E-commerce Backend (README)`  [AMBIGUOUS]
+  backend/README.md · relation: conceptually_related_to
+- `Ginag Frontend (Next 16 + React 19 + Tailwind v4)` → `dreamreload (create-next-app README)`  [AMBIGUOUS]
+  frontend/README.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **22 isolated node(s):** `code:powershell (cd d:\Projects\ginag\ginag-backend)`, `Schema (`ginag-backend/prisma/schema.prisma`)`, `Backend (read keys from DB on every request)`, `Frontend`, `Where the brand images live` (+17 more)
+- **332 isolated node(s):** `name`, `version`, `description`, `main`, `test` (+327 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `handleAddToCart()` connect `Community 66` to `Community 36`?**
-  _High betweenness centrality (0.251) - this node is a cross-community bridge._
-- **Why does `addToCart()` connect `Community 36` to `Community 18`, `Community 66`?**
-  _High betweenness centrality (0.250) - this node is a cross-community bridge._
-- **Why does `logAction()` connect `Community 18` to `Community 64`, `Community 2`, `Community 36`, `Community 42`, `Community 12`, `Community 45`, `Community 17`, `Community 19`, `Community 20`, `Community 53`, `Community 52`, `Community 54`, `Community 22`, `Community 56`?**
-  _High betweenness centrality (0.187) - this node is a cross-community bridge._
-- **Are the 58 inferred relationships involving `logAction()` (e.g. with `login()` and `createCategory()`) actually correct?**
-  _`logAction()` has 58 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 4 inferred relationships involving `useCurrency()` (e.g. with `SearchContent()` and `TrustBar()`) actually correct?**
-  _`useCurrency()` has 4 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 29 inferred relationships involving `update()` (e.g. with `handleAddAddress()` and `removeAddress()`) actually correct?**
-  _`update()` has 29 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `code:powershell (cd d:\Projects\ginag\ginag-backend)`, `Schema (`ginag-backend/prisma/schema.prisma`)`, `Backend (read keys from DB on every request)` to the rest of the system?**
-  _22 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What is the exact relationship between `Ginag Backend (Express 5 + Prisma 7 + Supabase)` and `Dream E-commerce Backend (README)`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **What is the exact relationship between `Ginag Frontend (Next 16 + React 19 + Tailwind v4)` and `dreamreload (create-next-app README)`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **Why does `api` connect `Homepage Featured Sections` to `Categories & Footer Config`, `Admin Forms & Addresses`, `Root Layout & Theming`, `Product Form Parts`, `Admin Orders Inbox`, `Dashboard Layouts`, `Homepage Product Grids`, `Category Management UI`, `Admin Chat UI`, `Custom Order Form`, `Admin Users Table`, `Shop Filter Sidebar`, `Customer Orders Page`, `Login & Role Redirect`, `Customer Chat Widget`, `Products Management UI`, `Customer Profile Pages`, `Hero Create & Edit`, `Customer Addresses Page`, `Storefront Pages Dashboard`, `Hero Management`, `Shop Page`, `Superadmin Dashboard`, `Theme Colors Page`, `Admin Dashboard`, `Google Reviews Section`, `Superadmin Layout`, `Color Form`?**
+  _High betweenness centrality (0.097) - this node is a cross-community bridge._
+- **Why does `useUserStore` connect `Dashboard Layouts` to `Login & Role Redirect`, `Customer Chat Widget`, `Homepage Featured Sections`, `Customer Profile Pages`, `Admin Orders Inbox`, `Customer Layout & Sidebar`, `Superadmin Layout`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `getGlobalSettings()` connect `Contact & Manifest` to `Root Layout & Theming`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **What connects `name`, `version`, `description` to the rest of the system?**
+  _335 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Media Upload & Audit` be split into smaller, more focused modules?**
+  _Cohesion score 0.05269497139415839 - nodes in this community are weakly interconnected._

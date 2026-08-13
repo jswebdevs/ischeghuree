@@ -10,6 +10,12 @@ export interface SelectedMediaData {
     type: "IMAGE" | "VIDEO";
 }
 
+interface PickedMedia {
+    originalUrl?: string;
+    thumbUrl?: string;
+    mediaType?: string;
+}
+
 interface PageMediaAddinProps {
     isOpen: boolean;
     onClose: () => void;
@@ -20,6 +26,7 @@ export default function PageMediaAddin({ isOpen, onClose, onSelect }: PageMediaA
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- portal mount flag; document.body is unavailable during SSR
         setMounted(true);
     }, []);
 
@@ -59,14 +66,14 @@ export default function PageMediaAddin({ isOpen, onClose, onSelect }: PageMediaA
                     <MediaManager
                         isPicker={true}
                         multiple={true} // 🔥 ENABLED MULTIPLE SELECTION!
-                        onSelect={(medias: any) => {
+                        onSelect={(medias: PickedMedia | PickedMedia[]) => {
                             const mediaArray = Array.isArray(medias) ? medias : [medias];
 
                             if (mediaArray.length === 0) return;
 
                             // Format all selected media
                             const formattedMedias = mediaArray.map(media => {
-                                const url = media.originalUrl || media.thumbUrl;
+                                const url = (media.originalUrl || media.thumbUrl) as string;
                                 const type = (media.mediaType === "VIDEO" || isVideo(url)) ? ("VIDEO" as const)  : ("IMAGE" as const);
                                 return { url, type };
                             });

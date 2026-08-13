@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
 import { ClipboardList, Users, Package, FolderTree, Loader2 } from "lucide-react";
@@ -15,7 +15,7 @@ interface Overview {
   totalCategories: number;
 }
 
-const KPI = ({ label, value, Icon, tone = "primary" }: { label: string; value: number | string; Icon: any; tone?: string }) => {
+const KPI = ({ label, value, Icon, tone = "primary" }: { label: string; value: number | string; Icon: ComponentType<{ className?: string }>; tone?: string }) => {
   const tones: Record<string, string> = {
     primary: "bg-primary/10 text-primary",
     amber: "bg-amber-500/10 text-amber-600",

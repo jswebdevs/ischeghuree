@@ -52,5 +52,7 @@ Thumbs.db
 # ── Claude / per-machine settings ───────────────────────────────────────────
 .claude/settings.local.json
 
-# ── Graphify cache (rebuildable) ────────────────────────────────────────────
+# ── Graphify cache / tool-local artifacts (rebuildable) ─────────────────────
 graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_labels.json

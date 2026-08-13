@@ -14,6 +14,7 @@ export default function FloatingWidget() {
             const storedToken = localStorage.getItem("token") ||
                 document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] ||
                 document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage/cookies are only readable client-side when the widget opens
             if (storedToken) setToken(storedToken);
         }
     }, [isOpen]);

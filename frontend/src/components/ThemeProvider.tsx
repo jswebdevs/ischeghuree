@@ -3,64 +3,73 @@
 import { useEffect } from "react";
 import { useThemeStore } from "@/store/themeStore";
 
-// Full Signature Gold fallback — used when DB is unreachable so text is always readable
+// Ische Ghuree fallback palettes (DESIGN.md §1) — used when the DB is
+// unreachable so the brand look survives any API outage.
+// Light: "দিনের আকাশ" (day sky) — cloud white, kite-sky blue, jute tan.
 const FALLBACK_LIGHT: Record<string, string> = {
-  background: "40 67% 99%",
-  foreground: "0 0% 2%",
-  heading: "0 0% 2%",
-  subheading: "43 34% 31%",
+  background: "204 45% 98%",
+  foreground: "215 45% 15%",
+  heading: "215 45% 15%",
+  subheading: "215 25% 40%",
   card: "0 0% 100%",
-  "card-foreground": "0 0% 2%",
+  "card-foreground": "215 45% 15%",
   popover: "0 0% 100%",
-  "popover-foreground": "0 0% 2%",
-  primary: "43 89% 38%",
-  "primary-foreground": "40 67% 99%",
-  secondary: "39 67% 32%",
-  "secondary-foreground": "40 67% 99%",
-  muted: "40 56% 92%",
-  "muted-foreground": "43 34% 31%",
-  accent: "44 64% 77%",
-  "accent-foreground": "0 0% 2%",
+  "popover-foreground": "215 45% 15%",
+  primary: "204 80% 40%",
+  "primary-foreground": "0 0% 100%",
+  secondary: "33 45% 62%",
+  "secondary-foreground": "27 50% 16%",
+  muted: "204 30% 92%",
+  "muted-foreground": "215 25% 40%",
+  accent: "330 72% 52%",
+  "accent-foreground": "0 0% 100%",
   destructive: "0 84% 60%",
   "destructive-foreground": "0 0% 98%",
-  border: "45 47% 85%",
-  input: "45 47% 85%",
-  ring: "43 89% 38%",
-  "shadow-color": "0 0% 0%",
-  "gradient-from": "40 67% 99%",
-  "gradient-to": "40 56% 92%",
+  border: "204 25% 86%",
+  input: "204 25% 86%",
+  ring: "204 80% 40%",
+  "shadow-color": "215 45% 15%",
+  "gradient-from": "204 45% 98%",
+  "gradient-to": "204 30% 92%",
 };
 
+// Dark: "রাতের প্রশান্তি" (night tranquility) — deep night blue, not black.
 const FALLBACK_DARK: Record<string, string> = {
-  background: "0 0% 2%",
-  foreground: "47 84% 95%",
-  heading: "47 84% 95%",
-  subheading: "45 35% 48%",
-  card: "0 0% 7%",
-  "card-foreground": "47 84% 95%",
-  popover: "44 38% 8%",
-  "popover-foreground": "47 84% 95%",
-  primary: "46 65% 52%",
-  "primary-foreground": "0 0% 2%",
-  secondary: "43 73% 28%",
-  "secondary-foreground": "47 84% 95%",
-  muted: "44 43% 9%",
-  "muted-foreground": "45 35% 48%",
-  accent: "45 97% 77%",
-  "accent-foreground": "0 0% 2%",
+  background: "215 50% 8%",
+  foreground: "204 40% 94%",
+  heading: "204 40% 94%",
+  subheading: "204 25% 65%",
+  card: "215 45% 12%",
+  "card-foreground": "204 40% 94%",
+  popover: "215 45% 10%",
+  "popover-foreground": "204 40% 94%",
+  primary: "204 75% 55%",
+  "primary-foreground": "215 50% 8%",
+  secondary: "33 40% 55%",
+  "secondary-foreground": "215 50% 8%",
+  muted: "215 40% 14%",
+  "muted-foreground": "204 25% 65%",
+  accent: "330 70% 60%",
+  "accent-foreground": "0 0% 100%",
   destructive: "0 84% 60%",
   "destructive-foreground": "0 0% 98%",
-  border: "42 52% 15%",
-  input: "43 56% 11%",
-  ring: "46 65% 52%",
-  "shadow-color": "46 65% 52%",
-  "gradient-from": "0 0% 7%",
-  "gradient-to": "53 38% 4%",
+  border: "215 30% 20%",
+  input: "215 35% 16%",
+  ring: "204 75% 55%",
+  "shadow-color": "215 80% 3%",
+  "gradient-from": "215 45% 12%",
+  "gradient-to": "215 50% 6%",
 };
+
+interface InitialTheme {
+  lightVariables?: Record<string, string> | null;
+  darkVariables?: Record<string, string> | null;
+  radius?: string | null;
+}
 
 interface Props {
   children: React.ReactNode;
-  initialTheme?: any;
+  initialTheme?: InitialTheme | null;
 }
 
 export default function ThemeProvider({ children, initialTheme }: Props) {

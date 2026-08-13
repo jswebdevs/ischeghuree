@@ -5,18 +5,19 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import api from "@/lib/axios";
 import { ArrowRight, Sparkles } from "lucide-react";
-import ProductCard from "@/components/home/products/ProductCard";
+import ProductCard, { type CardProduct } from "@/components/home/products/ProductCard";
 
 interface FeaturedProductsProps {
-  initialProducts?: any[];
+  initialProducts?: CardProduct[];
 }
 
 export default function FeaturedProducts({ initialProducts }: FeaturedProductsProps) {
-  const [products, setProducts] = useState<any[]>(initialProducts || []);
+  const [products, setProducts] = useState<CardProduct[]>(initialProducts || []);
   const [loading, setLoading] = useState(!initialProducts);
 
   useEffect(() => {
     if (!initialProducts) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
       setLoading(true);
       api
         .get("/products?limit=3&page=1")
@@ -48,11 +49,14 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest"
           >
-            <Sparkles className="w-3 h-3" /> Featured
+            <Sparkles className="w-3 h-3" /> ফিচার্ড · Featured
           </motion.div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-heading uppercase tracking-tighter italic">
-            Purse Decor <span className="text-primary">Samples</span>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-heading">
+            পছন্দের <span className="text-primary">সংগ্রহ</span>
           </h2>
+          <p className="text-sm md:text-base text-muted-foreground tracking-[0.2em] uppercase">
+            Featured — jute bags &amp; hair accessories
+          </p>
         </div>
 
         {loading ? (
@@ -71,10 +75,10 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
 
         <div className="mt-12 text-center">
           <Link
-            href="/products"
+            href="/shop"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm hover:scale-105 transition-transform"
           >
-            View All <ArrowRight className="w-4 h-4" />
+            সব দেখুন — View All <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

@@ -2,16 +2,17 @@
 
 import { motion } from "framer-motion";
 import { Timer, CheckCircle2, XCircle, Scissors } from "lucide-react";
+import type { PageData } from "./types";
 
 interface CancellationTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function CancellationTemplate({ data }: CancellationTemplateProps) {
     const { title, content, updatedAt } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"

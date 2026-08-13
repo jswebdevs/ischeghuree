@@ -3,10 +3,11 @@
 // 🔥 Use the central IconRenderer and stable static icons
 import IconRenderer from "@/components/shared/IconRenderer";
 import { LuX, LuPencil, LuCalendar } from "react-icons/lu";
+import type { AdminCategory } from "./types";
 
 interface ViewCategoryModalProps {
-  category: any;
-  categories: any[];
+  category: AdminCategory;
+  categories: AdminCategory[];
   onClose: () => void;
   onEdit: () => void;
 }
@@ -45,6 +46,7 @@ export default function ViewCategoryModal({ category, categories, onClose, onEdi
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 bg-muted/50 border border-border/50 rounded-2xl flex items-center justify-center shadow-inner shrink-0 overflow-hidden">
               {category.featuredImage?.originalUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- CDN image with unknown dimensions
                 <img
                   src={category.featuredImage.originalUrl}
                   alt={category.name}
@@ -86,7 +88,7 @@ export default function ViewCategoryModal({ category, categories, onClose, onEdi
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium pt-4 border-t border-border/50">
             <LuCalendar className="w-4 h-4" />
-            Created on {new Date(category.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}
+            Created on {new Date(category.createdAt ?? "").toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
 

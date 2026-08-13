@@ -2,7 +2,7 @@
 
 // Tell TypeScript that it is completely fine to import this specific CSS file
 declare module 'react-quill/dist/quill.snow.css' {
-  const content: any;
+  const content: { [className: string]: string };
   export default content;
 }
 

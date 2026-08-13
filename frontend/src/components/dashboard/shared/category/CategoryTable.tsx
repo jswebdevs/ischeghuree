@@ -18,14 +18,28 @@ import {
   LuArrowDown
 } from "react-icons/lu";
 
+import type { AdminCategory } from "./types";
+
 interface CategoryTableProps {
-  categories: any[];
-  onView: (cat: any) => void;
-  onEdit: (cat: any) => void;
+  categories: AdminCategory[];
+  onView: (cat: AdminCategory) => void;
+  onEdit: (cat: AdminCategory) => void;
   onDelete: (id: string) => void;
 }
 
 type SortKey = "name" | "parent" | "products" | null;
+
+// Hoisted so it is not re-created on every render (react-hooks/static-components)
+const SortIcon = ({
+  columnKey,
+  sortConfig,
+}: {
+  columnKey: SortKey;
+  sortConfig: { key: SortKey; direction: "asc" | "desc" } | null;
+}) => {
+  if (sortConfig?.key !== columnKey) return <LuArrowUpDown className="w-3 h-3 opacity-30" />;
+  return sortConfig.direction === "asc" ? <LuArrowUp className="w-3 h-3" /> : <LuArrowDown className="w-3 h-3" />;
+};
 
 export default function CategoryTable({ categories, onView, onEdit, onDelete }: CategoryTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "asc" | "desc" } | null>(null);
@@ -33,20 +47,20 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
   const itemsPerPage = 10;
 
   // Helper for UI rendering
-  const getParentName = (parentId: string | null) => {
+  const getParentName = (parentId?: string | null) => {
     if (!parentId) return <span className="text-muted-foreground italic text-xs">None (Top Level)</span>;
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : "Unknown";
   };
 
-  const getParentString = (parentId: string | null) => {
+  const getParentString = (parentId?: string | null) => {
     if (!parentId) return "none";
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name.toLowerCase() : "unknown";
   };
 
   // --- REFINED: THEMED SWEETALERT DIALOG ---
-  const confirmDelete = (cat: any) => {
+  const confirmDelete = (cat: AdminCategory) => {
     const productCount = cat._count?.products || 0;
 
     // Block if category is not empty
@@ -91,7 +105,8 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
   const sortedCategories = [...categories].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    let aValue: any, bValue: any;
+    let aValue: string | number = 0;
+    let bValue: string | number = 0;
 
     if (key === "name") {
       aValue = a.name.toLowerCase();
@@ -111,11 +126,6 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
 
   const totalPages = Math.ceil(sortedCategories.length / itemsPerPage);
   const paginatedCategories = sortedCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
-    if (sortConfig?.key !== columnKey) return <LuArrowUpDown className="w-3 h-3 opacity-30" />;
-    return sortConfig.direction === "asc" ? <LuArrowUp className="w-3 h-3" /> : <LuArrowDown className="w-3 h-3" />;
-  };
 
   if (categories.length === 0) {
     return (
@@ -170,6 +180,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
               </span>
               <div className="w-12 h-12 rounded-xl bg-background flex items-center justify-center border border-border overflow-hidden shadow-sm shrink-0 p-0.5">
                 {cat.featuredImage?.thumbUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- CDN thumbnail with unknown dimensions
                   <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover rounded-lg" />
                 ) : (
                   <LuImage className="w-5 h-5 text-muted-foreground/30" />
@@ -231,13 +242,13 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider w-16">SL</th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Icon & Image</th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none" onClick={() => handleSort("name")}>
-                <div className="flex items-center gap-1.5">Name <SortIcon columnKey="name" /></div>
+                <div className="flex items-center gap-1.5">Name <SortIcon columnKey="name" sortConfig={sortConfig} /></div>
               </th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none" onClick={() => handleSort("parent")}>
-                <div className="flex items-center gap-1.5">Parent Category <SortIcon columnKey="parent" /></div>
+                <div className="flex items-center gap-1.5">Parent Category <SortIcon columnKey="parent" sortConfig={sortConfig} /></div>
               </th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-center cursor-pointer hover:bg-muted/50 transition-colors select-none" onClick={() => handleSort("products")}>
-                <div className="flex items-center justify-center gap-1.5">Products <SortIcon columnKey="products" /></div>
+                <div className="flex items-center justify-center gap-1.5">Products <SortIcon columnKey="products" sortConfig={sortConfig} /></div>
               </th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
             </tr>
@@ -254,6 +265,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                     </div>
                     <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border/50 overflow-hidden shadow-sm shrink-0 p-0.5">
                       {cat.featuredImage?.thumbUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- CDN thumbnail with unknown dimensions
                         <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover rounded-lg" />
                       ) : (
                         <LuImage className="w-4 h-4 text-muted-foreground/20" />

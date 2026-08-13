@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Send, Image as ImageIcon, Loader2, Bot, Headset } from "lucide-react";
+import { ArrowLeft, Send, Image as ImageIcon, Loader2 } from "lucide-react";
 import { Socket } from "socket.io-client";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import MessageBubble from "./MessageBubble";
+import type { AdminChatMessage } from "./types";
+
+type SessionData = NonNullable<AdminChatMessage["session"]>;
 
 export default function ChatBox({ sessionId, onBack, socket }: { sessionId: string, onBack: () => void, socket: Socket | null }) {
-    const [messages, setMessages] = useState<any[]>([]);
-    const [sessionData, setSessionData] = useState<any>(null);
-    const [sessionStatus, setSessionStatus] = useState<string>("AGENT_ACTIVE"); // Track current mode
+    const [messages, setMessages] = useState<AdminChatMessage[]>([]);
+    const [sessionData, setSessionData] = useState<SessionData | null>(null);
+    const [, setSessionStatus] = useState<string>("AGENT_ACTIVE"); // Track current mode
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -18,15 +21,37 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const fetchHistory = async () => {
+        try {
+            const res = await api.get(`/chat/sessions/${sessionId}/messages`);
+            setMessages(res.data.data);
+            if (res.data.data.length > 0) {
+                const sessionInfo = res.data.data[0].session;
+                setSessionData(sessionInfo);
+
+                // If the session status wasn't included in the message include,
+                // you might need to fetch the session specifically,
+                // but if your backend sends it, we set it here.
+                if (sessionInfo.status) setSessionStatus(sessionInfo.status);
+            }
+        } catch (error) {
+            console.error("Failed to fetch messages", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchHistory flips the loading flag synchronously before its async fetch
         fetchHistory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchHistory is re-created every render; re-fetch must only run when the session changes
     }, [sessionId]);
 
     // Listen for new messages
     useEffect(() => {
         if (!socket) return;
 
-        const handleNewMessage = (newMsg: any) => {
+        const handleNewMessage = (newMsg: AdminChatMessage) => {
             if (newMsg.sessionId === sessionId) {
                 setMessages((prev) => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
             }
@@ -40,27 +65,6 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
         endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const fetchHistory = async () => {
-        try {
-            const res = await api.get(`/chat/sessions/${sessionId}/messages`);
-            setMessages(res.data.data);
-            if (res.data.data.length > 0) {
-                const sessionInfo = res.data.data[0].session;
-                setSessionData(sessionInfo);
-
-                // If the session status wasn't included in the message include, 
-                // you might need to fetch the session specifically, 
-                // but if your backend sends it, we set it here.
-                if (sessionInfo.status) setSessionStatus(sessionInfo.status);
-            }
-        } catch (error) {
-            console.error("Failed to fetch messages", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
     const handleSendMessage = async (attachmentUrl: string | null = null) => {
         if (!input.trim() && !attachmentUrl) return;
         try {
@@ -72,7 +76,7 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
             // Update local state to reflect this automatically!
             setSessionStatus("AGENT_ACTIVE");
 
-        } catch (error) {
+        } catch {
             Swal.fire("Error", "Failed to send message", "error");
         }
     };
@@ -90,7 +94,7 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
             // Adjusted based on your media controller response (uploadRes.data.data.originalUrl)
             const imageUrl = uploadRes.data.data?.originalUrl || uploadRes.data.url;
             await handleSendMessage(imageUrl);
-        } catch (error) {
+        } catch {
             Swal.fire("Upload Failed", "Could not upload image.", "error");
         } finally {
             setUploading(false);

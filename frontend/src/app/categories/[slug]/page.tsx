@@ -7,6 +7,15 @@ import ProductCard from "@/components/home/products/ProductCard";
 
 export const revalidate = 120;
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string;
+  description?: string;
+  parentId?: string | null;
+}
+
 async function fetchCategory(slug: string) {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${slug}`, {
@@ -79,7 +88,7 @@ export default async function SingleCategoryPage({
     fetchCategoryProducts(category.id),
   ]);
 
-  const subcategories = allCats.filter((c: any) => c.parentId === category.id);
+  const subcategories = allCats.filter((c: Category) => c.parentId === category.id);
 
   return (
     <div className="min-h-screen bg-background pb-20 animate-in fade-in duration-500">
@@ -113,7 +122,7 @@ export default async function SingleCategoryPage({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {subcategories.map((subcat: any) => (
+              {subcategories.map((subcat: Category) => (
                 <Link
                   key={subcat.id}
                   href={`/categories/${subcat.slug}`}
@@ -151,7 +160,7 @@ export default async function SingleCategoryPage({
 
           {products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {products.map((product: any) => (
+              {products.map((product: { id: string }) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

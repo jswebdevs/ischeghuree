@@ -2,17 +2,18 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { PageData } from "./types";
 
 interface AboutTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function AboutTemplate({ data }: AboutTemplateProps) {
     const { title, content } = data;
     
     // Find rich-text blocks in content
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     return (
         <div className="bg-background min-h-screen">

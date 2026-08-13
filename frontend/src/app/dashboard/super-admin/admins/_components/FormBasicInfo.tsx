@@ -1,8 +1,9 @@
 "use client";
 
 import { User, Mail, Phone, Lock, Calendar, Users } from "lucide-react";
+import type { AdminFormSectionProps } from "./AdminForm";
 
-export default function FormBasicInfo({ data, update, isEdit }: any) {
+export default function FormBasicInfo({ data, update, isEdit }: AdminFormSectionProps & { isEdit: boolean }) {
     return (
         <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-6">
             <div className="border-b border-border pb-4">
@@ -49,7 +50,7 @@ export default function FormBasicInfo({ data, update, isEdit }: any) {
                     </label>
                     <input
                         type="email" value={data.email} onChange={(e) => update({ email: e.target.value })}
-                        placeholder="admin@dreamreloaded.com"
+                        placeholder="admin@ischeghuree.com"
                         className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary transition-all"
                     />
                 </div>

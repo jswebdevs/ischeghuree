@@ -7,10 +7,11 @@ import Swal from "sweetalert2";
 import ChatTableToolbar from "./ChatTableToolbar";
 import ChatTable from "./ChatTable";
 import ChatBox from "./ChatBox";
+import type { ChatSessionInfo } from "./types";
 
 export default function ChatManager() {
     const [view, setView] = useState<"TABLE" | "CHAT">("TABLE");
-    const [sessions, setSessions] = useState<any[]>([]);
+    const [sessions, setSessions] = useState<ChatSessionInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -19,8 +20,8 @@ export default function ChatManager() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [page] = useState(1);
+    const [, setTotalPages] = useState(1);
 
     // 🔥 FIX: Trigger state to safely refresh data without stale socket closures
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -43,6 +44,7 @@ export default function ChatManager() {
     }, [page, search, statusFilter]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchSessions flips the loading flag synchronously; selection reset accompanies each reload
         fetchSessions();
         setSelectedIds([]);
     }, [fetchSessions, refreshTrigger]);
@@ -60,7 +62,7 @@ export default function ChatManager() {
             return;
         }
 
-        const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:5000";
+        const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:4000";
         const newSocket = io(SOCKET_URL, {
             auth: { token },
             withCredentials: true,
@@ -86,6 +88,7 @@ export default function ChatManager() {
             setRefreshTrigger(prev => prev + 1);
         });
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- the socket can only be created client-side, inside this effect
         setSocket(newSocket);
         return () => { newSocket.disconnect(); };
     }, []);
@@ -96,7 +99,7 @@ export default function ChatManager() {
             await api.patch(`/chat/sessions/${id}/status`, { status: newStatus });
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Marked as ${newStatus}`, showConfirmButton: false, timer: 2000 });
             setRefreshTrigger(prev => prev + 1);
-        } catch (error: any) {
+        } catch {
             Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Action failed', showConfirmButton: false, timer: 2000 });
         }
     };
@@ -108,7 +111,7 @@ export default function ChatManager() {
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Updated ${selectedIds.length} chats`, showConfirmButton: false, timer: 2000 });
             setSelectedIds([]);
             setRefreshTrigger(prev => prev + 1);
-        } catch (error: any) {
+        } catch {
             Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Bulk update failed', showConfirmButton: false, timer: 2000 });
         }
     };

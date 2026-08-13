@@ -11,7 +11,9 @@ export function proxy(request: NextRequest) {
   const isAuthRoute = pathname === '/login' || pathname === '/register';
   const isProtectedRoute = pathname.startsWith('/dashboard');
 
-  const targetDashboard = role === 'customer' ? '/dashboard' : `/dashboard/${role}`;
+  // Matches getDashboardRedirectPath (src/utils/roleRedirect.tsx): customers
+  // land on /dashboard/customer, staff on /dashboard/<role>.
+  const targetDashboard = `/dashboard/${role}`;
 
   if (isAuthRoute && token) {
     return NextResponse.redirect(new URL(targetDashboard, request.url));
@@ -30,7 +32,7 @@ export function proxy(request: NextRequest) {
       const isSnooping = staffDirectories.some(dir => pathname.startsWith(dir));
 
       if (isSnooping) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return NextResponse.redirect(new URL('/dashboard/customer', request.url));
       }
     } else {
       if (pathname === '/dashboard' || !pathname.startsWith(targetDashboard)) {

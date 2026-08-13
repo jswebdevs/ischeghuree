@@ -7,9 +7,21 @@ import Link from "next/link";
 import { ArrowLeft, Edit, Mail, Phone, Calendar, Loader2 } from "lucide-react";
 import Image from "next/image";
 
+interface AdminUser {
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string | null;
+    avatar?: string | null;
+    roles?: string[];
+    status?: string;
+    dob?: string | null;
+}
+
 export default function ViewAdminPage() {
     const params = useParams();
-    const [admin, setAdmin] = useState<any>(null);
+    const [admin, setAdmin] = useState<AdminUser | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -18,7 +30,7 @@ export default function ViewAdminPage() {
                 // FIXED: Added leading slash and changed to params.username
                 const res = await api.get(`/users/admins/${params.username}`);
                 setAdmin(res.data.data);
-            } catch (error) {
+            } catch {
                 console.error("Failed to fetch admin details");
             } finally {
                 setLoading(false);

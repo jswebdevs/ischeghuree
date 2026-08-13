@@ -2,9 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Package, Truck, MapPin, Clock, Bell } from "lucide-react";
+import type { PageData } from "./types";
 
 interface ShippingPolicyTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 const deliveryStages = [
@@ -17,8 +18,8 @@ const deliveryStages = [
 export default function ShippingPolicyTemplate({ data }: ShippingPolicyTemplateProps) {
     const { title, content, updatedAt } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"

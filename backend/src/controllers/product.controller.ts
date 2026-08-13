@@ -8,6 +8,15 @@ const cleanPrice = (v: any): number | null => {
   return Number.isNaN(n) ? null : n;
 };
 
+// Public routes attach the user via optionalAuth; only admins may see
+// DRAFT/ARCHIVED products in listings and detail views.
+const isAdminReq = (req: Request): boolean => {
+  const roles: string[] = (req as any).user?.roles || [];
+  return roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
+};
+
+const HIDDEN_STATUSES = ['DRAFT', 'ARCHIVED'] as const;
+
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -86,6 +95,11 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
     const skip = (Number(page) - 1) * Number(limit);
     const where: any = {};
 
+    // Storefront callers never see unpublished products.
+    if (!isAdminReq(req)) {
+      where.productStatus = { notIn: [...HIDDEN_STATUSES] };
+    }
+
     if (search) {
       where.OR = [
         { name: { contains: String(search), mode: 'insensitive' } },
@@ -146,6 +160,11 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
         categories: true,
         featuredImage: true,
         images: true,
+        model3d: { select: { id: true, originalUrl: true } },
+        turntableFrames: {
+          orderBy: { sequence: 'asc' },
+          select: { id: true, originalUrl: true, sequence: true },
+        },
         suggestedProducts: {
           take: 4,
           select: {
@@ -161,7 +180,9 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
       },
     });
 
-    if (!product) {
+    // Hide unpublished products from non-admin callers — indistinguishable
+    // from a missing product so the slug can't be probed.
+    if (!product || (!isAdminReq(req) && (HIDDEN_STATUSES as readonly string[]).includes(product.productStatus))) {
       res.status(404).json({ success: false, message: 'Product not found' });
       return;
     }

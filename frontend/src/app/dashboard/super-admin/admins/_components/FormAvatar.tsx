@@ -6,11 +6,17 @@ import Image from "next/image";
 
 // Adjust this import path to point to your actual MediaManager component
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
+import type { AdminFormSectionProps } from "./AdminForm";
 
-export default function FormAvatar({ data, update }: any) {
+interface SelectedMedia {
+    originalUrl?: string;
+    url?: string;
+}
+
+export default function FormAvatar({ data, update }: AdminFormSectionProps) {
     const [isMediaOpen, setIsMediaOpen] = useState(false);
 
-    const handleMediaSelect = (selectedMedia: any) => {
+    const handleMediaSelect = (selectedMedia: SelectedMedia | SelectedMedia[]) => {
         // If multiple=false, selectedMedia should be a single object, but we check just in case
         const media = Array.isArray(selectedMedia) ? selectedMedia[0] : selectedMedia;
 

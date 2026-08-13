@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
 import { Plus, Search, Loader2 } from "lucide-react";
-import UserTable from "../_components/UserTable";
+import UserTable, { type UserRow } from "../_components/UserTable";
 import Swal from "sweetalert2";
+import type { AxiosError } from "axios";
 
 export default function AdminsPage() {
-    const [admins, setAdmins] = useState<any[]>([]);
+    const [admins, setAdmins] = useState<UserRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
@@ -24,6 +25,7 @@ export default function AdminsPage() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
         fetchAdmins();
     }, []);
 
@@ -42,8 +44,9 @@ export default function AdminsPage() {
                 await api.delete(`/users/${id}`);
                 Swal.fire('Deleted!', 'Admin account has been removed.', 'success');
                 fetchAdmins();
-            } catch (error: any) {
-                Swal.fire('Error', error.response?.data?.message || 'Delete failed', 'error');
+            } catch (error) {
+                const axiosError = error as AxiosError<{ message?: string }>;
+                Swal.fire('Error', axiosError.response?.data?.message || 'Delete failed', 'error');
             }
         }
     };

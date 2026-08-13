@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
-import ProductGallery from "@/components/shop/ProductGallery";
+import ProductMediaViewer from "@/components/shop/ProductMediaViewer";
 import ProductInfo from "@/components/shop/ProductInfo";
 import ProductTabs from "@/components/shop/ProductTabs";
 
@@ -35,7 +35,9 @@ export async function generateMetadata({
   }
 
   const description =
-    product.shortDesc || product.longDesc?.slice(0, 160) || `Custom charm — ${product.name}`;
+    product.shortDesc ||
+    product.longDesc?.slice(0, 160) ||
+    `${product.name} — ইচ্ছে ঘুড়ি | handmade jute bags & hair accessories from Ische Ghuree`;
 
   const ogImage =
     product.featuredImage?.originalUrl || product.featuredImage?.thumbUrl || undefined;
@@ -84,10 +86,12 @@ export default async function ProductDetailsPage({
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          <ProductGallery
+          <ProductMediaViewer
             featuredImage={product.featuredImage}
             images={product.images || []}
             productName={product.name}
+            model3d={product.model3d}
+            turntableFrames={product.turntableFrames}
             currentVariation={null}
           />
           <ProductInfo product={product} />

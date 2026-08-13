@@ -1,8 +1,9 @@
 "use client";
 
 import { Activity } from "lucide-react";
+import type { AdminFormSectionProps } from "./AdminForm";
 
-export default function FormStatus({ data, update }: any) {
+export default function FormStatus({ data, update }: AdminFormSectionProps) {
     return (
         <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm space-y-6">
             <div className="border-b border-border pb-4">

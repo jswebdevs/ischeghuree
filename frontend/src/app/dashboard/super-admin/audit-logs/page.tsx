@@ -9,8 +9,21 @@ import {
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 
+interface AuditLog {
+    id: string;
+    createdAt: string;
+    action: string;
+    userRole?: string | null;
+    entity?: string | null;
+    entityId?: string | null;
+    ipAddress?: string | null;
+    details?: unknown;
+    userAgent?: string | null;
+    userId?: string | null;
+}
+
 export default function AuditLogsPage() {
-    const [logs, setLogs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<AuditLog[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -18,15 +31,11 @@ export default function AuditLogsPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalLogs, setTotalLogs] = useState(0);
 
-    const [selectedLog, setSelectedLog] = useState<any | null>(null);
+    const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
     const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
     const { user } = useUserStore();
-    const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") || (user as any)?.role === "SUPER_ADMIN";
-
-    useEffect(() => {
-        fetchLogs(page);
-    }, [page]);
+    const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") || (user as { role?: string } | null)?.role === "SUPER_ADMIN";
 
     const fetchLogs = async (pageNumber: number) => {
         setIsLoading(true);
@@ -43,6 +52,11 @@ export default function AuditLogsPage() {
         }
     };
 
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount and page change; fetchLogs sets loading state synchronously by design
+        fetchLogs(page);
+    }, [page]);
+
     const handleDelete = async (id: string) => {
         setDeletingId(id);
         try {
@@ -51,7 +65,7 @@ export default function AuditLogsPage() {
             setLogs(prev => prev.filter(l => l.id !== id));
             setTotalLogs(prev => prev - 1);
             if (selectedLog?.id === id) setSelectedLog(null);
-        } catch (error) {
+        } catch {
             toast.error("Failed to delete audit log.");
         } finally {
             setDeletingId(null);
@@ -67,7 +81,7 @@ export default function AuditLogsPage() {
             setTotalLogs(0);
             setTotalPages(1);
             setPage(1);
-        } catch (error) {
+        } catch {
             toast.error("Failed to delete all audit logs.");
         }
     };

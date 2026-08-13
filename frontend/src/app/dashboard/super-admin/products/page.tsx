@@ -6,9 +6,15 @@ import api from "@/lib/axios";
 import { Plus, Loader2 } from "lucide-react";
 import ProductTable from "@/components/dashboard/shared/products/ProductTable";
 import Swal from "sweetalert2"; // 🔥 Import SweetAlert2
+import type { AxiosError } from "axios";
+
+interface ProductRow {
+  id: string;
+  [key: string]: unknown;
+}
 
 export default function ProductsManagementPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = async () => {
@@ -24,6 +30,7 @@ export default function ProductsManagementPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; fetchProducts sets loading state synchronously by design
     fetchProducts();
   }, []);
 
@@ -58,12 +65,13 @@ export default function ProductsManagementPage() {
       });
 
       fetchProducts();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to delete:", error);
 
+      const axiosError = error as AxiosError<{ message?: string }>;
       Swal.fire({
         title: "Error!",
-        text: error.response?.data?.message || "Failed to delete product.",
+        text: axiosError.response?.data?.message || "Failed to delete product.",
         icon: "error",
         confirmButtonColor: "hsl(var(--primary))",
         background: 'hsl(var(--card))',

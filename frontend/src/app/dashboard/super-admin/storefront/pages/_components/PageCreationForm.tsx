@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { 
@@ -10,14 +10,10 @@ import {
     Save, 
     ArrowLeft, 
     Image as ImageIcon, 
-    Video, 
-    PlayCircle, 
     Loader2, 
     Type, 
     Layout, 
     MousePointer2, 
-    Columns, 
-    Layers,
     Settings,
     Eye,
     Globe,
@@ -26,15 +22,55 @@ import {
 import api from "@/lib/axios";
 import PageMediaAddin, { SelectedMediaData } from "./PageMediaAddin";
 import Swal from "sweetalert2";
+import type { AxiosError } from "axios";
+import type ReactQuillClass from "react-quill-new";
+
+type QuillWrapperProps = React.ComponentProps<typeof ReactQuillClass> & {
+    forwardedRef?: React.Ref<ReactQuillClass>;
+};
 
 const ReactQuill = dynamic(async () => {
     const { default: RQ } = await import("react-quill-new");
-    return ({ forwardedRef, ...props }: any) => <RQ ref={forwardedRef} {...props} />;
+    const QuillWithForwardedRef = ({ forwardedRef, ...props }: QuillWrapperProps) => <RQ ref={forwardedRef} {...props} />;
+    return QuillWithForwardedRef;
 }, { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
+interface PageBlockData {
+    heading?: string;
+    subheading?: string;
+    mediaUrl?: string;
+    mediaType?: string;
+    align?: string;
+    content?: string;
+    caption?: string;
+    text?: string;
+    buttonText?: string;
+    buttonLink?: string;
+    variant?: string;
+}
+
+interface PageBlock {
+    id: string;
+    type: string;
+    data: PageBlockData;
+}
+
+interface PageInitialData {
+    id?: string;
+    title?: string;
+    slug?: string;
+    status?: "PUBLISHED" | "DRAFT";
+    featuredImage?: string;
+    template?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    pageConfig?: Record<string, string>;
+    content?: (Omit<PageBlock, "id"> & { id?: string })[];
+}
+
 interface PageFormProps {
-    initialData?: any;
+    initialData?: PageInitialData;
 }
 
 export default function PageCreationForm({ initialData }: PageFormProps) {
@@ -45,7 +81,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
     // Media Modal State
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [activeMediaBlock, setActiveMediaBlock] = useState<{ id: string, target: 'block' | 'quill' | 'featured' } | null>(null);
-    const quillRefs = useRef<any>({});
+    const quillRefs = useRef<Record<string, ReactQuillClass | null>>({});
 
     const [title, setTitle] = useState(initialData?.title || "");
     const [slug, setSlug] = useState(initialData?.slug || "");
@@ -54,10 +90,11 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
     const [template, setTemplate] = useState(initialData?.template || "DEFAULT");
     const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle || "");
     const [metaDescription, setMetaDescription] = useState(initialData?.metaDescription || "");
-    const [pageConfig, setPageConfig] = useState<any>(initialData?.pageConfig || {});
-    const [blocks, setBlocks] = useState<any[]>(
-        (initialData?.content || []).map((b: any) => ({
+    const [pageConfig, setPageConfig] = useState<Record<string, string>>(initialData?.pageConfig || {});
+    const [blocks, setBlocks] = useState<PageBlock[]>(
+        (initialData?.content || []).map((b) => ({
             ...b,
+            // eslint-disable-next-line react-hooks/purity -- one-time fallback id generation for legacy blocks saved without ids
             id: b.id || `block-${Math.random().toString(36).substr(2, 9)}`
         }))
     );
@@ -67,6 +104,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
 
     useEffect(() => {
         if (!isSlugManual && !initialData) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional derived-state sync: auto-generate slug while the user types a title
             setSlug(generateSlug(title));
         }
     }, [title, isSlugManual, initialData]);
@@ -127,7 +165,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
         }
     };
 
-    const updateBlockData = (id: string, key: string, value: any) => {
+    const updateBlockData = (id: string, key: string, value: string) => {
         setBlocks(blocks.map(b => b.id === id ? { ...b, data: { ...b.data, [key]: value } } : b));
     };
 
@@ -146,7 +184,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
             // Insert ALL selected media into the Quill editor at the current selection
             const quill = quillRefs.current[activeMediaBlock.id]?.getEditor();
             if (quill) {
-                let range = quill.getSelection(true);
+                const range = quill.getSelection(true);
                 let currentIndex = range.index;
 
                 selectedMedias.forEach((media) => {
@@ -195,8 +233,9 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
             }
             router.push("/dashboard/super-admin/storefront/pages");
             router.refresh();
-        } catch (error: any) {
-            Swal.fire({ title: "Error", text: error.response?.data?.message || "Failed to save page", icon: "error" });
+        } catch (error) {
+            const axiosError = error as AxiosError<{ message?: string }>;
+            Swal.fire({ title: "Error", text: axiosError.response?.data?.message || "Failed to save page", icon: "error" });
         } finally {
             setLoading(false);
         }
@@ -230,7 +269,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <select
                             value={status}
-                            onChange={(e) => setStatus(e.target.value as any)}
+                            onChange={(e) => setStatus(e.target.value as "PUBLISHED" | "DRAFT")}
                             className="bg-muted/50 border border-border rounded-2xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer hover:bg-muted transition-colors"
                         >
                             <option value="DRAFT">Draft</option>
@@ -328,6 +367,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                                         {block.data.mediaType === "VIDEO" ? (
                                                                             <video src={block.data.mediaUrl} className="w-full h-full object-cover" muted autoPlay loop />
                                                                         ) : (
+                                                                            // eslint-disable-next-line @next/next/no-img-element -- dynamic media-library URL with unknown dimensions; admin preview thumbnail
                                                                             <img src={block.data.mediaUrl} className="w-full h-full object-cover" alt="Hero" />
                                                                         )}
                                                                         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover/media:opacity-100 flex items-center justify-center transition-opacity">
@@ -364,7 +404,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                         >
                                                             <ReactQuill 
                                                                 theme="snow" 
-                                                                forwardedRef={(el: any) => quillRefs.current[block.id] = el}
+                                                                forwardedRef={(el: ReactQuillClass | null) => { quillRefs.current[block.id] = el; }}
                                                                 value={block.data.content} 
                                                                 onChange={(content: string) => updateBlockData(block.id, "content", content)} 
                                                                 modules={quillModules} 
@@ -385,6 +425,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                                     {block.data.mediaType === "VIDEO" ? (
                                                                         <video src={block.data.mediaUrl} className="w-full h-full object-cover" controls />
                                                                     ) : (
+                                                                        // eslint-disable-next-line @next/next/no-img-element -- dynamic media-library URL with unknown dimensions; admin preview thumbnail
                                                                         <img src={block.data.mediaUrl} className="w-full h-full object-cover" alt="Content" />
                                                                     )}
                                                                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover/media:opacity-100 flex items-center justify-center transition-opacity pointer-events-none">
@@ -477,6 +518,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                         >
                                             {featuredImage ? (
                                                 <>
+                                                    {/* eslint-disable-next-line @next/next/no-img-element -- dynamic media-library URL with unknown dimensions; admin preview thumbnail */}
                                                     <img src={featuredImage} className="w-full h-full object-cover" alt="Featured" />
                                                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover/featured:opacity-100 flex items-center justify-center transition-opacity">
                                                         <span className="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Replace</span>
@@ -533,7 +575,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                     <input
                                                         type="text"
                                                         value={pageConfig[key] || ""}
-                                                        onChange={(e) => setPageConfig((prev: any) => ({ ...prev, [key]: e.target.value }))}
+                                                        onChange={(e) => setPageConfig((prev) => ({ ...prev, [key]: e.target.value }))}
                                                         placeholder={placeholder}
                                                         className="w-full bg-muted/30 border border-border rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                                                     />

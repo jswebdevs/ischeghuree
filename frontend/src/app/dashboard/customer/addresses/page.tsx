@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Plus, Edit2, Trash2, Star, CheckCircle, X, Home, Briefcase, Map, Loader2, Copy } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
+import type { AxiosError } from "axios";
 
 // Matching your Prisma AddressType enum
 type AddressType = 'HOME' | 'WORK' | 'SHIPPING' | 'BILLING' | 'PRESENT' | 'PERMANENT';
@@ -60,6 +61,7 @@ export default function AddressesPage() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
         fetchAddresses();
     }, []);
 
@@ -69,6 +71,7 @@ export default function AddressesPage() {
             const sourceAddress = addresses[index];
             if (isDuplicate) {
                 // Prepare as a NEW address (no ID, no editing index, forced not default)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured only to omit `id` from the copy
                 const { id, ...dataToCopy } = sourceAddress;
                 setFormData({ ...dataToCopy, isDefault: false });
                 setEditingIndex(null); // Null means we are adding, not editing
@@ -138,8 +141,9 @@ export default function AddressesPage() {
             setAddresses(updatedAddresses);
             closeModal();
             Swal.fire({ toast: true, position: "bottom-end", icon: "success", title: "Address saved successfully", showConfirmButton: false, timer: 2000, background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
-        } catch (error: any) {
-            Swal.fire({ title: "Error", text: error.response?.data?.message || "Failed to save address.", icon: "error", background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
+        } catch (error) {
+            const axiosError = error as AxiosError<{ message?: string }>;
+            Swal.fire({ title: "Error", text: axiosError.response?.data?.message || "Failed to save address.", icon: "error", background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
         } finally {
             setSaving(false);
         }
@@ -160,7 +164,7 @@ export default function AddressesPage() {
         });
 
         if (result.isConfirmed) {
-            let updatedAddresses = [...addresses];
+            const updatedAddresses = [...addresses];
             const deletedWasDefault = updatedAddresses[index].isDefault;
             updatedAddresses.splice(index, 1);
 
@@ -173,7 +177,7 @@ export default function AddressesPage() {
                 await api.patch("/users/profile", { addresses: updatedAddresses });
                 setAddresses(updatedAddresses);
                 Swal.fire({ toast: true, position: "bottom-end", icon: "success", title: "Address deleted", showConfirmButton: false, timer: 2000, background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
-            } catch (error) {
+            } catch {
                 Swal.fire({ toast: true, position: "bottom-end", icon: "error", title: "Failed to delete address", showConfirmButton: false, timer: 3000, background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
             }
         }
@@ -192,7 +196,7 @@ export default function AddressesPage() {
             await api.patch("/users/profile", { addresses: updatedAddresses });
             setAddresses(updatedAddresses);
             Swal.fire({ toast: true, position: "bottom-end", icon: "success", title: "Default address updated", showConfirmButton: false, timer: 2000, background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
-        } catch (error) {
+        } catch {
             Swal.fire({ toast: true, position: "bottom-end", icon: "error", title: "Failed to set default", showConfirmButton: false, timer: 3000, background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
         }
     };

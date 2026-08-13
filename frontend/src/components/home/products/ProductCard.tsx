@@ -1,26 +1,43 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Layers, ArrowUpRight, ClipboardList } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
 
-interface ProductCardProps {
-  product: any;
+export interface CardProduct {
+  id: string;
+  name?: string;
+  slug?: string;
+  featuredImage?: { originalUrl: string } | null;
+  material?: string | null;
+  priceMin?: number | string | null;
+  priceMax?: number | string | null;
+  priceNote?: string | null;
+  tags?: string[] | null;
 }
 
-const formatRange = (min: number | null, max: number | null) => {
+interface ProductCardProps {
+  product: CardProduct;
+}
+
+const formatRange = (symbol: string, min: number | null, max: number | null) => {
   if (min == null && max == null) return null;
-  if (min != null && max != null && min !== max) return `$${min.toLocaleString()} – $${max.toLocaleString()}`;
+  if (min != null && max != null && min !== max)
+    return `${symbol}${min.toLocaleString()} – ${symbol}${max.toLocaleString()}`;
   const v = (min ?? max)!;
-  return `$${v.toLocaleString()}`;
+  return `${symbol}${v.toLocaleString()}`;
 };
 
-// Pure server component now — no client JS, no framer-motion. Animation handled by Tailwind.
+// Client component — currency symbol (৳/BDT) comes from SettingsContext.
 export default function ProductCard({ product }: ProductCardProps) {
+  const { symbol } = useCurrency();
   const imageUrl = product.featuredImage?.originalUrl;
   const material = product.material;
 
   const min = product.priceMin != null ? Number(product.priceMin) : null;
   const max = product.priceMax != null ? Number(product.priceMax) : null;
-  const priceLabel = formatRange(min, max);
+  const priceLabel = formatRange(symbol, min, max);
 
   return (
     <article
@@ -30,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={product.name}
+            alt={product.name ?? ""}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
@@ -54,7 +71,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             href={`/products/${product.slug}`}
             className="flex-1 bg-background text-foreground py-3 rounded-full font-bold text-[10px] flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors tracking-widest"
           >
-            DISCOVER DETAILS
+            বিস্তারিত দেখুন — DETAILS
             <ArrowUpRight className="w-4 h-4" />
           </Link>
         </div>
@@ -79,10 +96,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-end justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-2xl font-black text-primary">
-              {priceLabel || product.priceNote || 'Quote on request'}
+              {priceLabel || product.priceNote || 'কোটেশন নিন — Quote on request'}
             </span>
             <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-medium">
-              {priceLabel ? 'Range pricing' : 'Custom quote'}
+              {priceLabel ? 'মূল্য পরিসীমা — Price range' : 'পাইকারী ও খুচরা — Wholesale & retail'}
             </span>
           </div>
 
@@ -91,7 +108,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black uppercase tracking-tighter hover:scale-105 transition-transform whitespace-nowrap"
           >
             <ClipboardList className="w-3.5 h-3.5" />
-            Order Now
+            অর্ডার করুন
           </Link>
         </div>
       </div>

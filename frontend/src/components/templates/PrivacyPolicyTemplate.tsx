@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck, Lock, Eye, UserCheck, Database, Share2 } from "lucide-react";
+import type { PageData } from "./types";
 
 interface PrivacyPolicyTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 const dataCategories = [
@@ -17,8 +19,8 @@ const dataCategories = [
 export default function PrivacyPolicyTemplate({ data }: PrivacyPolicyTemplateProps) {
     const { title, content, updatedAt } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"
@@ -100,7 +102,7 @@ export default function PrivacyPolicyTemplate({ data }: PrivacyPolicyTemplatePro
                 </motion.div>
 
                 <p className="text-center text-muted-foreground text-sm font-medium">
-                    Privacy concerns? <a href="/contact-us" className="text-primary font-bold hover:underline">Contact us</a> and we will respond within 24 hours.
+                    Privacy concerns? <Link href="/contact-us" className="text-primary font-bold hover:underline">Contact us</Link> and we will respond within 24 hours.
                 </p>
             </div>
         </div>

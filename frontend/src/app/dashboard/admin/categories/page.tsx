@@ -8,15 +8,24 @@ import CategoryTable from "@/components/dashboard/shared/category/CategoryTable"
 import ViewCategoryModal from "@/components/dashboard/shared/category/ViewCategoryModal";
 import CategoryForm from "@/components/dashboard/shared/category/CategoryForm";
 
+interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  parentId?: string | null;
+  icon?: string;
+}
+
 export default function CategoriesManagementPage() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -31,6 +40,7 @@ export default function CategoriesManagementPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; fetchCategories sets loading state synchronously by design
     fetchCategories();
   }, []);
 
@@ -40,13 +50,13 @@ export default function CategoriesManagementPage() {
     setIsFormOpen(true);
   };
 
-  const handleEdit = (category: any) => {
+  const handleEdit = (category: Category) => {
     setSelectedCategory(category);
     setIsViewOpen(false); // Close view modal if it was open
     setIsFormOpen(true);
   };
 
-  const handleView = (category: any) => {
+  const handleView = (category: Category) => {
     setSelectedCategory(category);
     setIsViewOpen(true);
   };
@@ -73,7 +83,7 @@ export default function CategoriesManagementPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-black text-foreground tracking-tight">Categories</h1>
-          <p className="text-sm text-muted-foreground">Manage your store's product categories</p>
+          <p className="text-sm text-muted-foreground">Manage your store&apos;s product categories</p>
         </div>
 
         <button

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Plus, Film } from "lucide-react";
-import MediaManager from "@/components/dashboard/shared/media/MediaManager";
+import MediaManager, { type MediaItem } from "@/components/dashboard/shared/media/MediaManager";
 
 interface MediaPartProps {
   product: {
@@ -16,25 +16,25 @@ export default function MediaPart({ product, update }: MediaPartProps) {
   const [isFeaturedManagerOpen, setIsFeaturedManagerOpen] = useState(false);
   const [isGalleryManagerOpen, setIsGalleryManagerOpen] = useState(false);
 
-  const handleFeaturedSelect = (media: any) => {
+  const handleFeaturedSelect = (media: MediaItem | MediaItem[]) => {
     const selectedMedia = Array.isArray(media) ? media[0] : media;
     if (!selectedMedia) return;
     update({
       featuredImage: {
         id: selectedMedia.id,
         thumbUrl: selectedMedia.thumbUrl,
-        originalUrl: selectedMedia.originalUrl,
+        originalUrl: selectedMedia.originalUrl ?? "",
       },
     });
     setIsFeaturedManagerOpen(false);
   };
 
-  const handleGallerySelect = (medias: any) => {
+  const handleGallerySelect = (medias: MediaItem | MediaItem[]) => {
     const mediaArray = Array.isArray(medias) ? medias : [medias];
-    const newGallery = mediaArray.map((media: any) => ({
+    const newGallery = mediaArray.map((media) => ({
       id: media.id,
       thumbUrl: media.thumbUrl,
-      originalUrl: media.originalUrl,
+      originalUrl: media.originalUrl ?? "",
     }));
     update({ galleryImages: [...product.galleryImages, ...newGallery] });
     setIsGalleryManagerOpen(false);
@@ -66,6 +66,7 @@ export default function MediaPart({ product, update }: MediaPartProps) {
                   {isVideo(product.featuredImage.originalUrl) ? (
                     <video src={product.featuredImage.originalUrl} className="w-full h-full object-cover opacity-80" autoPlay muted loop playsInline />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element -- CDN media thumbnail with unknown dimensions
                     <img src={product.featuredImage.thumbUrl || product.featuredImage.originalUrl} alt="Featured" className="w-full h-full object-cover" />
                   )}
 
@@ -95,6 +96,7 @@ export default function MediaPart({ product, update }: MediaPartProps) {
                   {isVideo(img.originalUrl) ? (
                     <video src={img.originalUrl} className="w-full h-full object-cover opacity-80" muted loop playsInline />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element -- CDN media thumbnail with unknown dimensions
                     <img src={img.thumbUrl || img.originalUrl} alt="Gallery" className="w-full h-full object-cover" />
                   )}
 

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Edit, Trash2, ExternalLink, FileText, Loader2 } from "lucide-react";
+import { Search, Edit, Trash2, ExternalLink, FileText } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2"; // 🔥 Import SweetAlert2
+import type { AxiosError } from "axios";
 
 interface StorefrontPage {
     id: string;
@@ -28,6 +29,7 @@ export default function PageTable() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; fetchPages sets loading state synchronously by design
         fetchPages();
     }, []);
 
@@ -62,12 +64,13 @@ export default function PageTable() {
             });
 
             fetchPages();
-        } catch (error: any) {
+        } catch (error) {
             console.error("Failed to delete page:", error);
 
+            const axiosError = error as AxiosError<{ message?: string }>;
             Swal.fire({
                 title: "Error!",
-                text: error.response?.data?.message || "Failed to delete page.",
+                text: axiosError.response?.data?.message || "Failed to delete page.",
                 icon: "error",
                 confirmButtonColor: "hsl(var(--primary))",
                 background: 'hsl(var(--card))',

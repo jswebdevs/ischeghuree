@@ -29,6 +29,18 @@ interface MobileCategoryDrawerProps {
   onClose: () => void;
 }
 
+interface DrawerCategory {
+  id: string;
+  name?: string;
+  slug?: string;
+  icon?: string;
+  parentId?: string | null;
+}
+
+interface NestedDrawerCategory extends DrawerCategory {
+  children: DrawerCategory[];
+}
+
 const QUICK_LINKS = [
   { name: "Home", href: "/", Icon: House },
   { name: "Catalog", href: "/products", Icon: PackageSearch },
@@ -39,11 +51,11 @@ const QUICK_LINKS = [
 
 export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategoryDrawerProps) {
   const { settings } = useSettings();
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<NestedDrawerCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
-  const storeName = settings?.storeName || "GinaG";
+  const storeName = settings?.storeName || "ইচ্ছে ঘুড়ি";
   const supportEmail = settings?.supportEmail || settings?.contactEmail;
   const supportPhone = settings?.supportPhone || settings?.contactPhone;
 
@@ -53,11 +65,11 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
       setLoading(true);
       try {
         const res = await api.get("/categories");
-        const allCats = res.data.data || [];
-        const parents = allCats.filter((c: any) => !c.parentId);
-        const nested = parents.map((parent: any) => ({
+        const allCats: DrawerCategory[] = res.data.data || [];
+        const parents = allCats.filter((c) => !c.parentId);
+        const nested = parents.map((parent) => ({
           ...parent,
-          children: allCats.filter((c: any) => c.parentId === parent.id),
+          children: allCats.filter((c) => c.parentId === parent.id),
         }));
         setCategories(nested);
       } catch (error) {
@@ -198,7 +210,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           }`}
                         >
                           <div className="py-1 pl-12 pr-3 flex flex-col">
-                            {cat.children.map((child: any) => (
+                            {cat.children.map((child) => (
                               <Link
                                 key={child.id}
                                 href={`/categories/${child.slug}`}
@@ -243,7 +255,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
           )}
           <p className="text-[10px] font-black text-center text-muted-foreground uppercase tracking-[0.2em] pt-2 border-t border-border/40 flex items-center justify-center gap-1.5">
             <Sparkles className="w-3 h-3 text-primary" />
-            {storeName} · Custom Charms
+            {storeName} · Jute &amp; Hair Accessories
           </p>
         </div>
       </div>

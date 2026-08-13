@@ -12,12 +12,13 @@ import {
   LuSearch
 } from "react-icons/lu";
 
-import MediaManager from "@/components/dashboard/shared/media/MediaManager";
+import MediaManager, { type MediaItem } from "@/components/dashboard/shared/media/MediaManager";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
+import type { AdminCategory } from "./types";
 
 interface CategoryFormProps {
-  initialData?: any;
-  categories: any[];
+  initialData?: AdminCategory | null;
+  categories: AdminCategory[];
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -76,15 +77,16 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
         parentId: formData.parentId === "" ? null : formData.parentId,
       };
 
-      if (isEdit) {
+      if (isEdit && initialData) {
         await api.patch(`/categories/${initialData.id}`, payload);
       } else {
         await api.post('/categories', payload);
       }
       onSuccess();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Save failed:", err);
-      setError(err.response?.data?.message || "Failed to save category");
+      const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(apiMessage || "Failed to save category");
     } finally {
       setLoading(false);
     }
@@ -276,9 +278,9 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
             <div className="bg-background flex-1 overflow-hidden">
               <MediaManager
                 isPicker={true}
-                onSelect={(media) => {
+                onSelect={(media: MediaItem) => {
                   setFormData({ ...formData, featuredImageId: media.id });
-                  setMediaPreview(media.thumbUrl || media.originalUrl);
+                  setMediaPreview(media.thumbUrl || media.originalUrl || null);
                   setShowMediaPicker(false);
                 }}
               />

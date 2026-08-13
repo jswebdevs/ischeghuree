@@ -3,34 +3,26 @@ import { getGlobalSettings } from '@/lib/getSettings';
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const settings = await getGlobalSettings();
-  
-  const storeName = settings?.storeName || 'Ginag';
-  const description = settings?.tagline || 'Premium E-commerce platform';
-  const faviconUrl = settings?.favicon?.originalUrl || '/dreamecommerce.svg';
+
+  const storeName = settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree';
+  const description = settings?.tagline || 'আভিজাত্যের ছোঁয়া… A touch of elegance…';
+  const faviconUrl = settings?.favicon?.originalUrl || '/ische-ghuree.svg';
+  const isSvg = faviconUrl.toLowerCase().endsWith('.svg');
 
   return {
     name: storeName,
-    short_name: storeName,
+    short_name: 'ইচ্ছে ঘুড়ি',
     description: description,
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    // Brand palette (DESIGN.md §1): deep night blue bg, kite-sky blue accent.
+    background_color: '#0d1b2a',
+    theme_color: '#1476b8',
     icons: [
       {
         src: faviconUrl,
         sizes: 'any',
-        type: 'image/x-icon',
-      },
-      {
-        src: faviconUrl,
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        src: faviconUrl,
-        sizes: '512x512',
-        type: 'image/png',
+        ...(isSvg ? { type: 'image/svg+xml' } : {}),
       },
     ],
   };

@@ -3,11 +3,20 @@
 import { useEffect, useState } from "react";
 import { AlignLeft, List, Plus, Trash2, Wand2 } from "lucide-react";
 import Swal from "sweetalert2";
+import { useCurrency } from "@/context/SettingsContext";
+import type { ProductFormState } from "../ProductForm";
 
-export default function BasicInfoPart({ product, update }: any) {
+interface BasicInfoPartProps {
+  product: ProductFormState;
+  update: (fields: Partial<ProductFormState>) => void;
+}
+
+export default function BasicInfoPart({ product, update }: BasicInfoPartProps) {
+  const { symbol } = useCurrency();
   const [descType, setDescType] = useState<"paragraph" | "list">("paragraph");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- switch to list mode when the loaded description contains line breaks
     if (product.shortDesc?.includes("\n")) setDescType("list");
   }, [product.shortDesc]);
 
@@ -71,7 +80,7 @@ export default function BasicInfoPart({ product, update }: any) {
             type="text"
             value={product.productCode}
             onChange={(e) => update({ productCode: e.target.value.toUpperCase().trim() })}
-            placeholder="e.g. CHM-001"
+            placeholder="e.g. JUT-001"
             className="w-full bg-background border border-border rounded-2xl pl-5 pr-12 py-3 text-lg font-bold text-foreground focus:ring-2 focus:ring-primary outline-none transition-all font-mono uppercase"
           />
           <button
@@ -102,7 +111,7 @@ export default function BasicInfoPart({ product, update }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-primary/5 rounded-3xl border border-primary/10">
         <div>
           <label className="text-[10px] font-black text-primary uppercase tracking-widest mb-2 block">
-            Price Min ($)
+            Price Min ({symbol})
           </label>
           <input
             type="number"
@@ -110,13 +119,13 @@ export default function BasicInfoPart({ product, update }: any) {
             step="0.01"
             value={product.priceMin ?? ""}
             onChange={(e) => update({ priceMin: e.target.value })}
-            placeholder="25.00"
+            placeholder="250"
             className="w-full bg-background border border-primary/20 rounded-xl px-4 py-2.5 text-primary font-black outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </div>
         <div>
           <label className="text-[10px] font-black text-primary uppercase tracking-widest mb-2 block">
-            Price Max ($)
+            Price Max ({symbol})
           </label>
           <input
             type="number"
@@ -124,7 +133,7 @@ export default function BasicInfoPart({ product, update }: any) {
             step="0.01"
             value={product.priceMax ?? ""}
             onChange={(e) => update({ priceMax: e.target.value })}
-            placeholder="45.00"
+            placeholder="450"
             className="w-full bg-background border border-primary/20 rounded-xl px-4 py-2.5 text-primary font-black outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </div>
@@ -136,7 +145,7 @@ export default function BasicInfoPart({ product, update }: any) {
             type="text"
             value={product.priceNote ?? ""}
             onChange={(e) => update({ priceNote: e.target.value })}
-            placeholder='e.g. "Final price varies by initial choice"'
+            placeholder='e.g. "পাইকারী দামের জন্য কল করুন — Call for wholesale pricing"'
             className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </div>

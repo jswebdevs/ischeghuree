@@ -37,7 +37,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
         email: true, 
         roles: true, 
         status: true,
-        phoneVerified: true // Helpful for checkout validation later
+        phoneVerified: true // Used by phone-verification-gated features
       }
     });
 

@@ -11,9 +11,9 @@ import { protect, authorize, optionalAuth } from '../middlewares/auth.middleware
 const router = Router();
 
 // --- Public Routes ---
-router.get('/', getAllPages);
-// Use optionalAuth so admins can preview DRAFT pages, but guests cannot
-router.get('/:slug', optionalAuth, getPageBySlug); 
+// Use optionalAuth so admins can list/preview DRAFT pages, but guests cannot
+router.get('/', optionalAuth, getAllPages);
+router.get('/:slug', optionalAuth, getPageBySlug);
 
 // --- Protected/Admin Routes ---
 router.post('/', protect, authorize('SUPER_ADMIN', 'ADMIN'), createPage);

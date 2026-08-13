@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import type { IconType } from 'react-icons';
 
 // --- MASSIVE ICON PACK IMPORTS ---
 import * as AiIcons from "react-icons/ai";
@@ -33,7 +34,7 @@ import * as VscIcons from "react-icons/vsc";
 import * as WiIcons from "react-icons/wi";
 
 // Combine into a single lookup object
-const IconLibrary: Record<string, any> = {
+const IconLibrary: Record<string, IconType> = {
     ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
     ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons,
     ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
@@ -44,7 +45,7 @@ interface IconRendererProps {
     name?: string;
     icon?: string; // 🔥 Added to resolve persistent TS build error
     className?: string;
-    fallback?: React.ComponentType<any>;
+    fallback?: React.ComponentType<{ className?: string }>;
 }
 
 export default function IconRenderer({
@@ -62,6 +63,7 @@ export default function IconRenderer({
 
     // 2. Handle Image URLs
     if (resolvedIconName.startsWith('http') || resolvedIconName.startsWith('/')) {
+        // eslint-disable-next-line @next/next/no-img-element -- arbitrary admin-supplied icon URL with unknown dimensions; next/image sizing would break the layout
         return <img src={resolvedIconName} alt="icon" className={`object-contain ${className}`} />;
     }
 

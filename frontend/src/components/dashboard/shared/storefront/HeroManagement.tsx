@@ -4,14 +4,11 @@ import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
     Layout,
     Plus,
     Loader2,
-    Check,
-    X,
     Pencil,
     Trash2,
     Image as ImageIcon,
@@ -20,18 +17,26 @@ import {
     EyeOff
 } from "lucide-react";
 
+interface HeroRecord {
+    id: string;
+    title: string;
+    subtitle?: string | null;
+    description?: string | null;
+    buttonText?: string | null;
+    buttonLink?: string | null;
+    order?: number;
+    isActive: boolean;
+    image?: { originalUrl?: string; thumbUrl?: string } | null;
+}
+
 interface HeroManagementProps {
     role: "super-admin" | "admin";
 }
 
 export default function HeroManagement({ role }: HeroManagementProps) {
     const router = useRouter();
-    const [heroes, setHeroes] = useState<any[]>([]);
+    const [heroes, setHeroes] = useState<HeroRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        fetchHeroes();
-    }, []);
 
     const fetchHeroes = async () => {
         setIsLoading(true);
@@ -45,11 +50,16 @@ export default function HeroManagement({ role }: HeroManagementProps) {
         }
     };
 
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchHeroes flips the loading flag synchronously before its async fetch
+        fetchHeroes();
+    }, []);
+
     const openAddModal = () => {
         router.push(`/dashboard/${role}/storefront/hero/create`);
     };
 
-    const openEditModal = (hero: any) => {
+    const openEditModal = (hero: HeroRecord) => {
         router.push(`/dashboard/${role}/storefront/hero/${hero.id}/edit`);
     };
 
@@ -69,7 +79,7 @@ export default function HeroManagement({ role }: HeroManagementProps) {
                 await api.delete(`/hero/${id}`);
                 setHeroes(heroes.filter(h => h.id !== id));
                 toast.success("Hero section deleted successfully");
-            } catch (error) {
+            } catch {
                 toast.error("Failed to delete hero section");
             }
         }
@@ -81,7 +91,7 @@ export default function HeroManagement({ role }: HeroManagementProps) {
             toast.success(`Hero section ${!currentStatus ? 'activated' : 'deactivated'}`);
             // Re-fetch to handle the "only one active" rule on frontend
             fetchHeroes();
-        } catch (error) {
+        } catch {
             toast.error("Failed to update status");
         }
     };
@@ -127,6 +137,7 @@ export default function HeroManagement({ role }: HeroManagementProps) {
                                 {/* IMAGE PREVIEW */}
                                 <div className="relative w-full lg:w-72 h-48 lg:h-auto bg-muted overflow-hidden">
                                     {hero.image?.originalUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element -- CDN hero asset with unknown dimensions
                                         <img src={hero.image.originalUrl} alt={hero.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">

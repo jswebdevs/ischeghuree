@@ -95,7 +95,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     
     res.json({
       success: true,
-      message: `Welcome back to Ginag, ${user.firstName}!`,
+      message: `স্বাগতম, ${user.firstName}! Welcome back to Ische Ghuree.`,
       token,
       user: userData,
     });

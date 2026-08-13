@@ -4,13 +4,8 @@ import cookieParser from 'cookie-parser';
 import globalErrorHandler from './middlewares/global.error.handler';
 import { apiLimiter } from './middlewares/rateLimit';
 import routes from './routes';
-import path from 'path';
-import { initCronJobs } from './utils/cron';
 
 const app: Application = express();
-
-// Initialize Cron Jobs
-initCronJobs();
 
 // 1. Global Middleware — CORS
 //
@@ -22,7 +17,8 @@ initCronJobs();
 //   CORS_ALLOWED_ORIGIN_PATTERNS comma-separated JS regex sources (case-insensitive)
 //                                e.g. "^https://.*\\.example\\.com$"
 //   CORS_ALLOW_ALL=1             allow any origin (echo it back) — debugging only
-//   CLIENT_URL                   single primary frontend origin (also accepted)
+//   CLIENT_URL                   single primary frontend origin (also accepted;
+//                                legacy typo Client_URL and CORS_ORIGIN honored too)
 //
 // Throwing inside cors's origin callback strips the response of CORS headers
 // (browsers then report "No Access-Control-Allow-Origin header"), so on
@@ -43,7 +39,8 @@ const allowedOrigins: string[] = [
     'http://127.0.0.1:5173',
   ]),
   process.env['CLIENT_URL'] || '',
-  process.env['Client_URL'] || '',
+  process.env['Client_URL'] || '', // legacy typo'd env name, kept as fallback
+  process.env['CORS_ORIGIN'] || '',
   ...splitCsv(process.env['CORS_ALLOWED_ORIGINS']),
 ].filter(Boolean);
 
@@ -98,9 +95,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
-app.use(express.static('public')); // For static assets
 app.use(cookieParser());
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Trust the first proxy hop (Vercel/Cloudflare) so rate limiting and
 // req.ip use the real client IP from X-Forwarded-For instead of the proxy.
 app.set('trust proxy', 1);
@@ -113,7 +108,7 @@ app.get('/test', (req, res) => res.send('Router is working'));
 
 // 3. Health Check (Good for Docker)
 app.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'DreamReloaded Server Running' });
+  res.status(200).json({ status: 'success', message: 'Ische Ghuree API running' });
 });
 
 // 4. Global Error Handler (Must be last)

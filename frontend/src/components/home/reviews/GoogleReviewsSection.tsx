@@ -64,9 +64,12 @@ export default function GoogleReviewsSection() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
             <Star className="w-3 h-3 fill-current" /> Google Reviews
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-heading uppercase tracking-tight mb-3">
-            What our customers say
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-heading mb-1">
+            গ্রাহকদের ভালোবাসা
           </h2>
+          <p className="text-sm text-muted-foreground tracking-[0.2em] uppercase mb-3">
+            What our customers say
+          </p>
           {data.rating != null && (
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <div className="flex text-yellow-500">

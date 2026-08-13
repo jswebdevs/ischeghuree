@@ -87,12 +87,13 @@ export default function ChatLogin({ onLoginSuccess }: { onLoginSuccess: (token: 
                 // 4. Tell the ChatWidget to switch views
                 onLoginSuccess(token);
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error("Chat Login Error:", err);
+            const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
             Swal.fire({
                 icon: "error",
                 title: "Login Failed",
-                text: err.response?.data?.message || "Invalid credentials. Please try again.",
+                text: apiMessage || "Invalid credentials. Please try again.",
                 toast: true,
                 position: "top-end",
                 showConfirmButton: false,

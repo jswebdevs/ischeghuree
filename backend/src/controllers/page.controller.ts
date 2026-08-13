@@ -4,6 +4,13 @@ import prisma from '../config/prisma';
 const generateSlug = (title: string) =>
   title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
+// Public routes attach the user via optionalAuth; only admins may see
+// non-PUBLISHED pages.
+const isAdminReq = (req: Request): boolean => {
+  const roles: string[] = (req as any).user?.roles || [];
+  return roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
+};
+
 // @desc    Create a new custom page
 // @route   POST /api/v1/pages
 export const createPage = async (req: Request, res: Response): Promise<void> => {
@@ -48,6 +55,10 @@ export const getAllPages = async (req: Request, res: Response): Promise<void> =>
     const whereClause: any = {};
     if (status) whereClause.status = status;
 
+    // Guests and customers only ever see published pages, regardless of the
+    // status filter they pass. Admins can list drafts.
+    if (!isAdminReq(req)) whereClause.status = 'PUBLISHED';
+
     const pages = await prisma.storefrontPage.findMany({
       where: whereClause,
       orderBy: { updatedAt: 'desc' },
@@ -73,7 +84,7 @@ export const getPageBySlug = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    if (page.status === "DRAFT" && (!req.user || !req.user.roles.includes("ADMIN"))) {
+    if (page.status === "DRAFT" && !isAdminReq(req)) {
       res.status(403).json({ success: false, message: "This page is not published yet." });
       return;
     }

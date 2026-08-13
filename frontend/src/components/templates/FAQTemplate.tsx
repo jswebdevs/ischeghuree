@@ -1,18 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { HelpCircle, ChevronDown, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import type { PageData } from "./types";
 
 interface FAQTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function FAQTemplate({ data }: FAQTemplateProps) {
     const { title, content } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     // Simple parser for Q&A if they follow the <strong>Q:</strong> pattern
     // Otherwise fallback to rich text
@@ -73,11 +75,14 @@ export default function FAQTemplate({ data }: FAQTemplateProps) {
                         </div>
                         <div className="flex-1">
                             <h3 className="text-2xl font-black uppercase tracking-tight text-heading mb-1">Still have questions?</h3>
-                            <p className="text-muted-foreground font-medium">We're here to help you with your custom orders on WhatsApp.</p>
+                            <p className="text-muted-foreground font-medium">আমাদের কল করুন বা মেসেজ পাঠান — we&apos;re happy to help with your custom order.</p>
                         </div>
-                        <button className="bg-primary text-primary-foreground px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-theme-md">
+                        <Link
+                            href="/contact-us"
+                            className="bg-primary text-primary-foreground px-8 py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-theme-md"
+                        >
                             Contact Support
-                        </button>
+                        </Link>
                     </motion.div>
                 </div>
             </div>

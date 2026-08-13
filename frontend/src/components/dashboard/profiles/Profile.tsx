@@ -7,7 +7,8 @@ import { useUserStore } from "@/store/useUserStore";
 import Swal from "sweetalert2";
 
 export default function ProfilePage() {
-    const { user: storeUser, fetchUser } = useUserStore() as any;
+    // fetchUser is not part of the store contract; guarded before every call below.
+    const { fetchUser } = useUserStore() as { fetchUser?: () => void };
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [loading, setLoading] = useState(true);
@@ -127,7 +128,13 @@ export default function ProfilePage() {
         setSaving(true);
 
         try {
-            const payload: any = {
+            const payload: {
+                firstName: string;
+                lastName: string;
+                gender?: string;
+                dob?: string;
+                password?: string;
+            } = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 gender: formData.gender || undefined,
@@ -148,10 +155,11 @@ export default function ProfilePage() {
                 toast: true, position: "bottom-end", icon: "success", title: "Profile updated successfully", showConfirmButton: false, timer: 2000,
                 background: "hsl(var(--card))", color: "hsl(var(--foreground))"
             });
-        } catch (error: any) {
+        } catch (error) {
             console.error("Profile update failed", error);
+            const apiMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
             Swal.fire({
-                title: "Error", text: error.response?.data?.message || "Failed to update profile.", icon: "error", confirmButtonColor: "var(--primary)",
+                title: "Error", text: apiMessage || "Failed to update profile.", icon: "error", confirmButtonColor: "var(--primary)",
                 background: "hsl(var(--card))", color: "hsl(var(--foreground))",
                 customClass: { popup: "border border-border rounded-2xl shadow-theme-lg", htmlContainer: "text-muted-foreground" }
             });
@@ -186,6 +194,7 @@ export default function ProfilePage() {
                         {uploadingAvatar ? (
                             <Loader2 className="w-8 h-8 text-primary animate-spin" />
                         ) : avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- Cloudinary avatar URL with unknown dimensions
                             <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                             <UserIcon className="w-12 h-12 text-muted-foreground/50" />

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { Noto_Serif_Bengali, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import Navbar from "@/components/shared/navbar/Navbar";
-import { AuthProvider } from "@/context/AuthContext";
 import TanstackProvider from "@/lib/tanstack";
 import Footer from "@/components/shared/footer/Footer";
 import { Toaster } from "sonner";
@@ -11,9 +11,27 @@ import { Toaster } from "sonner";
 import { getGlobalSettings, getActiveTheme } from "@/lib/getSettings";
 import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 
-// 🔥 Import the Global Floating Components
+// Global Floating Components
 import FloatingWidget from "@/components/shared/chatbox/FloatingWidget";
 import ToTopButton from "@/components/shared/totop/ToTopButton";
+
+// Brand typography — Bangla-first pairing loaded via next/font.
+// Headings: Noto Serif Bengali (elegant serif, renders Bangla + Latin).
+// Body/UI:  Hind Siliguri (humanist sans with first-class Bangla support).
+// The CSS vars feed the Tailwind @theme tokens --font-heading / --font-body
+// in globals.css, exposed as the `font-heading` / `font-body` utilities.
+const notoSerifBengali = Noto_Serif_Bengali({
+  subsets: ["bengali", "latin"],
+  variable: "--font-noto-serif-bengali",
+  display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-hind-siliguri",
+  display: "swap",
+});
 
 export const revalidate = 60; // revalidate layout data at most every 60 s
 
@@ -21,19 +39,28 @@ export const revalidate = 60; // revalidate layout data at most every 60 s
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGlobalSettings();
 
-  const storeName = settings?.storeName || "Ginag";
-  const tagline = settings?.tagline || "The best place to find everything you need with fast delivery.";
-  const faviconUrl = settings?.favicon?.originalUrl || settings?.favicon?.thumbUrl || "/dreamecommerce.svg";
-  const ogImageUrl = settings?.ogImage?.originalUrl || "https://yourdreamshop.com/default-og.jpg";
+  const storeName = settings?.storeName || "ইচ্ছে ঘুড়ি — Ische Ghuree";
+  const tagline = settings?.tagline || "আভিজাত্যের ছোঁয়া… A touch of elegance…";
+  const faviconUrl = settings?.favicon?.originalUrl || settings?.favicon?.thumbUrl || "/ische-ghuree.svg";
+  const ogImageUrl = settings?.ogImage?.originalUrl || "/ische-ghuree-logo.jpg";
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_CLIENT_URL || "https://yourdreamshop.com"),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_CLIENT_URL || "https://ischeghuree.com"),
     title: {
       default: `${storeName} | ${tagline}`,
       template: `%s | ${storeName}`,
     },
     description: tagline,
-    keywords: ["handmade bag charms", "custom purse charms", "personalized charms", "beaded bag charms", storeName.toLowerCase()],
+    keywords: [
+      "jute bags Bangladesh",
+      "পাটের ব্যাগ",
+      "hair accessories",
+      "scrunchies",
+      "headbands",
+      "ইচ্ছে ঘুড়ি",
+      "Ische Ghuree",
+      "eco-friendly bags Dhaka",
+    ],
     authors: [{ name: storeName }],
     creator: storeName,
     publisher: storeName,
@@ -43,16 +70,9 @@ export async function generateMetadata(): Promise<Metadata> {
       telephone: false,
     },
     icons: {
-      icon: [
-        { url: faviconUrl },
-        { url: faviconUrl, sizes: '32x32', type: 'image/png' },
-        { url: faviconUrl, sizes: '16x16', type: 'image/png' },
-      ],
+      icon: [{ url: faviconUrl }],
       shortcut: faviconUrl,
-      apple: [
-        { url: faviconUrl },
-        { url: faviconUrl, sizes: '180x180', type: 'image/png' },
-      ],
+      apple: [{ url: faviconUrl }],
       other: [
         {
           rel: 'apple-touch-icon-precomposed',
@@ -60,14 +80,13 @@ export async function generateMetadata(): Promise<Metadata> {
         },
       ],
     },
-    manifest: '/manifest.json',
     alternates: {
       canonical: '/',
     },
 
     openGraph: {
       type: "website",
-      locale: "en_US",
+      locale: "bn_BD",
       url: "/",
       siteName: storeName,
       title: storeName,
@@ -104,8 +123,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export function generateViewport() {
   return {
     themeColor: [
-      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-      { media: '(prefers-color-scheme: dark)', color: '#000000' },
+      // Brand palette (DESIGN.md §1): day-sky cloud white / deep night blue.
+      { media: '(prefers-color-scheme: light)', color: '#f6fafd' },
+      { media: '(prefers-color-scheme: dark)', color: '#0d1b2a' },
     ],
   };
 }
@@ -125,19 +145,19 @@ export default async function RootLayout({
   ]);
 
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
-  const maintenanceMessage = settings?.maintenanceMessage || "Our store is currently undergoing maintenance. We'll be back shortly!";
+  const maintenanceMessage = settings?.maintenanceMessage || "সাইটটি এখন রক্ষণাবেক্ষণে আছে — we are briefly down for maintenance. We'll be back shortly!";
 
   // Organization JSON-LD — search engines use this for the Knowledge Panel
   // (logo, contact, social) and to associate reviews with the brand.
   const baseUrl =
-    process.env.NEXT_PUBLIC_CLIENT_URL?.replace(/\/$/, '') || 'https://ginag-frontend.vercel.app';
+    process.env.NEXT_PUBLIC_CLIENT_URL?.replace(/\/$/, '') || 'https://ischeghuree.com';
   const orgJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: settings?.storeName || 'Ginag',
+    name: settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree',
     url: baseUrl,
-    logo: settings?.logo?.originalUrl || `${baseUrl}/dreamecommerce.svg`,
-    description: settings?.tagline || 'Handmade custom purse charms and chains.',
+    logo: settings?.logo?.originalUrl || `${baseUrl}/ische-ghuree-logo.jpg`,
+    description: settings?.tagline || 'পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — eco-friendly jute bags and hair accessories from Dhaka.',
     ...(settings?.contactEmail && { email: settings.contactEmail }),
     ...(settings?.contactPhone && {
       contactPoint: {
@@ -150,12 +170,16 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="bn"
+      suppressHydrationWarning
+      className={`${notoSerifBengali.variable} ${hindSiliguri.variable}`}
+    >
       {/* Apply dark class before paint to prevent flash of wrong theme */}
       <head>
         {/* Resource hints — establish early connection to the API server */}
-        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
-        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:4000'} />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:4000'} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
@@ -167,7 +191,7 @@ export default async function RootLayout({
           document.documentElement.classList.add('dark');
         `}} />
       </head>
-      <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+      <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:shadow-theme-lg"
@@ -175,9 +199,8 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <TanstackProvider>
-          <AuthProvider>
-            <SettingsProvider initialSettings={settings}>
-              <ThemeProvider initialTheme={activeTheme}>
+          <SettingsProvider initialSettings={settings}>
+            <ThemeProvider initialTheme={activeTheme}>
 
               <MaintenanceGuard
                 isMaintenanceMode={isMaintenanceMode}
@@ -198,9 +221,9 @@ export default async function RootLayout({
                 </>
               )}
 
-              {/* Centered toaster styled to the dark + gold brand. Tokens
-                  reference the theme CSS vars so future palette changes flow
-                  through here too. */}
+              {/* Centered toaster styled with the Ische Ghuree theme tokens
+                  (sky-blue primary). Palette changes in the DB flow through
+                  here automatically. */}
               <Toaster
                 position="top-center"
                 offset="40vh"
@@ -211,26 +234,25 @@ export default async function RootLayout({
                 toastOptions={{
                   classNames: {
                     toast:
-                      "!bg-card !border !border-amber-500/30 !text-foreground !shadow-2xl !shadow-amber-500/10 !rounded-2xl",
+                      "!bg-card !border !border-primary/30 !text-foreground !shadow-2xl !shadow-primary/10 !rounded-2xl",
                     title: "!text-foreground !font-bold !tracking-tight",
                     description: "!text-muted-foreground",
                     actionButton:
-                      "!bg-amber-500 !text-black !font-black !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!bg-amber-400",
+                      "!bg-primary !text-primary-foreground !font-black !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!bg-primary/90",
                     cancelButton:
                       "!bg-transparent !text-muted-foreground !border !border-border !font-bold !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!text-foreground",
                     closeButton:
                       "!bg-card !border !border-border !text-muted-foreground hover:!text-foreground !cursor-pointer",
                     success: "!border-emerald-500/40 !text-emerald-200",
                     error: "!border-destructive/40 !text-destructive",
-                    warning: "!border-amber-500/40 !text-amber-200",
-                    info: "!border-blue-500/40 !text-blue-200",
+                    warning: "!border-secondary/40 !text-secondary",
+                    info: "!border-primary/40 !text-primary",
                   },
                 }}
               />
 
             </ThemeProvider>
-            </SettingsProvider>
-          </AuthProvider>
+          </SettingsProvider>
         </TanstackProvider>
       </body>
     </html>

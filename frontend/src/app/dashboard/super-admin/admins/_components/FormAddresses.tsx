@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin, Plus, Trash2, CheckCircle2, Home } from "lucide-react";
 import Swal from "sweetalert2";
+import type { AdminAddress, AdminFormSectionProps } from "./AdminForm";
 
 const DIVISIONS = ["Dhaka", "Chittagong", "Rajshahi", "Khulna", "Barishal", "Sylhet", "Rangpur", "Mymensingh"];
 const ADDRESS_TYPES = ["PRESENT", "PERMANENT", "HOME", "WORK", "SHIPPING", "BILLING"];
@@ -15,7 +16,7 @@ interface AddressInputProps {
     isMono?: boolean;
 }
 
-export default function FormAddresses({ data, update }: any) {
+export default function FormAddresses({ data, update }: AdminFormSectionProps) {
     const [isAdding, setIsAdding] = useState(false);
 
     const [draft, setDraft] = useState({
@@ -46,12 +47,13 @@ export default function FormAddresses({ data, update }: any) {
 
         const newAddresses = [...(data.addresses || [])];
 
+        const draftToAdd = { ...draft };
         if (newAddresses.length === 0 || draft.isDefault) {
             newAddresses.forEach(a => a.isDefault = false);
-            draft.isDefault = true;
+            draftToAdd.isDefault = true;
         }
 
-        newAddresses.push({ ...draft });
+        newAddresses.push(draftToAdd);
         update({ addresses: newAddresses });
 
         setDraft({
@@ -93,7 +95,7 @@ export default function FormAddresses({ data, update }: any) {
         const newAddresses = [...data.addresses];
         newAddresses.splice(index, 1);
 
-        if (newAddresses.length > 0 && !newAddresses.some((a: any) => a.isDefault)) {
+        if (newAddresses.length > 0 && !newAddresses.some((a: AdminAddress) => a.isDefault)) {
             newAddresses[0].isDefault = true;
         }
 
@@ -101,7 +103,7 @@ export default function FormAddresses({ data, update }: any) {
     };
 
     const setDefault = (index: number) => {
-        const newAddresses = data.addresses.map((addr: any, i: number) => ({
+        const newAddresses = data.addresses.map((addr: AdminAddress, i: number) => ({
             ...addr,
             isDefault: i === index
         }));
@@ -130,7 +132,7 @@ export default function FormAddresses({ data, update }: any) {
 
             {/* List Existing Addresses */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(data.addresses || []).map((addr: any, idx: number) => (
+                {(data.addresses || []).map((addr: AdminAddress, idx: number) => (
                     <div key={idx} className={`p-5 border rounded-2xl relative group transition-all ${addr.isDefault ? 'bg-primary/5 border-primary/30' : 'bg-background border-border hover:border-primary/30'}`}>
                         <button
                             type="button" onClick={() => removeAddress(idx)}

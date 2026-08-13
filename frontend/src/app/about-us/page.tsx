@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const page = await getPageBySlug("about-us");
     return {
         title: page?.metaTitle || page?.title || "About Us",
-        description: page?.metaDescription || "Learn about our handmade bag charm shop and our story.",
+        description: page?.metaDescription || "ইচ্ছে ঘুড়ি — Ische Ghuree: পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ, ঢাকা থেকে। Eco-friendly jute bags and hair accessories from Dhaka — learn our story.",
     };
 }
 

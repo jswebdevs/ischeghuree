@@ -1,0 +1,7 @@
+allowBuilds:
+  '@ffprobe-installer/linux-x64': true
+  '@prisma/engines': true
+  bcrypt: true
+  ffmpeg-static: true
+  prisma: true
+  sharp: true

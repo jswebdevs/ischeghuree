@@ -1,144 +1,111 @@
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 
-const GOLD = "#d4af37";
-
-interface HeroData {
+export interface OrderHeroData {
+  title?: string | null;
+  subtitle?: string | null;
+  personName?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  instructions?: string | null;
+  badgeText?: string | null;
   imageUrl?: string | null;
   bottomImageUrl?: string | null;
 }
 
-// Top-left gold-dust cluster — heart sits above the swarm.
-const TOP_LEFT_DOTS: Array<{ top: string; left: string; size: number; delay: string }> = [
-  { top: "10px", left: "12px", size: 3,   delay: "0s"   },
-  { top: "26px", left: "26px", size: 1.5, delay: "0.4s" },
-  { top: "16px", left: "46px", size: 2,   delay: "0.8s" },
-  { top: "36px", left: "14px", size: 1,   delay: "1.2s" },
-  { top: "44px", left: "34px", size: 2,   delay: "0.6s" },
-  { top: "30px", left: "66px", size: 1,   delay: "1.0s" },
-  { top: "56px", left: "20px", size: 2.5, delay: "0.2s" },
-  { top: "52px", left: "52px", size: 1.5, delay: "1.4s" },
-  { top: "66px", left: "38px", size: 1,   delay: "1.7s" },
-  { top: "74px", left: "12px", size: 1.5, delay: "0.9s" },
-  { top: "20px", left: "82px", size: 1,   delay: "1.5s" },
-  { top: "8px",  left: "60px", size: 1.5, delay: "1.9s" },
-  { top: "44px", left: "78px", size: 1,   delay: "1.1s" },
-];
-
-function HeartDivider({ className = "" }: { className?: string }) {
+/** Small vector kite in the four brand facet colours. */
+function KiteMark({ className = "" }: { className?: string }) {
   return (
-    <div
-      className={`relative flex items-center justify-center gap-3 ${className}`}
-      aria-hidden="true"
-    >
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
-      <Heart className="w-3 h-3" style={{ color: GOLD, fill: GOLD }} />
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
+    <svg viewBox="0 0 40 56" className={className} aria-hidden="true">
+      <polygon points="20,2 36,20 20,38 4,20" fill="none" />
+      <polygon points="20,2 36,20 20,20" fill="var(--kite-cyan)" />
+      <polygon points="36,20 20,38 20,20" fill="var(--kite-magenta)" />
+      <polygon points="20,38 4,20 20,20" fill="var(--kite-green)" />
+      <polygon points="4,20 20,2 20,20" fill="var(--kite-orange)" />
+      <path
+        d="M20 38 C 22 44, 16 48, 20 54"
+        fill="none"
+        stroke="var(--kite-magenta)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** Four-colour ribbon divider. */
+function KiteRibbon({ className = "" }: { className?: string }) {
+  return (
+    <div className={`flex h-1 rounded-full overflow-hidden ${className}`} aria-hidden="true">
+      <span className="flex-1" style={{ background: "var(--kite-cyan)" }} />
+      <span className="flex-1" style={{ background: "var(--kite-orange)" }} />
+      <span className="flex-1" style={{ background: "var(--kite-magenta)" }} />
+      <span className="flex-1" style={{ background: "var(--kite-green)" }} />
     </div>
   );
 }
 
-function DiamondDivider({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`relative flex items-center justify-center gap-3 ${className}`}
-      aria-hidden="true"
-    >
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
-      <span className="text-[11px] leading-none tracking-normal" style={{ color: GOLD }}>
-        ◆
-      </span>
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
-    </div>
-  );
-}
+export default function OrderHero({ hero }: { hero: OrderHeroData }) {
+  const title = hero.title?.trim() || "ইচ্ছে ঘুড়ি";
+  const subtitle = hero.subtitle?.trim() || "আবহমান বাংলার ঐতিহ্য";
+  const personName = hero.personName?.trim() || "Ische Ghuree";
+  const phone = hero.phone?.trim() || "01820-417426";
+  const email = hero.email?.trim() || "ischeghuree@gmail.com";
+  const badgeText = hero.badgeText?.trim() || "আপনার জন্যই তৈরি — Made Just For You!";
+  const instructions = hero.instructions?.trim() || "";
+  const phoneHref = `tel:${phone.replace(/[^\d+]/g, "")}`;
 
-export default function OrderHero({ hero }: { hero: HeroData }) {
   return (
-    <section className="relative bg-black text-white overflow-hidden flex flex-col justify-around p-2">
-      {/* S-1 — top-left love icon + gold-dust cluster */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <Heart
-          className="absolute top-2 left-2.5 w-6 h-6 animate-float-slow"
-          style={{ color: GOLD, fill: GOLD }}
-          aria-hidden="true"
-        />
-        {TOP_LEFT_DOTS.map((s, i) => (
-          <span
-            key={`tl-${i}`}
-            className="absolute rounded-full animate-twinkle"
-            style={{
-              top: s.top,
-              left: s.left,
-              width: `${s.size}px`,
-              height: `${s.size}px`,
-              background: GOLD,
-              boxShadow: `0 0 ${s.size * 2.5}px ${GOLD}`,
-              animationDelay: s.delay,
-            }}
-          />
-        ))}
-      </div>
+    <section className="relative overflow-hidden flex flex-col justify-between p-5 md:p-6 bg-gradient-to-b from-primary/10 via-background to-muted">
+      {/* Decorative kite, top-left */}
+      <KiteMark className="absolute top-4 left-4 w-8 h-11 opacity-70 pointer-events-none" />
 
-      {/* S-2 — central content: logo, PURSE DECOR, diamond, tagline, cursive, heart divider */}
-      <div className="relative z-10 flex flex-col items-center text-center px-3 pt-3">
-        {/* Logo: full width, height auto — preserves aspect ratio at the column's width */}
+      {/* Central content — logo, title, subtitle, tagline */}
+      <div className="relative z-10 flex flex-col items-center text-center px-2 pt-6">
         {hero.imageUrl ? (
           <Image
             src={hero.imageUrl}
-            alt="GinaG Purse Decor"
+            alt={`${title} logo`}
             width={800}
             height={300}
             sizes="(max-width: 768px) 100vw, 400px"
-            className="w-full h-auto max-h-44 object-contain"
+            className="w-full h-auto max-h-44 object-contain rounded-2xl"
             priority
           />
         ) : (
-          <h1
-            className="text-5xl md:text-6xl italic font-black tracking-tight"
-            style={{ color: GOLD, fontFamily: "'Brush Script MT', cursive" }}
-          >
-            GinaG
-          </h1>
+          <Image
+            src="/ische-ghuree-logo.jpg"
+            alt="ইচ্ছে ঘুড়ি — Ische Ghuree logo"
+            width={400}
+            height={400}
+            sizes="(max-width: 768px) 60vw, 260px"
+            className="w-40 md:w-48 h-auto rounded-2xl border border-border shadow-theme-sm"
+            priority
+          />
         )}
 
-        {/* PURSE DECOR — gold */}
-        <p
-          className="mt-2 text-xl md:text-2xl font-black uppercase tracking-[0.3em]"
-          style={{ color: GOLD, fontFamily: "'Cormorant Garamond', 'Playfair Display', serif" }}
-        >
-          Purse Decor
+        <h1 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-heading">{title}</h1>
+
+        <p className="mt-1 text-sm md:text-base font-semibold uppercase tracking-[0.2em] text-primary">
+          {subtitle}
         </p>
 
-        {/* Diamond divider */}
-        <DiamondDivider className="mt-2 w-full max-w-[260px]" />
+        <KiteRibbon className="mt-3 w-full max-w-[240px]" />
 
-        {/* CUSTOM CHARMS. TIMELESS STYLE. — gold */}
-        <p
-          className="mt-2 text-[11px] md:text-sm font-black uppercase tracking-[0.18em]"
-          style={{ color: GOLD }}
-        >
-          Custom Charms. Timeless Style.
+        <p className="mt-3 text-sm md:text-base text-foreground font-medium">
+          আভিজাত্যের ছোঁয়া…{" "}
+          <span className="text-muted-foreground italic">A touch of elegance…</span>
         </p>
-
-        {/* Decorate. Personalize. Shine. — cursive, white */}
-        <p
-          className="mt-1 text-lg md:text-xl italic text-white"
-          style={{ fontFamily: "'Brush Script MT', 'Pinyon Script', cursive" }}
-        >
-          Decorate. Personalize. Shine.
+        <p className="mt-1 text-xs md:text-sm text-muted-foreground">
+          পাটের ব্যাগ · হেয়ার অ্যাক্সেসরিজ — Jute bags &amp; hair accessories
         </p>
-
-        {/* Heart divider */}
-        <HeartDivider className="mt-2 w-full max-w-[260px]" />
       </div>
 
-      {/* S-3 — bottom: image as background on left, To order + badge stacked on right (allowed to overlap the image) */}
-      <div className="relative flex-1 mt-2 min-h-[260px]">
-        {/* Bottom image — full height, 60% width, anchored at bottom-left, with a soft radial mask that fades the top and right edges into the black background */}
+      {/* Bottom — product image on the left, contact + badge on the right */}
+      <div className="relative flex-1 mt-4 min-h-[240px]">
         {hero.bottomImageUrl && (
           <div
-            className="absolute left-0 bottom-0 w-[60%] h-full z-0"
+            className="absolute left-0 bottom-0 w-[58%] h-full z-0 rounded-2xl overflow-hidden"
             style={{
               WebkitMaskImage:
                 "radial-gradient(ellipse 110% 110% at 0% 100%, black 55%, transparent 100%)",
@@ -156,40 +123,52 @@ export default function OrderHero({ hero }: { hero: HeroData }) {
           </div>
         )}
 
-        {/* Right column — z-10 above the image so they can overlap. Centered vertically with a wider gap between blocks. */}
-        <div className="relative z-10 h-full flex flex-col items-end justify-center gap-8 md:gap-10 pr-3">
-          {/* Row 1: To order + contact */}
-          <div className="text-center max-w-[60%]">
-            <p
-              className="text-4xl md:text-5xl italic font-black mb-2 leading-none"
-              style={{ color: GOLD, fontFamily: "'Brush Script MT', 'Pinyon Script', cursive" }}
-            >
-              To order
+        <div
+          className={`relative z-10 h-full flex flex-col justify-center gap-6 md:gap-8 ${
+            hero.bottomImageUrl ? "items-end pr-2" : "items-center"
+          }`}
+        >
+          {/* Order contact block */}
+          <div className="text-center max-w-[70%] bg-card/80 backdrop-blur-sm border border-border rounded-2xl px-5 py-4 shadow-theme-sm">
+            <p className="font-heading text-xl md:text-2xl font-bold text-heading mb-0.5">
+              অর্ডার করতে
             </p>
-            <div className="text-sm md:text-lg text-white/90 leading-snug space-y-1">
-              <a href="tel:6152022317" className="block hover:underline">
-                Text or call 615-202-2317
-              </a>
-              <a href="mailto:alexgreeng@att.net" className="block hover:underline">
-                or email alexgreeng@att.net
-              </a>
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary mb-2">
+              To order · {personName}
+            </p>
+            {instructions ? (
+              <p className="text-sm text-foreground leading-snug whitespace-pre-line">
+                {instructions}
+              </p>
+            ) : (
+              <div className="text-sm text-foreground leading-snug space-y-1">
+                <a
+                  href={phoneHref}
+                  className="flex items-center justify-center gap-1.5 hover:text-primary transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 text-primary" /> কল করুন {phone}
+                </a>
+                <a
+                  href={`mailto:${email}`}
+                  className="flex items-center justify-center gap-1.5 hover:text-primary transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5 text-primary" /> {email}
+                </a>
+              </div>
+            )}
           </div>
 
-          {/* Row 2: Badge — bigger, double gold border (outer 5px, inner 2px), bg at 60% opacity */}
+          {/* Round badge — kite-colour ring */}
           <div
-            className="relative shrink-0 rounded-full p-1.5"
-            style={{ border: `5px solid ${GOLD}` }}
+            className="relative shrink-0 rounded-full p-1"
+            style={{
+              background:
+                "conic-gradient(var(--kite-cyan), var(--kite-orange), var(--kite-magenta), var(--kite-green), var(--kite-cyan))",
+            }}
           >
-            <div
-              className="w-28 h-28 md:w-36 md:h-36 rounded-full border-2 flex items-center justify-center text-center px-3 bg-black/60"
-              style={{ borderColor: GOLD, color: GOLD }}
-            >
-              <p
-                className="text-[10px] md:text-[11px] font-black uppercase leading-tight tracking-[0.08em]"
-                style={{ fontFamily: "serif" }}
-              >
-                Custom Purse Decor Made Just For You!
+            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-card border border-border flex items-center justify-center text-center px-4">
+              <p className="text-[10px] md:text-[11px] font-bold leading-snug text-heading">
+                {badgeText}
               </p>
             </div>
           </div>

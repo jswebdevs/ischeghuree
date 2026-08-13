@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Skills installer / updater for the ginag project.
+# Skills installer / updater for the Ische Ghuree (ইচ্ছে ঘুড়ি) project.
 #
 # Installs project-local skills under .claude/skills/ and registers any
 # CLAUDE.md sections + hooks the skills need.
@@ -165,9 +165,9 @@ Commands:
 
 Skills managed:
   - graphify           knowledge-graph CLI + Claude Code skill (pip-installed)
-  - prisma             Prisma 7 + Supabase workflow for ginag-backend
+  - prisma             Prisma 7 + Supabase workflow for backend
   - nodemailer-gmail   Gmail SMTP transactional email pattern
-  - next-app-router    Next.js 16 App Router conventions for ginag-frontend
+  - next-app-router    Next.js 16 App Router conventions for frontend
   - tailwind-v4-theme  Tailwind v4 + dynamic theme tokens
   - react-hook-form-zod  RHF + Zod validation pattern (used by /order-now)
   - cloudinary-media   multer + sharp/ffmpeg + Cloudinary upload pipeline

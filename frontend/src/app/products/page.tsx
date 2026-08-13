@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Catalog",
-  description: "Browse our full collection of handcrafted purse charms.",
+  description:
+    "আমাদের সম্পূর্ণ সংগ্রহ দেখুন — browse the full Ische Ghuree collection of handmade jute bags and hair accessories.",
   alternates: { canonical: "/shop" },
 };
 

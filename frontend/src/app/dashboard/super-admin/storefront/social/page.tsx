@@ -20,8 +20,17 @@ import {
 
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 
+interface SocialLink {
+    id: string;
+    name: string;
+    icon: string;
+    link: string;
+    order: number;
+    isActive: boolean;
+}
+
 export default function SocialLinksPage() {
-    const [links, setLinks] = useState<any[]>([]);
+    const [links, setLinks] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -39,10 +48,6 @@ export default function SocialLinksPage() {
         isActive: true,
     });
 
-    useEffect(() => {
-        fetchLinks();
-    }, []);
-
     const fetchLinks = async () => {
         setIsLoading(true);
         try {
@@ -55,13 +60,18 @@ export default function SocialLinksPage() {
         }
     };
 
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; fetchLinks sets loading state synchronously by design
+        fetchLinks();
+    }, []);
+
     const openAddModal = () => {
         setEditingId(null);
         setFormData({ name: "", icon: "LuLink2", link: "", order: links.length, isActive: true });
         setIsModalOpen(true);
     };
 
-    const openEditModal = (link: any) => {
+    const openEditModal = (link: SocialLink) => {
         setEditingId(link.id);
         setFormData({
             name: link.name,
@@ -110,7 +120,7 @@ export default function SocialLinksPage() {
                 await api.delete(`/social/${id}`);
                 setLinks(links.filter(l => l.id !== id));
                 Swal.fire({ icon: "success", title: "Deleted", toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
-            } catch (error) {
+            } catch {
                 Swal.fire({ title: "Error", text: "Failed to delete link.", icon: "error" });
             }
         }
@@ -120,7 +130,7 @@ export default function SocialLinksPage() {
         try {
             await api.patch(`/social/${id}`, { isActive: !currentStatus });
             setLinks(links.map(l => l.id === id ? { ...l, isActive: !currentStatus } : l));
-        } catch (error) {
+        } catch {
             console.error("Failed to toggle status");
         }
     };
@@ -159,7 +169,7 @@ export default function SocialLinksPage() {
                     <div className="flex flex-col h-64 items-center justify-center text-muted-foreground">
                         <LuLink2 className="w-12 h-12 mb-4 opacity-20" />
                         <p className="font-bold">No social links configured.</p>
-                        <p className="text-sm">Click 'Add New Link' to create one.</p>
+                        <p className="text-sm">Click &apos;Add New Link&apos; to create one.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto custom-scrollbar">

@@ -2,6 +2,13 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
 
+// Only admins (attached via optionalAuth) may see DRAFT/ARCHIVED products
+// in search results.
+const isAdminReq = (req: Request): boolean => {
+  const roles: string[] = (req as any).user?.roles || [];
+  return roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
+};
+
 export const globalSearch = async (req: Request, res: Response): Promise<void> => {
   try {
     const query = req.query.q as string;
@@ -13,18 +20,23 @@ export const globalSearch = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    const productWhere: any = {
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { productCode: { contains: query, mode: 'insensitive' } },
+        { tags: { has: query.toLowerCase() } } // Searches inside your tags array too!
+      ]
+    };
+    if (!isAdminReq(req)) {
+      productWhere.productStatus = { notIn: ['DRAFT', 'ARCHIVED'] };
+    }
+
     // Run database queries in parallel for maximum speed
     const [products, categories] = await Promise.all([
-      
+
       // 1. Find matching products
       prisma.product.findMany({
-        where: {
-          OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { productCode: { contains: query, mode: 'insensitive' } },
-            { tags: { has: query.toLowerCase() } } // Searches inside your tags array too!
-          ]
-        },
+        where: productWhere,
         take: limit,
         // Include the image so the frontend can display it in the dropdown
         include: { 

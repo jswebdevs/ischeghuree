@@ -11,9 +11,52 @@ import StatusTagsPart from "./form-parts/StatusTagsPart";
 import DescriptionPart from "./form-parts/DescriptionPart";
 import AdditionalInfoPart from "./form-parts/AdditionalInfoPart";
 import MediaPart from "./form-parts/MediaPart";
+import ImmersiveMediaPart from "./form-parts/ImmersiveMediaPart";
 import CategorySidebar from "./form-parts/CategorySidebar";
 
-export default function ProductForm({ initialData }: { initialData?: any }) {
+export interface ProductFormState {
+  name: string;
+  slug: string;
+  productCode: string;
+  priceMin: number | string | null;
+  priceMax: number | string | null;
+  priceNote: string;
+  shortDesc: string;
+  longDesc: string;
+  tags: string[];
+  productStatus: string;
+  blogUrl: string;
+  categoryIds: string[];
+  featuredImage?: { id: string; thumbUrl?: string; originalUrl: string };
+  galleryImages: { id: string; thumbUrl?: string; originalUrl: string }[];
+  attributes: unknown[];
+  material: string;
+  usage: string;
+  usefulness: string;
+  awareness: string;
+  specifications: string;
+  suggestedProducts: string[];
+}
+
+// The product record as fetched from the API for edit mode — a superset of
+// the form state with relational fields.
+export type ProductFormInitialData = Omit<
+  Partial<ProductFormState>,
+  "specifications" | "suggestedProducts"
+> & {
+  id: string;
+  specifications?: string | { key: string; value: string }[] | null;
+  suggestedProducts?: { id: string }[] | string[];
+  categories?: { id: string }[] | null;
+  featuredImageId?: string | null;
+  images?: { id: string; thumbUrl?: string; originalUrl: string }[] | null;
+  model3d?: { id: string; originalUrl: string } | null;
+  turntableFrames?: { id: string; originalUrl: string; sequence: number }[];
+};
+
+export default function ProductForm({ initialData: initialDataProp }: { initialData?: { id: string } | null }) {
+  // Callers only guarantee an id; cast to the richer API shape used below.
+  const initialData = initialDataProp as ProductFormInitialData | null | undefined;
   const router = useRouter();
   const isEdit = !!initialData;
 
@@ -35,7 +78,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     categoryIds: [] as string[],
     featuredImage: undefined as { id: string; thumbUrl?: string; originalUrl: string } | undefined,
     galleryImages: [] as { id: string; thumbUrl?: string; originalUrl: string }[],
-    attributes: [] as any[],
+    attributes: [] as unknown[],
     material: "",
     usage: "",
     usefulness: "",
@@ -50,10 +93,12 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
       if (typeof initialData.specifications === "string") {
         parsedSpecs = initialData.specifications;
       } else if (Array.isArray(initialData.specifications)) {
-        parsedSpecs = initialData.specifications.map((s: any) => `${s.key}: ${s.value}`).join("\n");
+        parsedSpecs = initialData.specifications.map((s) => `${s.key}: ${s.value}`).join("\n");
       }
 
-      setProduct({
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration of the form state from the fetched product
+      setProduct((prev) => ({
+        ...prev,
         ...initialData,
         priceMin:
           initialData.priceMin === null || initialData.priceMin === undefined
@@ -65,21 +110,24 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
             : Number(initialData.priceMax),
         priceNote: initialData.priceNote || "",
 
-        categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
-        suggestedProducts:
-          initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
+        categoryIds: initialData.categories?.map((c) => c.id) || initialData.categoryIds || [],
+        suggestedProducts: (initialData.suggestedProducts?.map(
+          (p: { id: string } | string) => (p as { id: string }).id
+        ) ||
+          initialData.suggestedProducts ||
+          []) as string[],
 
         featuredImage:
           initialData.featuredImage || initialData.featuredImageId
             ? {
-                id: initialData.featuredImage?.id || initialData.featuredImageId,
+                id: (initialData.featuredImage?.id || initialData.featuredImageId) as string,
                 thumbUrl: initialData.featuredImage?.thumbUrl || "",
                 originalUrl: initialData.featuredImage?.originalUrl || "",
               }
             : undefined,
 
         galleryImages:
-          initialData.images?.map((img: any) => ({
+          initialData.images?.map((img) => ({
             id: img.id,
             thumbUrl: img.thumbUrl,
             originalUrl: img.originalUrl,
@@ -90,7 +138,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         usefulness: initialData.usefulness || "",
         awareness: initialData.awareness || "",
         specifications: parsedSpecs,
-      });
+      }));
 
       setIsInitialized(true);
     }
@@ -142,7 +190,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
       };
 
-      if (isEdit) {
+      if (isEdit && initialData) {
         await api.patch(`/products/${initialData.id}`, payload);
       } else {
         await api.post("/products", payload);
@@ -150,9 +198,10 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
       Swal.fire("Success", "Product saved successfully", "success");
       router.push("/dashboard/super-admin/products");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      Swal.fire("Error", err.response?.data?.message || "Internal Server Error", "error");
+      const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      Swal.fire("Error", apiMessage || "Internal Server Error", "error");
     } finally {
       setLoading(false);
     }
@@ -166,6 +215,13 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
           <BasicInfoPart product={product} update={updateProduct} />
           <DescriptionPart product={product} update={updateProduct} />
           <MediaPart product={product} update={updateProduct} />
+          {isEdit && initialData?.id && (
+            <ImmersiveMediaPart
+              productId={initialData.id}
+              initialModel3d={initialData.model3d}
+              initialFrames={initialData.turntableFrames}
+            />
+          )}
         </div>
 
         <div className="space-y-8">

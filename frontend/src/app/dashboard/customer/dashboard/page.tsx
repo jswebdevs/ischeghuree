@@ -15,7 +15,7 @@ export default function UserDashboardPage() {
             Hello, <span className="text-primary">{user?.firstName || "there"}</span>! 👋
           </h1>
           <p className="text-muted-foreground mt-2">
-            Browse the catalog or place a custom order — we'll be in touch shortly.
+            Browse the catalog or place a custom order — we&apos;ll be in touch shortly.
           </p>
         </div>
         <Link

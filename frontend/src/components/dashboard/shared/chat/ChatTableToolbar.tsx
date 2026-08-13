@@ -2,11 +2,20 @@
 
 import { Search, CheckCircle2, Archive, ShieldBan, Trash2 } from "lucide-react";
 
+interface ChatTableToolbarProps {
+    search: string;
+    setSearch: (value: string) => void;
+    statusFilter: string;
+    setStatusFilter: (value: string) => void;
+    selectedCount: number;
+    onBulkAction: (status: string) => void;
+}
+
 export default function ChatTableToolbar({
     search, setSearch,
     statusFilter, setStatusFilter,
     selectedCount, onBulkAction
-}: any) {
+}: ChatTableToolbarProps) {
     return (
         <div className="p-4 border-b border-border bg-muted/20 flex flex-col sm:flex-row justify-between items-center gap-4">
 

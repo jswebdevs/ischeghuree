@@ -5,8 +5,13 @@ import { Filter, SlidersHorizontal, X, Search } from "lucide-react";
 import api from "@/lib/axios";
 import ProductCard from "@/components/home/products/ProductCard";
 
+interface ShopProduct {
+  id: string;
+  [key: string]: unknown;
+}
+
 export default function ShopPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ShopProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -37,7 +42,9 @@ export default function ShopPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch on mount and sort change; fetchProducts sets loading state synchronously by design
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchProducts is recreated every render; only `sort` should auto-retrigger, other filters apply on submit
   }, [sort]);
 
   const handleApplyFilters = (e: React.FormEvent) => {

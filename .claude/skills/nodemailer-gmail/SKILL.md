@@ -1,12 +1,12 @@
 ---
 name: nodemailer-gmail
-description: "Send transactional email from ginag-backend via Gmail SMTP using utils/mailer.ts. Use whenever a controller needs to send a confirmation, notification, or reset email. Encapsulates the Gmail App Password flow and the order-confirmation HTML template."
+description: "Send transactional email from backend via Gmail SMTP using utils/mailer.ts. Use whenever a controller needs to send a confirmation, notification, or reset email. Encapsulates the Gmail App Password flow and the order-confirmation HTML template."
 trigger: send email
 ---
 
-# Nodemailer + Gmail (ginag-backend)
+# Nodemailer + Gmail (backend)
 
-All outgoing email goes through [ginag-backend/src/utils/mailer.ts](../../../ginag-backend/src/utils/mailer.ts). It uses Gmail's SMTP via App Password (NOT OAuth). Credentials come from `.env`:
+All outgoing email goes through [backend/src/utils/mailer.ts](../../../backend/src/utils/mailer.ts). It uses Gmail's SMTP via App Password (NOT OAuth). Credentials come from `.env`:
 
 - `GMAIL_USER` — full Gmail address (sender)
 - `GMAIL_APP_PASSWORD` — 16-char app password (NOT the account password)
@@ -23,7 +23,7 @@ await sendMail({
   subject: `Order Confirmation — ${order.orderNumber}`,
   html: '<p>Thanks for your order…</p>',
   text: 'Thanks for your order…',  // fallback for plain-text clients
-  fromName: 'Ginag',                // optional — wraps as `"Ginag" <user@gmail.com>`
+  fromName: storeName,              // optional — settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree'; wraps as `"ইচ্ছে ঘুড়ি — Ische Ghuree" <user@gmail.com>`
 });
 ```
 
@@ -40,7 +40,7 @@ try {
 
 ## Pre-built templates
 
-`renderOrderConfirmation(params)` returns `{ html, text }` for custom-order confirmations. Used by [customOrder.controller.ts](../../../ginag-backend/src/controllers/customOrder.controller.ts). When adding new templates, follow the same pattern: a `render*` factory in `mailer.ts` that returns `{ html, text }`, then call `sendMail` with the result. Always HTML-escape user input (see the `escape` helper in `mailer.ts`).
+`renderOrderConfirmation(params)` returns `{ html, text }` for custom-order confirmations. Used by [customOrder.controller.ts](../../../backend/src/controllers/customOrder.controller.ts). When adding new templates, follow the same pattern: a `render*` factory in `mailer.ts` that returns `{ html, text }`, then call `sendMail` with the result. Always HTML-escape user input (see the `escape` helper in `mailer.ts`).
 
 ## Gotchas
 

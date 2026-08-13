@@ -7,11 +7,22 @@ import api from "@/lib/axios";
 import { Loader2, PackageSearch, ArrowDownUp, Folder, Tag } from "lucide-react";
 import ProductCard from "@/components/home/products/ProductCard";
 
+interface SearchResult {
+  id: string;
+  type?: string;
+  slug?: string;
+  name?: string;
+  title?: string;
+  priceMin?: number | string;
+  priceMax?: number | string;
+  createdAt?: string;
+}
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState("newest");
 
@@ -40,7 +51,7 @@ function SearchContent() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Searching for "{query}"...</p>
+        <p className="text-muted-foreground font-medium animate-pulse">Searching for &quot;{query}&quot;...</p>
       </div>
     );
   }
@@ -48,7 +59,7 @@ function SearchContent() {
   const products = results.filter((item) => item.type === "product" || item.priceMin !== undefined);
   const otherResults = results.filter((item) => item.type !== "product" && item.priceMin === undefined);
 
-  const priceOf = (p: any) => Number(p.priceMin ?? 0);
+  const priceOf = (p: SearchResult) => Number(p.priceMin ?? 0);
   const sortedProducts = [...products].sort((a, b) => {
     if (sortOrder === "price_low") return priceOf(a) - priceOf(b);
     if (sortOrder === "price_high") return Number(b.priceMax ?? 0) - Number(a.priceMax ?? 0);
@@ -62,7 +73,7 @@ function SearchContent() {
           <h1 className="text-2xl md:text-4xl font-black text-foreground mb-2">Search Results</h1>
           <p className="text-muted-foreground">
             Found <span className="font-bold text-foreground">{results.length}</span> results for{" "}
-            <span className="text-primary font-bold">"{query}"</span>
+            <span className="text-primary font-bold">&quot;{query}&quot;</span>
           </p>
         </div>
 
@@ -92,8 +103,21 @@ function SearchContent() {
               <div className="flex flex-wrap gap-3">
                 {otherResults.map((item, idx) => {
                   const itemSlug = item.slug || item.id;
-                  const link = item.type === "category" ? `/categories/${itemSlug}` : "";
+                  const link = item.type === "category" ? `/categories/${itemSlug}` : null;
                   const Icon = item.type === "category" ? Folder : Tag;
+                  const label = item.name || item.title;
+                  if (!link) {
+                    // Tags have no dedicated page — render as a plain chip.
+                    return (
+                      <span
+                        key={item.id || idx}
+                        className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full text-sm font-semibold text-muted-foreground"
+                      >
+                        <Icon className="w-4 h-4 opacity-70" />
+                        {label}
+                      </span>
+                    );
+                  }
                   return (
                     <Link
                       key={item.id || idx}
@@ -101,7 +125,7 @@ function SearchContent() {
                       className="flex items-center gap-2 bg-card border border-border hover:border-primary px-4 py-2 rounded-full text-sm font-semibold text-foreground hover:text-primary transition-all"
                     >
                       <Icon className="w-4 h-4 opacity-70" />
-                      {item.name || item.title}
+                      {label}
                     </Link>
                   );
                 })}
@@ -129,7 +153,7 @@ function SearchContent() {
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">No matches found</h2>
           <p className="text-muted-foreground max-w-md">
-            Nothing matched <span className="font-semibold text-foreground">"{query}"</span>. Try a more general term.
+            Nothing matched <span className="font-semibold text-foreground">&quot;{query}&quot;</span>. Try a more general term.
           </p>
           <Link
             href="/categories"

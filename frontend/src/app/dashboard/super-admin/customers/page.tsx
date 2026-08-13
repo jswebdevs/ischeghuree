@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
-import Link from "next/link";
-import { Plus, Search, Loader2, Users } from "lucide-react";
-import UserTable from "../_components/UserTable";
+import { Search, Loader2, Users } from "lucide-react";
+import UserTable, { type UserRow } from "../_components/UserTable";
 import Swal from "sweetalert2";
+import type { AxiosError } from "axios";
 
 export default function CustomersPage() {
-    const [customers, setCustomers] = useState<any[]>([]);
+    const [customers, setCustomers] = useState<UserRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
@@ -24,6 +24,7 @@ export default function CustomersPage() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
         fetchCustomers();
     }, []);
 
@@ -42,8 +43,9 @@ export default function CustomersPage() {
                 await api.delete(`/users/${id}`);
                 Swal.fire('Deleted!', 'Customer account has been removed.', 'success');
                 fetchCustomers();
-            } catch (error: any) {
-                Swal.fire('Error', error.response?.data?.message || 'Delete failed', 'error');
+            } catch (error) {
+                const axiosError = error as AxiosError<{ message?: string }>;
+                Swal.fire('Error', axiosError.response?.data?.message || 'Delete failed', 'error');
             }
         }
     };

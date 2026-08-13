@@ -16,10 +16,21 @@ import {
   Trash2,
   X,
   Save,
+  PackageCheck,
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 
 type OrderStatus = "PENDING" | "CONTACTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+type DeliveryStatus =
+  | "PENDING"
+  | "DISPATCHED"
+  | "IN_TRANSIT"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "RETURNED"
+  | "CANCELLED";
+
+type OrderType = "RETAIL" | "WHOLESALE";
 
 interface CustomOrder {
   id: string;
@@ -27,15 +38,47 @@ interface CustomOrder {
   customerName: string;
   customerPhone: string;
   customerEmail: string | null;
-  charmColorAndStyle: string;
-  addInitial: boolean;
-  initial: string | null;
+  productDetails: string;
+  quantity: number | null;
+  orderType: OrderType;
   deliveryMethod: "PICKUP" | "MAILING";
   mailingAddress: string | null;
   notes: string | null;
   status: OrderStatus;
+  deliveryStatus: DeliveryStatus;
+  deliveryProvider: string | null;
+  trackingUrl: string | null;
+  deliveryNote: string | null;
+  deliveredAt: string | null;
   createdAt: string;
 }
+
+interface DeliveryDraft {
+  deliveryStatus: DeliveryStatus;
+  deliveryProvider: string;
+  trackingUrl: string;
+  deliveryNote: string;
+}
+
+const DELIVERY_STATUSES: DeliveryStatus[] = [
+  "PENDING",
+  "DISPATCHED",
+  "IN_TRANSIT",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "RETURNED",
+  "CANCELLED",
+];
+
+const DELIVERY_STATUS_STYLE: Record<DeliveryStatus, string> = {
+  PENDING: "bg-muted text-muted-foreground border-border",
+  DISPATCHED: "bg-blue-500/10 text-blue-500 border-blue-500/30",
+  IN_TRANSIT: "bg-violet-500/10 text-violet-400 border-violet-500/30",
+  OUT_FOR_DELIVERY: "bg-amber-500/10 text-amber-500 border-amber-500/30",
+  DELIVERED: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  RETURNED: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/30",
+};
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
   PENDING: "bg-amber-500/10 text-amber-500 border-amber-500/30",
@@ -46,6 +89,16 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
 };
 
 const STATUSES: OrderStatus[] = ["PENDING", "CONTACTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+
+const ORDER_TYPE_LABEL: Record<OrderType, string> = {
+  RETAIL: "খুচরা — Retail",
+  WHOLESALE: "পাইকারী — Wholesale",
+};
+
+const ORDER_TYPE_STYLE: Record<OrderType, string> = {
+  RETAIL: "bg-primary/10 text-primary border-primary/30",
+  WHOLESALE: "bg-secondary/20 text-foreground border-secondary/50",
+};
 
 export default function OrdersInbox() {
   const { user } = useUserStore();
@@ -60,6 +113,8 @@ export default function OrdersInbox() {
   const [draftStatus, setDraftStatus] = useState<OrderStatus | null>(null);
   const [savingStatus, setSavingStatus] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deliveryDraft, setDeliveryDraft] = useState<DeliveryDraft | null>(null);
+  const [savingDelivery, setSavingDelivery] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -72,20 +127,23 @@ export default function OrdersInbox() {
         },
       });
       setOrders(res.data?.data || []);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to load orders");
+    } catch (err) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to load orders");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchOrders flips the loading flag synchronously before its async fetch
     fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; refetch must only run when the filter changes
   }, [statusFilter]);
 
   useEffect(() => {
     const t = setTimeout(fetchOrders, 300);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; the debounced refetch must only run when the search changes
   }, [search]);
 
   const counts = useMemo(() => {
@@ -97,11 +155,18 @@ export default function OrdersInbox() {
   const openView = (o: CustomOrder) => {
     setViewing(o);
     setDraftStatus(o.status);
+    setDeliveryDraft({
+      deliveryStatus: o.deliveryStatus,
+      deliveryProvider: o.deliveryProvider ?? "",
+      trackingUrl: o.trackingUrl ?? "",
+      deliveryNote: o.deliveryNote ?? "",
+    });
   };
 
   const closeView = () => {
     setViewing(null);
     setDraftStatus(null);
+    setDeliveryDraft(null);
   };
 
   // Save status only when the draft differs from the current value. Show a
@@ -120,9 +185,37 @@ export default function OrdersInbox() {
         closeView();
         setSavingStatus(false);
       }, 1500);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Update failed");
+    } catch (err) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Update failed");
       setSavingStatus(false);
+    }
+  };
+
+  const saveDelivery = async () => {
+    if (!viewing || !deliveryDraft) return;
+    const dirty =
+      deliveryDraft.deliveryStatus !== viewing.deliveryStatus ||
+      (deliveryDraft.deliveryProvider || "") !== (viewing.deliveryProvider || "") ||
+      (deliveryDraft.trackingUrl || "") !== (viewing.trackingUrl || "") ||
+      (deliveryDraft.deliveryNote || "") !== (viewing.deliveryNote || "");
+    if (!dirty) return;
+
+    setSavingDelivery(true);
+    try {
+      const res = await api.patch(`/custom-orders/${viewing.id}/delivery`, {
+        deliveryStatus: deliveryDraft.deliveryStatus,
+        deliveryProvider: deliveryDraft.deliveryProvider || null,
+        trackingUrl: deliveryDraft.trackingUrl || null,
+        deliveryNote: deliveryDraft.deliveryNote || null,
+      });
+      const updated = res.data?.data as CustomOrder;
+      setOrders((prev) => prev.map((o) => (o.id === viewing.id ? { ...o, ...updated } : o)));
+      setViewing((prev) => (prev ? { ...prev, ...updated } : prev));
+      toast.success("Delivery info updated");
+    } catch (err) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Delivery update failed");
+    } finally {
+      setSavingDelivery(false);
     }
   };
 
@@ -154,8 +247,8 @@ export default function OrdersInbox() {
       setOrders((prev) => prev.filter((x) => x.id !== o.id));
       toast.success(`Deleted order ${o.orderNumber}`);
       if (viewing?.id === o.id) closeView();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Delete failed");
+    } catch (err) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Delete failed");
     } finally {
       setDeletingId(null);
     }
@@ -229,6 +322,10 @@ export default function OrdersInbox() {
           order={viewing}
           draftStatus={draftStatus}
           setDraftStatus={setDraftStatus}
+          deliveryDraft={deliveryDraft}
+          setDeliveryDraft={setDeliveryDraft}
+          savingDelivery={savingDelivery}
+          onSaveDelivery={saveDelivery}
           onClose={closeView}
           onSave={saveStatus}
           saving={savingStatus}
@@ -288,10 +385,24 @@ function OrderCard({
         </div>
       </div>
 
-      {/* Charm style truncated + two action buttons on the same line */}
+      {/* Order type + quantity */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span
+          className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border whitespace-nowrap ${ORDER_TYPE_STYLE[order.orderType]}`}
+        >
+          {ORDER_TYPE_LABEL[order.orderType]}
+        </span>
+        {order.quantity != null && (
+          <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-border bg-muted text-muted-foreground whitespace-nowrap">
+            Qty: {order.quantity}
+          </span>
+        )}
+      </div>
+
+      {/* Product details truncated + two action buttons on the same line */}
       <div className="flex items-center gap-2">
-        <p className="flex-1 text-sm text-muted-foreground truncate" title={order.charmColorAndStyle}>
-          {order.charmColorAndStyle}
+        <p className="flex-1 text-sm text-muted-foreground truncate" title={order.productDetails}>
+          {order.productDetails}
         </p>
         <button
           type="button"
@@ -345,6 +456,10 @@ function ViewModal({
   order,
   draftStatus,
   setDraftStatus,
+  deliveryDraft,
+  setDeliveryDraft,
+  savingDelivery,
+  onSaveDelivery,
   onClose,
   onSave,
   saving,
@@ -354,6 +469,10 @@ function ViewModal({
   order: CustomOrder;
   draftStatus: OrderStatus | null;
   setDraftStatus: (s: OrderStatus) => void;
+  deliveryDraft: DeliveryDraft | null;
+  setDeliveryDraft: (d: DeliveryDraft) => void;
+  savingDelivery: boolean;
+  onSaveDelivery: () => void;
   onClose: () => void;
   onSave: () => void;
   saving: boolean;
@@ -361,6 +480,12 @@ function ViewModal({
   onDelete: () => void;
 }) {
   const dirty = !!draftStatus && draftStatus !== order.status;
+  const deliveryDirty =
+    !!deliveryDraft &&
+    (deliveryDraft.deliveryStatus !== order.deliveryStatus ||
+      (deliveryDraft.deliveryProvider || "") !== (order.deliveryProvider || "") ||
+      (deliveryDraft.trackingUrl || "") !== (order.trackingUrl || "") ||
+      (deliveryDraft.deliveryNote || "") !== (order.deliveryNote || ""));
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
   const titleId = `order-modal-title-${order.id}`;
@@ -468,18 +593,24 @@ function ViewModal({
             </div>
           </Field>
 
-          <Field label="Charm Color & Style">
+          <Field label="Product Details / পণ্যের বিবরণ">
             <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-              {order.charmColorAndStyle}
+              {order.productDetails}
             </p>
           </Field>
 
-          {order.addInitial && (
-            <Field label="Initial Requested">
-              <p className="text-sm text-foreground inline-flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                {order.initial || "(unspecified)"}
-              </p>
+          <Field label="Order Type / অর্ডারের ধরন">
+            <span
+              className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${ORDER_TYPE_STYLE[order.orderType]}`}
+            >
+              <Sparkles className="w-3 h-3" />
+              {ORDER_TYPE_LABEL[order.orderType]}
+            </span>
+          </Field>
+
+          {order.quantity != null && (
+            <Field label="Quantity / পরিমাণ">
+              <p className="text-sm text-foreground font-bold">{order.quantity}</p>
             </Field>
           )}
 
@@ -531,6 +662,101 @@ function ViewModal({
               })}
             </div>
           </Field>
+
+          {deliveryDraft && (
+            <div className="rounded-2xl border border-border bg-muted/10 p-4 space-y-4">
+              <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em]">
+                <PackageCheck className="w-3.5 h-3.5" /> Delivery
+              </div>
+
+              <div>
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
+                  Delivery Status
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {DELIVERY_STATUSES.map((s) => {
+                    const active = deliveryDraft.deliveryStatus === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setDeliveryDraft({ ...deliveryDraft, deliveryStatus: s })}
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all cursor-pointer ${
+                          active
+                            ? DELIVERY_STATUS_STYLE[s]
+                            : "bg-card border-border text-muted-foreground hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {s.replace(/_/g, " ")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block">
+                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
+                    Carrier / Provider
+                  </div>
+                  <input
+                    type="text"
+                    value={deliveryDraft.deliveryProvider}
+                    onChange={(e) =>
+                      setDeliveryDraft({ ...deliveryDraft, deliveryProvider: e.target.value })
+                    }
+                    placeholder="e.g. Pathao, Sundarban, Steadfast"
+                    className="w-full px-3 py-2 rounded-lg bg-card border border-border outline-none focus:ring-2 focus:ring-primary text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
+                    Tracking URL
+                  </div>
+                  <input
+                    type="url"
+                    value={deliveryDraft.trackingUrl}
+                    onChange={(e) =>
+                      setDeliveryDraft({ ...deliveryDraft, trackingUrl: e.target.value })
+                    }
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 rounded-lg bg-card border border-border outline-none focus:ring-2 focus:ring-primary text-sm"
+                  />
+                </label>
+              </div>
+
+              <label className="block">
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1.5">
+                  Note (optional, shown to customer)
+                </div>
+                <textarea
+                  rows={2}
+                  value={deliveryDraft.deliveryNote}
+                  onChange={(e) => setDeliveryDraft({ ...deliveryDraft, deliveryNote: e.target.value })}
+                  placeholder="e.g. Left with security desk."
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-border outline-none focus:ring-2 focus:ring-primary text-sm resize-none"
+                />
+              </label>
+
+              {order.deliveredAt && (
+                <p className="text-xs text-muted-foreground">
+                  Delivered at: {new Date(order.deliveredAt).toLocaleString()}
+                </p>
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={onSaveDelivery}
+                  disabled={!deliveryDirty || savingDelivery}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {savingDelivery ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  Save Delivery
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer — Save button only appears when status is dirty */}

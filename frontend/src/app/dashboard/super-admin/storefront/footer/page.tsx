@@ -12,9 +12,6 @@ import {
   Link as LinkIcon,
   Info,
   Phone,
-  Mail,
-  MapPin,
-  Store,
   ExternalLink,
   ChevronUp,
   ChevronDown
@@ -58,29 +55,34 @@ const DEFAULT_CONFIG: FooterConfig = {
   col1: {
     showLogo: true,
     showTitle: true,
-    title: "Industrial Artifacts",
-    description: "Precision engineered accessories designed for the modern architectural lifestyle."
+    title: "ইচ্ছে ঘুড়ি — Ische Ghuree",
+    description: "আবহমান বাংলার ঐতিহ্য — the timeless heritage of Bengal. Eco-friendly jute bags (খুচরা ও পাইকারী) and world-class hair accessories, made with care since 2020."
   },
   col2: {
     title: "Quick Links",
     links: [
-      { label: "Shop All Products", href: "/shop" },
-      { label: "Help Center & FAQ", href: "/faq" }
+      { label: "Shop", href: "/shop" },
+      { label: "Order Now", href: "/order-now" },
+      { label: "About Us", href: "/about-us" },
+      { label: "Contact Us", href: "/contact-us" }
     ]
   },
   col3: {
-    title: "Customer Support",
+    title: "Information",
     links: [
-      { label: "My Account", href: "/account" },
-      { label: "Track Order", href: "/track-order" }
+      { label: "FAQ", href: "/faq" },
+      { label: "Shipping & Delivery", href: "/shipping-policy" },
+      { label: "Return & Exchange", href: "/return-refund-policy" },
+      { label: "Privacy Policy", href: "/privacy-policy" }
     ]
   },
   col4: {
     title: "Contact Us",
     contacts: [
-      { icon: "LuMapPin", text: "Rajshahi, Bangladesh" },
-      { icon: "LuPhone", text: "+880 1700 000000" },
-      { icon: "LuMail", text: "support@jswebdevs.com" }
+      { icon: "LuMapPin", text: "Dhaka Uddan, Mohammadpur, Dhaka 1207" },
+      { icon: "LuPhone", text: "01820-417426", link: "tel:01820417426" },
+      { icon: "LuMail", text: "ischeghuree@gmail.com", link: "mailto:ischeghuree@gmail.com" },
+      { icon: "LuFacebook", text: "facebook.com/iccheghureeofficial", link: "https://www.facebook.com/iccheghureeofficial" }
     ]
   }
 };
@@ -92,10 +94,6 @@ export default function FooterManagementPage() {
   const [activeTab, setActiveTab] = useState<"col1" | "col2" | "col3" | "col4">("col1");
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [activeContactIndex, setActiveContactIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
 
   const fetchSettings = async () => {
     setIsLoading(true);
@@ -118,6 +116,11 @@ export default function FooterManagementPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; fetchSettings sets loading state synchronously by design
+    fetchSettings();
+  }, []);
 
   const handleSave = async () => {
     setIsSaving(true);

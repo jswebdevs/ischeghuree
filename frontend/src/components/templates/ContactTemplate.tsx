@@ -1,25 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, MessageSquare, Send, Clock } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Send, Clock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { ContactPageConfig, PageData } from "./types";
+
+interface ContactSettings {
+    contactEmail?: string;
+    supportEmail?: string;
+    contactPhone?: string;
+    supportPhone?: string;
+    contactAddress?: string;
+    address?: string;
+}
 
 interface ContactTemplateProps {
-    data: any;
-    settings?: any;
+    data: PageData;
+    settings?: ContactSettings | null;
 }
 
 export default function ContactTemplate({ data, settings }: ContactTemplateProps) {
     const { title, content, pageConfig } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
-    const cfg = pageConfig || {};
-    const email = cfg.email || settings?.contactEmail || settings?.supportEmail || "hello@ginag.com";
-    const whatsapp = cfg.whatsapp || settings?.contactPhone || settings?.supportPhone || "+880 1700 000000";
-    const location = cfg.location || settings?.contactAddress || settings?.address || "Rajshahi, Bangladesh";
+    const cfg: ContactPageConfig = pageConfig || {};
+    const email = cfg.email || settings?.contactEmail || settings?.supportEmail || "ischeghuree@gmail.com";
+    const whatsapp = cfg.whatsapp || settings?.contactPhone || settings?.supportPhone || "01820-417426";
+    const location = cfg.location || settings?.contactAddress || settings?.address || "Dhaka Uddan, Mohammadpur, Dhaka 1207";
     const responseTime = cfg.responseTime || "12–24 hours";
 
     const whatsappRaw = whatsapp.replace(/\D/g, "");
@@ -63,7 +73,7 @@ export default function ContactTemplate({ data, settings }: ContactTemplateProps
         },
         {
             icon: MapPin,
-            label: "Studio",
+            label: "ঠিকানা — Address",
             value: location,
             link: null,
             color: "bg-blue-500/10 text-blue-500",

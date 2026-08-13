@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useThemeStore } from "@/store/themeStore";
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore, type User } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
 
 
 // 🔥 Import Chat Components for Mobile Overlay
@@ -24,12 +25,29 @@ import {
   LuClipboardList,
 } from "react-icons/lu";
 
+interface NavbarSettings {
+  storeName?: string;
+  tagline?: string;
+  logo?: { thumbUrl?: string; originalUrl?: string } | null;
+}
+
+interface SearchResultItem {
+  id?: string;
+  type?: string;
+  name?: string;
+  slug?: string;
+  priceMin?: number | string | null;
+  priceMax?: number | string | null;
+  featuredImage?: { thumbUrl?: string; originalUrl?: string } | null;
+}
+
 interface NavbarProps {
-  initialSettings?: any;
+  initialSettings?: NavbarSettings | null;
 }
 
 export default function Navbar({ initialSettings }: NavbarProps) {
   const router = useRouter();
+  const { symbol } = useCurrency();
 
   const pathname = usePathname();
   const { user, isAuthenticated } = useUserStore();
@@ -53,7 +71,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
 
   // States for Real-Time Search
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
@@ -92,6 +110,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
       const storedToken = localStorage.getItem("token") ||
         document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] ||
         document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage/cookies are only readable client-side when the chat opens
       if (storedToken) setChatToken(storedToken);
     }
   }, [isMobileChatOpen]);
@@ -142,8 +161,9 @@ export default function Navbar({ initialSettings }: NavbarProps) {
 
   const getDashboardLink = () => {
     if (!isAuthenticated || !user) return "/login";
-    const rawRoles = (user as any)?.roles || (user as any)?.role;
-    const rolesArray = Array.isArray(rawRoles) ? rawRoles : [rawRoles].filter(Boolean);
+    const legacyRole = (user as User & { role?: string | string[] }).role;
+    const rawRoles: string | string[] | undefined = user.roles || legacyRole;
+    const rolesArray: string[] = Array.isArray(rawRoles) ? rawRoles : rawRoles ? [rawRoles] : [];
     if (rolesArray.length === 0) return "/dashboard";
 
     const ROLE_HIERARCHY = ['SUPER_ADMIN', 'ADMIN', 'CUSTOMER'];
@@ -189,16 +209,24 @@ export default function Navbar({ initialSettings }: NavbarProps) {
               {loadingSettings && !storeName && !storeLogo ? (
                 <div className="h-8 md:h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
               ) : storeLogo ? (
+                // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded logo URL with unknown dimensions; CSS h/w-auto sizing depends on intrinsic ratio
                 <img
                   src={storeLogo}
-                  alt={`${storeName} Logo`}
+                  alt={`${storeName || "ইচ্ছে ঘুড়ি — Ische Ghuree"} Logo`}
                   className="h-8 md:h-10 w-auto max-w-40 object-contain"
                 />
               ) : (
                 <div className="flex items-center gap-2 text-primary">
+                  <Image
+                    src="/ische-ghuree.svg"
+                    alt="ইচ্ছে ঘুড়ি kite logo"
+                    width={64}
+                    height={84}
+                    className="h-8 md:h-10 w-auto"
+                  />
                   <div className="flex flex-col">
-                    <span className="font-black text-xl tracking-tight leading-none">{storeName}</span>
-                    {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline}</span>}
+                    <span className="font-heading font-black text-xl tracking-tight leading-none">{storeName || "ইচ্ছে ঘুড়ি"}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline || "Ische Ghuree"}</span>
                   </div>
                 </div>
               )}
@@ -259,6 +287,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                             >
                               <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
                                 {imgSrc ? (
+                                  // eslint-disable-next-line @next/next/no-img-element -- CDN search-result thumbnail with unknown dimensions
                                   <img src={imgSrc} alt={item.name} className="w-full h-full object-contain" />
                                 ) : (
                                   <LuSearch className="w-4 h-4 text-muted-foreground/50" />
@@ -268,7 +297,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                                 <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
                                 {min != null && (
                                   <p className="text-xs font-bold text-primary">
-                                    ${min.toLocaleString()}{max != null && max !== min ? ` – $${max.toLocaleString()}` : ''}
+                                    {symbol}{min.toLocaleString()}{max != null && max !== min ? ` – ${symbol}${max.toLocaleString()}` : ''}
                                   </p>
                                 )}
                               </div>
@@ -308,12 +337,12 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                       }}
                       className="w-full px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5 transition-colors border-t border-border text-center"
                     >
-                      View all results for "{searchQuery}"
+                      View all results for &quot;{searchQuery}&quot;
                     </button>
                   </>
                 ) : (
                   <div className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">No results found for "{searchQuery}"</p>
+                    <p className="text-sm text-muted-foreground">No results found for &quot;{searchQuery}&quot;</p>
                   </div>
                 )}
               </div>
@@ -398,29 +427,29 @@ export default function Navbar({ initialSettings }: NavbarProps) {
 
           <Link href="/order-now" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/order-now' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LuClipboardList className="w-5 h-5" />
-            <span className="text-10px font-medium">Order</span>
+            <span className="text-[10px] font-medium">Order</span>
           </Link>
 
           <Link href="/" onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LuHouse className="w-5 h-5" />
-            <span className="text-10px font-medium">Home</span>
+            <span className="text-[10px] font-medium">Home</span>
           </Link>
 
           <button onClick={handleMobileSearchToggle} className="flex flex-col items-center justify-center w-full h-full gap-1 -mt-4 relative z-10">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-theme-sm border-4 border-background transition-colors ${showMobileSearch ? 'bg-muted text-primary' : 'bg-primary text-primary-foreground'}`}>
               <LuSearch className="w-6 h-6" />
             </div>
-            <span className={`text-10px font-medium mt-0.5 ${showMobileSearch ? 'text-primary' : 'text-muted-foreground'}`}>Search</span>
+            <span className={`text-[10px] font-medium mt-0.5 ${showMobileSearch ? 'text-primary' : 'text-muted-foreground'}`}>Search</span>
           </button>
 
           <button onClick={handleMobileChatToggle} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isMobileChatOpen ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LuMessageSquare className="w-5 h-5" />
-            <span className="text-10px font-medium">Chat</span>
+            <span className="text-[10px] font-medium">Chat</span>
           </button>
 
           <Link href={dashboardLink} onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isDashboard || pathname === '/login' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LuUser className="w-5 h-5" />
-            <span className="text-10px font-medium">{isAuthenticated ? "Account" : "Login"}</span>
+            <span className="text-[10px] font-medium">{isAuthenticated ? "Account" : "Login"}</span>
           </Link>
 
         </div>

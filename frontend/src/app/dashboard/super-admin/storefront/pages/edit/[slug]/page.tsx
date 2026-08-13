@@ -6,9 +6,11 @@ import { Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import PageCreationForm from "../../_components/PageCreationForm";
 
+type PageInitialData = NonNullable<React.ComponentProps<typeof PageCreationForm>["initialData"]>;
+
 export default function EditStorefrontPage() {
     const params = useParams();
-    const [initialData, setInitialData] = useState<any>(null);
+    const [initialData, setInitialData] = useState<PageInitialData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

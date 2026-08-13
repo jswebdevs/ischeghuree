@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/axios";
-import AdminForm from "../../_components/AdminForm";
+import AdminForm, { type AdminInitialData } from "../../_components/AdminForm";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function EditAdminPage() {
     const params = useParams();
-    const [initialData, setInitialData] = useState<any>(null);
+    const [initialData, setInitialData] = useState<(AdminInitialData & { username?: string }) | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ export default function EditAdminPage() {
                 // FIXED: Changed from /admins/ to /users/admins/
                 const res = await api.get(`/users/admins/${params.username}`);
                 setInitialData(res.data.data);
-            } catch (error) {
+            } catch {
                 console.error("Failed to fetch admin details");
             } finally {
                 setLoading(false);

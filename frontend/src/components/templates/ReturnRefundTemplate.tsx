@@ -2,16 +2,17 @@
 
 import { motion } from "framer-motion";
 import { XCircle, CheckCircle2, Camera, Clock, AlertTriangle } from "lucide-react";
+import type { PageData } from "./types";
 
 interface ReturnRefundTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function ReturnRefundTemplate({ data }: ReturnRefundTemplateProps) {
     const { title, content, updatedAt } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"

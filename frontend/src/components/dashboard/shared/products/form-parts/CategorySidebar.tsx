@@ -3,14 +3,26 @@
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import { Search, Check, X, Loader2, Tag } from "lucide-react";
+import type { ProductFormState } from "../ProductForm";
 
-export default function CategorySidebar({ product, update }: any) {
-  const [categories, setCategories] = useState<any[]>([]);
+interface SidebarCategory {
+  id: string;
+  name?: string;
+}
+
+interface CategorySidebarProps {
+  product: ProductFormState;
+  update: (fields: Partial<ProductFormState>) => void;
+}
+
+export default function CategorySidebar({ product, update }: CategorySidebarProps) {
+  const [categories, setCategories] = useState<SidebarCategory[]>([]);
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
     setIsLoading(true);
     api.get('/categories')
       .then(res => {
@@ -22,12 +34,15 @@ export default function CategorySidebar({ product, update }: any) {
   }, []);
 
   // Aggressive Sanitization: Ensure we only ever map valid String IDs
-  const rawCategories = product?.categoryIds || product?.categories || [];
+  const rawCategories: (string | { id?: string } | null | undefined)[] =
+    product?.categoryIds ||
+    (product as ProductFormState & { categories?: { id?: string }[] })?.categories ||
+    [];
   const selectedIds = Array.from(
     new Set<string>(
       rawCategories
-        .map((c: any) => typeof c === "string" ? c : c?.id)
-        .filter((id: any): id is string => typeof id === "string" && id.trim() !== "")
+        .map((c) => (typeof c === "string" ? c : c?.id))
+        .filter((id): id is string => typeof id === "string" && id.trim() !== "")
     )
   );
 

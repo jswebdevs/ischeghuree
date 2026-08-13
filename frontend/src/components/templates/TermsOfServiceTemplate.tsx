@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Scale, Clock, Shield, BookOpen } from "lucide-react";
+import type { PageData } from "./types";
 
 interface TermsOfServiceTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 const termHighlights = [
@@ -16,8 +18,8 @@ const termHighlights = [
 export default function TermsOfServiceTemplate({ data }: TermsOfServiceTemplateProps) {
     const { title, content, updatedAt } = data;
 
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString("en-US", {
         year: "numeric", month: "long", day: "numeric"
@@ -86,7 +88,7 @@ export default function TermsOfServiceTemplate({ data }: TermsOfServiceTemplateP
                 </motion.div>
 
                 <p className="text-center text-muted-foreground text-sm font-medium">
-                    Questions about our terms? <a href="/contact-us" className="text-primary font-bold hover:underline">Contact our support team.</a>
+                    Questions about our terms? <Link href="/contact-us" className="text-primary font-bold hover:underline">Contact our support team.</Link>
                 </p>
             </div>
         </div>

@@ -1,21 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
+import type { PageData } from "./types";
 
 interface ProcessTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function ProcessTemplate({ data }: ProcessTemplateProps) {
     const { title, content } = data;
     
     // Extract steps from rich text content if possible, or just render the content
-    // For now, we'll parse the content or assume a specific structure
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
-    // Split content into steps if they follow the "1️⃣", "2️⃣" pattern from pages.json
+    // Split content into steps if paragraphs start with keycap digits ("1️⃣", "2️⃣", …)
     const steps = combinedContent.split(/<p>[0-9]️⃣/).filter((s: string) => s.trim().length > 0).map((s: string) => {
         // Clean up HTML tags and get just the text
         const clean = s.replace(/<\/?[^>]+(>|$)/g, "").trim();
@@ -100,11 +101,14 @@ export default function ProcessTemplate({ data }: ProcessTemplateProps) {
                         <div className="relative z-10">
                             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6">Ready to begin?</h2>
                             <p className="text-xl opacity-90 font-medium mb-10 max-w-xl mx-auto">
-                                Join our community of happy customers and get your own unique handcrafted piece today.
+                                পছন্দেরটি বেছে নিন — order your jute bag or hair accessory today, retail or wholesale.
                             </p>
-                            <button className="bg-white text-black px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 active:scale-95 transition-all shadow-xl">
+                            <Link
+                                href="/order-now"
+                                className="inline-block bg-card text-foreground px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 active:scale-95 transition-all shadow-xl"
+                            >
                                 Start Your Order
-                            </button>
+                            </Link>
                         </div>
                         
                         {/* Decorative Circles */}

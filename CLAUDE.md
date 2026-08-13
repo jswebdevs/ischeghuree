@@ -1,4 +1,6 @@
-# Ginag
+# Ische Ghuree
+
+ইচ্ছে ঘুড়ি — bilingual (Bangla-first) storefront for jute bags + hair accessories in Dhaka. **Catalog + custom-order quote flow — there is no cart, checkout, or payment processing.** Brand/contact/design sources of truth: `BRAND.md` and `DESIGN.md`.
 
 Monorepo with two sibling projects:
 
@@ -7,21 +9,31 @@ Monorepo with two sibling projects:
 
 ## Common commands
 
+The package manager is **pnpm** (per-subproject lockfiles: `backend/pnpm-lock.yaml`, `frontend/pnpm-lock.yaml`). Do not use npm/yarn.
+
 | Where | Command | What it does |
 | --- | --- | --- |
-| backend | `npm run dev` | nodemon + ts-node on `src/server.ts` |
-| backend | `npm run build` | `prisma generate && tsc` |
-| backend | `npm run prisma:migrate` | run a Prisma migration in dev |
-| backend | `npm run prisma:seed` | seed via `prisma/seed.ts` |
-| frontend | `npm run dev` | Next dev server on port 5173 |
-| frontend | `npm run build` | Next production build |
-| frontend | `npm run lint` | ESLint |
+| backend | `pnpm run dev` | nodemon + ts-node on `src/server.ts` (port 4000 via `.env`) |
+| backend | `pnpm run build` | `prisma generate && tsc` |
+| backend | `pnpm run prisma:migrate` | run a Prisma migration in dev |
+| backend | `pnpm run prisma:seed` | seed super-admin via `prisma/seed.ts` |
+| backend | `pnpm exec ts-node src/scripts/seed_pages.ts` | seed storefront pages |
+| frontend | `pnpm run dev` | Next dev server on port 5173 |
+| frontend | `pnpm run build` | Next production build |
+| frontend | `pnpm run lint` | ESLint |
 
 ## Conventions
 
 - Backend is CommonJS (`"type": "commonjs"`) — TS compiled with ts-node in dev, `tsc` in prod.
 - Frontend uses the new Next.js App Router (Next 16).
 - The **repo root is the single git repo** — both `backend/` and `frontend/` are committed and pushed together from the root. There is one root `.gitignore` covering both subprojects (no per-subproject `.git`).
+- Currency is ৳ / BDT. Frontend reads `currencySymbol` from `SettingsContext` (`useCurrency`) — never hardcode `$`.
+- Colors: only theme token classes (`bg-primary`, `text-foreground`, `border-border`, …) per `DESIGN.md`. Fonts: `font-heading` (Noto Serif Bengali) / `font-body` (Hind Siliguri).
+
+## Domain contracts (do not reintroduce jewelry-era fields)
+
+- **CustomOrder** (DB + API + UI): `customerName`, `customerPhone`, `customerEmail?`, **`productDetails`** (String, required — label "কী বানাতে/নিতে চান — Product details"), **`quantity`** (Int, optional), **`orderType`** (enum `OrderType { RETAIL WHOLESALE }`, default `RETAIL` — labels "খুচরা — Retail" / "পাইকারী — Wholesale"), `deliveryMethod`, `mailingAddress?`, `notes?`. The old jewelry fields `charmColorAndStyle`, `addInitial`, and `initial` are **deleted** — never bring them back. Order number prefix defaults to `IG-` (SiteSettings.orderPrefix).
+- **homepageConfig** section key for the hero is **`kiteHero`** (component `frontend/src/components/home/hero/KiteHero.tsx`). The old `ginaGHero` key / `GinaGHero.tsx` component no longer exist.
 
 ## Skills
 

@@ -4,13 +4,11 @@ import { logAction } from './audit.controller';
 
 // Drop every server-secret field before returning settings to non-admin
 // callers. Add new secrets here whenever you extend SiteSettings — this is
-// the single chokepoint that keeps payment + 3rd-party keys off the wire.
+// the single chokepoint that keeps 3rd-party keys off the wire.
 const stripSecrets = (s: any) => {
   if (!s) return s;
   const {
     googleApiKey: _gak,
-    stripeSecretKey: _ssk,
-    paypalSecret: _ps,
     ...safe
   } = s;
   return safe;
@@ -130,7 +128,7 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
       update,
       create: {
         id: 'singleton',
-        storeName: storeName || 'Ginag',
+        storeName: storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree',
         tagline,
         companySlogan,
         supportEmail,
@@ -141,11 +139,11 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
         logoId,
         faviconId,
         ogImageId,
-        currencyCode: currencyCode || 'USD',
-        currencySymbol: currencySymbol || '$',
-        timezone: timezone || 'America/Chicago',
+        currencyCode: currencyCode || 'BDT',
+        currencySymbol: currencySymbol || '৳',
+        timezone: timezone || 'Asia/Dhaka',
         address,
-        orderPrefix: orderPrefix || 'CO-',
+        orderPrefix: orderPrefix || 'IG-',
         maintenanceMode: maintenanceMode ?? false,
         maintenanceMessage,
         googlePlaceId,

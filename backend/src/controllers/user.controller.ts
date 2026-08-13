@@ -6,6 +6,7 @@ import axios from 'axios';
 import cloudinary from '../config/cloudinary';
 import streamifier from 'streamifier';
 import sharp from 'sharp';
+import { sendMail, renderVerificationEmail } from '../utils/mailer';
 
 // 🚨 IMPORT THE LOGGER
 import { logAction } from './audit.controller';
@@ -83,7 +84,24 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       }
     });
 
-    console.log(`Welcome to DreamShop! Verification token for ${email}: ${verificationToken}`);
+    // Send the verification email. Non-blocking: registration succeeds even if
+    // the mail provider hiccups — the user can request a re-send later.
+    try {
+      const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+      const storeName = settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree';
+      const clientUrl = (process.env.CLIENT_URL || process.env.Client_URL || 'http://localhost:5173').replace(/\/$/, '');
+      const verifyUrl = `${clientUrl}/verify-email?token=${verificationToken}`;
+      const { html, text } = renderVerificationEmail({ name: firstName, verifyUrl, storeName });
+      await sendMail({
+        to: email,
+        subject: `ইমেইল ভেরিফাই করুন — Verify your email · ${storeName}`,
+        html,
+        text,
+        fromName: storeName,
+      });
+    } catch (mailErr) {
+      console.error('Verification email failed:', mailErr);
+    }
 
     // 🚨 LOG: USER REGISTRATION
     await logAction({
@@ -177,7 +195,7 @@ export const sendPhoneOtp = async (req: Request, res: Response): Promise<void> =
       });
     }
 
-    const smsMessage = `Your DreamShop verification code is: ${otp}. It will expire in 10 minutes.`;
+    const smsMessage = `Your Ische Ghuree verification code is: ${otp}. It will expire in 10 minutes.`;
     
     try {
       const smsResponse = await axios.post('https://bulksmsbd.net/api/smsapi', {

@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { useUserStore } from "@/store/useUserStore";
 import Swal from "sweetalert2";
 import { getDashboardRedirectPath, getHighestRole } from "@/utils/roleRedirect";
+import type { AxiosError } from "axios";
 
 function LoginForm() {
   const router = useRouter();
@@ -27,6 +28,7 @@ function LoginForm() {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration flag: must flip only after mount so SSR and first client render match
     setIsHydrated(true);
   }, []);
 
@@ -52,6 +54,7 @@ function LoginForm() {
         logout();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getSmartRedirect is recreated every render; its only input (returnUrl) is already a dependency
   }, [isAuthenticated, user, router, returnUrl, logout]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,13 +107,14 @@ function LoginForm() {
           router.push(getSmartRedirect(loggedInUser.roles));
         }, 500);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login Error:", err);
+      const axiosError = err as AxiosError<{ message?: string }>;
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: err.response?.data?.message || "Invalid credentials. Please try again.",
-        confirmButtonColor: "#0ea5e9"
+        text: axiosError.response?.data?.message || "Invalid credentials. Please try again.",
+        confirmButtonColor: "hsl(var(--primary))"
       });
     } finally {
       setLoading(false);
@@ -120,7 +124,7 @@ function LoginForm() {
   if (!isHydrated) return null;
 
   // Check BOTH isAuthenticated AND if the token exists before showing the loading screen
-  const hasToken = Cookies.get("token") || (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+  const hasToken = Cookies.get("auth_token") || (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
   if (isAuthenticated && user && hasToken) {
     return (
       <div className="flex flex-col items-center justify-center space-y-4">
@@ -157,8 +161,8 @@ function LoginForm() {
         <div className="space-y-1">
           <div className="flex justify-between items-center">
             <label className="text-sm font-medium text-foreground">Password</label>
-            <Link href="/forgot-password" className="text-xs text-primary hover:underline font-medium">
-              Forgot password?
+            <Link href="/contact-us" className="text-xs text-primary hover:underline font-medium">
+              পাসওয়ার্ড ভুলে গেলে যোগাযোগ করুন — Contact us to reset
             </Link>
           </div>
           <div className="relative">
@@ -187,7 +191,7 @@ function LoginForm() {
       </form>
 
       <p className="mt-8 text-center text-subheading text-sm">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/register" className="text-primary font-semibold hover:underline">
           Create one
         </Link>

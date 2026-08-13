@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import { Save, Loader2, X, Plus, ClipboardList } from "lucide-react";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
+import type { AxiosError } from "axios";
 
 interface OrderHeroConfig {
   title: string;
@@ -26,7 +27,7 @@ const EMPTY: OrderHeroConfig = {
   personName: "",
   phone: "",
   email: "",
-  badgeText: "CUSTOM CHARMS MADE JUST FOR YOU!",
+  badgeText: "আপনার জন্যই তৈরি — Made Just For You!",
   imageId: null,
   imageUrl: null,
   bottomImageId: null,
@@ -62,8 +63,9 @@ export default function OrderFormHeroEditor() {
     try {
       await api.patch("/settings/homepage/orderHero", data);
       toast.success("Order page hero saved");
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Save failed");
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      toast.error(axiosError.response?.data?.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -102,15 +104,15 @@ export default function OrderFormHeroEditor() {
 
       <Section title="Brand">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Top image (logo / charms)">
+          <Field label="Top image (logo)">
             <ImagePicker
               url={data.imageUrl}
               onPick={() => setPickerOpen("top")}
               onRemove={() => update({ imageId: null, imageUrl: null })}
-              hint="Falls back to store logo / script title if empty."
+              hint="Falls back to the store logo / brand kite logo if empty."
             />
           </Field>
-          <Field label="Bottom-left image (decorative charms)">
+          <Field label="Bottom-left image (product photo)">
             <ImagePicker
               url={data.bottomImageUrl}
               onPick={() => setPickerOpen("bottom")}
@@ -121,32 +123,32 @@ export default function OrderFormHeroEditor() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Title (script)">
+          <Field label="Title">
             <input
               value={data.title}
               onChange={(e) => update({ title: e.target.value })}
               className="form-input"
-              placeholder="GinaG"
+              placeholder="ইচ্ছে ঘুড়ি"
             />
           </Field>
-          <Field label="Subtitle (uppercase)">
+          <Field label="Subtitle">
             <input
               value={data.subtitle}
               onChange={(e) => update({ subtitle: e.target.value })}
               className="form-input"
-              placeholder="PURSE CHARMS and CHAINS"
+              placeholder="আবহমান বাংলার ঐতিহ্য"
             />
           </Field>
         </div>
       </Section>
 
       <Section title="Contact">
-        <Field label="Person Name">
+        <Field label="Person / Shop Name">
           <input
             value={data.personName}
             onChange={(e) => update({ personName: e.target.value })}
             className="form-input"
-            placeholder="GINA ALEXANDER-GREENLEE"
+            placeholder="Ische Ghuree"
           />
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,7 +157,7 @@ export default function OrderFormHeroEditor() {
               value={data.phone}
               onChange={(e) => update({ phone: e.target.value })}
               className="form-input"
-              placeholder="615-202-2317"
+              placeholder="01820-417426"
             />
           </Field>
           <Field label="Email">
@@ -164,7 +166,7 @@ export default function OrderFormHeroEditor() {
               value={data.email}
               onChange={(e) => update({ email: e.target.value })}
               className="form-input"
-              placeholder="alexgreeng@att.net"
+              placeholder="ischeghuree@gmail.com"
             />
           </Field>
         </div>
@@ -174,19 +176,19 @@ export default function OrderFormHeroEditor() {
             onChange={(e) => update({ instructions: e.target.value })}
             rows={3}
             className="form-input resize-none"
-            placeholder={"Text or call 615-202-2317\nor email alexgreeng@att.net"}
+            placeholder={"কল করুন 01820-417426\nor email ischeghuree@gmail.com"}
           />
           <p className="text-[11px] text-muted-foreground mt-1">Newlines preserved.</p>
         </Field>
       </Section>
 
       <Section title="Badge">
-        <Field label="Badge text (in the gold circle)">
+        <Field label="Badge text (in the round badge)">
           <input
             value={data.badgeText}
             onChange={(e) => update({ badgeText: e.target.value })}
             className="form-input"
-            placeholder="CUSTOM CHARMS MADE JUST FOR YOU!"
+            placeholder="আপনার জন্যই তৈরি — Made Just For You!"
           />
         </Field>
       </Section>
@@ -224,8 +226,8 @@ export default function OrderFormHeroEditor() {
               <MediaManager
                 isPicker
                 multiple={false}
-                onSelect={(media: any) => {
-                  const url = media.originalUrl || media.thumbUrl;
+                onSelect={(media: { id: string; originalUrl?: string; thumbUrl?: string }) => {
+                  const url = (media.originalUrl || media.thumbUrl) as string;
                   if (pickerOpen === "top") {
                     update({ imageId: media.id, imageUrl: url });
                   } else {

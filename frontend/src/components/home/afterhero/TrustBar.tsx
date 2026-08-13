@@ -1,13 +1,29 @@
-"use client";
+import { Leaf, Store, Truck, Clock } from "lucide-react";
 
-import { Sparkles, ShieldCheck, Truck, Headphones } from "lucide-react";
-
+// Trust strip under the hero — the four promises from the Facebook page:
+// eco-friendly jute, wholesale + retail, Dhaka delivery, always open.
 export default function TrustBar() {
   const features = [
-    { icon: Sparkles, title: "Handcrafted", desc: "Custom charms made to order" },
-    { icon: Truck, title: "Pickup or Mail", desc: "Flat-rate mailing $18" },
-    { icon: ShieldCheck, title: "Quality First", desc: "Every piece personally checked" },
-    { icon: Headphones, title: "Personal Service", desc: "Direct line to the maker" },
+    {
+      icon: Leaf,
+      title: "পরিবেশবান্ধব — Eco-friendly",
+      desc: "বাংলার সোনালী আঁশ পাটের তৈরি — Made from natural jute",
+    },
+    {
+      icon: Store,
+      title: "পাইকারী ও খুচরা — Wholesale & Retail",
+      desc: "ছোট-বড় সব অর্ডার — Orders of every size",
+    },
+    {
+      icon: Truck,
+      title: "ঢাকায় ডেলিভারি — Delivery in Dhaka",
+      desc: "দ্রুত হোম ডেলিভারি — Fast home delivery",
+    },
+    {
+      icon: Clock,
+      title: "সবসময় খোলা — Always Open",
+      desc: "কল করুন: 01820-417426 — Call any time",
+    },
   ];
 
   return (
@@ -24,7 +40,7 @@ export default function TrustBar() {
                 title={item.title}
               >
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground shadow-sm">
-                  <Icon className="w-6 h-6 md:w-7 md:h-7" />
+                  <Icon className="w-6 h-6 md:w-7 md:h-7" aria-hidden="true" />
                 </div>
 
                 <div>

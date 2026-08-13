@@ -1,11 +1,21 @@
 "use client";
 
 import { MessageSquare, CheckCircle, Archive, ShieldBan, XCircle, Trash2, Loader2, User } from "lucide-react";
+import type { ChatSessionInfo } from "./types";
 
-export default function ChatTable({ sessions, loading, selectedIds, setSelectedIds, onRowClick, onStatusChange }: any) {
+interface ChatTableProps {
+    sessions: ChatSessionInfo[];
+    loading: boolean;
+    selectedIds: string[];
+    setSelectedIds: (ids: string[]) => void;
+    onRowClick: (id: string) => void;
+    onStatusChange: (id: string, status: string) => void;
+}
+
+export default function ChatTable({ sessions, loading, selectedIds, setSelectedIds, onRowClick, onStatusChange }: ChatTableProps) {
 
     const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) setSelectedIds(sessions.map((s: any) => s.id));
+        if (e.target.checked) setSelectedIds(sessions.map((s) => s.id));
         else setSelectedIds([]);
     };
 
@@ -34,7 +44,7 @@ export default function ChatTable({ sessions, loading, selectedIds, setSelectedI
                     {sessions.length === 0 ? (
                         <tr><td colSpan={5} className="p-8 text-center text-muted-foreground italic font-medium">No chat sessions found.</td></tr>
                     ) : (
-                        sessions.map((session: any) => {
+                        sessions.map((session) => {
                             const unreadCount = session._count.messages;
                             const isUnread = unreadCount > 0;
                             const lastMsg = session.messages[0]?.content || "No messages yet.";
@@ -55,7 +65,10 @@ export default function ChatTable({ sessions, loading, selectedIds, setSelectedI
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border shrink-0">
-                                                {session.user?.avatar ? <img src={session.user.avatar} alt="avatar" className="w-full h-full object-cover" /> : <User size={18} className="text-muted-foreground" />}
+                                                {session.user?.avatar ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element -- user avatar URL with unknown dimensions
+                                                    <img src={session.user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                                                ) : <User size={18} className="text-muted-foreground" />}
                                             </div>
                                             <div>
                                                 <p className={`text-sm ${isUnread ? 'font-black text-foreground' : 'font-bold text-foreground'}`}>

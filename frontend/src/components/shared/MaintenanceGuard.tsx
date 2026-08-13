@@ -29,7 +29,7 @@ export default function MaintenanceGuard({ isMaintenanceMode, message, children 
                 </div>
 
                 <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter mb-4">
-                    We'll be right back.
+                    We&apos;ll be right back.
                 </h1>
 
                 <p className="text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">

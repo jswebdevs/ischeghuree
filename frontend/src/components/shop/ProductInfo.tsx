@@ -10,7 +10,15 @@ const formatRange = (min: number | null, max: number | null) => {
   return `$${v.toLocaleString()}`;
 };
 
-export default function ProductInfo({ product }: { product: any }) {
+interface ProductInfoData {
+  name: string;
+  shortDesc?: string | null;
+  priceMin?: number | string | null;
+  priceMax?: number | string | null;
+  priceNote?: string | null;
+}
+
+export default function ProductInfo({ product }: { product: ProductInfoData }) {
   const min = product?.priceMin != null ? Number(product.priceMin) : null;
   const max = product?.priceMax != null ? Number(product.priceMax) : null;
   const priceLabel = formatRange(min, max);

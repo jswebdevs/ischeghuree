@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Edit, Trash2, Mail, Phone, UserCircle } from "lucide-react";
 
-interface UserRow {
+export interface UserRow {
   id: string;
   username: string;
   firstName?: string;

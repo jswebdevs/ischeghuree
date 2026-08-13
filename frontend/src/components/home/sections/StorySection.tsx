@@ -2,16 +2,29 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles, Star } from "lucide-react";
+import { Heart, Sparkles, Star, type LucideIcon } from "lucide-react";
 import api from "@/lib/axios";
 
-export default function StorySection({ data: initialData }: { data?: any }) {
-  const [data, setData] = useState<any>(initialData);
+interface StoryHighlight {
+  icon?: string;
+  label?: string;
+}
+
+interface StorySectionData {
+  title?: string;
+  paragraphs?: string[];
+  highlights?: StoryHighlight[];
+  tagline?: string;
+}
+
+export default function StorySection({ data: initialData }: { data?: StorySectionData | null }) {
+  const [data, setData] = useState<StorySectionData | null | undefined>(initialData);
   const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
     // Only fetch if initialData is not provided (SSR fallback)
     if (!initialData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
       setLoading(true);
       api.get("/settings/homepage")
         .then(res => {
@@ -43,11 +56,18 @@ export default function StorySection({ data: initialData }: { data?: any }) {
   if (!data) return null;
 
   const content = data;
-  const IconMap: Record<string, any> = { Heart, Star, Sparkles };
+  const IconMap: Record<string, LucideIcon> = { Heart, Star, Sparkles };
 
-  const title = content.title || "Our Story";
+  const title = content.title || "আমাদের গল্প";
   const paragraphs = content.paragraphs || [];
   const highlights = content.highlights || [];
+
+  // Highlight the last word in the title — but only when there are at least
+  // two words. Single-word (or Bangla one-liner) titles render as-is instead
+  // of collapsing into an empty lead + all-highlight.
+  const titleWords = String(title).trim().split(/\s+/).filter(Boolean);
+  const titleLead = titleWords.slice(0, -1).join(" ");
+  const titleTail = titleWords[titleWords.length - 1] || "";
 
   return (
     <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
@@ -66,7 +86,7 @@ export default function StorySection({ data: initialData }: { data?: any }) {
           >
             <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Our Story</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">আমাদের গল্প · Our Story</span>
             </span>
           </motion.div>
 
@@ -75,10 +95,15 @@ export default function StorySection({ data: initialData }: { data?: any }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-black text-foreground tracking-tighter text-center mb-12 leading-tight"
+            className="font-heading text-4xl md:text-6xl font-bold text-heading text-center mb-12 leading-tight"
           >
-            {title.split(" ").slice(0, -2).join(" ")}{" "}
-            <span className="text-primary">{title.split(" ").slice(-2).join(" ")}</span>
+            {titleWords.length >= 2 ? (
+              <>
+                {titleLead} <span className="text-primary">{titleTail}</span>
+              </>
+            ) : (
+              title
+            )}
           </motion.h2>
 
           {/* Content card */}
@@ -125,8 +150,8 @@ export default function StorySection({ data: initialData }: { data?: any }) {
               transition={{ delay: 0.3 }}
               className="flex flex-wrap justify-center gap-6 mt-12"
             >
-              {highlights.map((item: any, i: number) => {
-                const Icon = IconMap[item.icon] || Sparkles;
+              {highlights.map((item, i) => {
+                const Icon = (item.icon && IconMap[item.icon]) || Sparkles;
                 return (
                   <motion.div
                     key={item.label}

@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Eye, Edit, Trash2, ShieldAlert } from "lucide-react";
+import { Eye, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 
+export interface AdminRow {
+    id: string;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string | null;
+    avatar?: string | null;
+    roles: string[];
+    status: string;
+}
+
 interface AdminTableProps {
-    admins: any[];
+    admins: AdminRow[];
     onDelete?: (id: string) => void;
 }
 

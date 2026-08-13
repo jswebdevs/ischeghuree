@@ -39,7 +39,6 @@ export const createHeroSection = async (req: Request, res: Response): Promise<vo
     // If this new hero is active, deactivate all others
     if (isActive === true) {
       await prisma.heroSection.updateMany({
-        where: { id: { not: undefined } }, // placeholder to match all others
         data: { isActive: false }
       });
     }

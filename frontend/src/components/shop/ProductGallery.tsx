@@ -4,11 +4,16 @@ import { useState, MouseEvent, useRef, useEffect } from "react";
 import Image from "next/image"; // 🔥 Imported Next.js Image
 import { LuImage, LuFilm, LuMaximize } from "react-icons/lu";
 
+export interface ProductVariation {
+    featuredImage?: string | null;
+    gallery?: string[] | null;
+}
+
 interface ProductGalleryProps {
     featuredImage?: { originalUrl: string; thumbUrl?: string };
     images: { originalUrl: string; thumbUrl?: string }[];
     productName: string;
-    currentVariation?: any;
+    currentVariation?: ProductVariation | null;
 }
 
 type GalleryImage = { originalUrl: string; thumbUrl?: string };
@@ -35,8 +40,10 @@ export default function ProductGallery({ featuredImage, images, productName, cur
 
     useEffect(() => {
         if (allImages.length > 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional reset of the active image when the variation changes
             setActiveImage(allImages[0].originalUrl);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- allImages is rebuilt every render; the reset must only run when the variation changes
     }, [currentVariation]);
 
     const isVideo = (url?: string | null) => url ? /\.(mp4|webm|ogg|mov)$/i.test(url) : false;
@@ -52,12 +59,17 @@ export default function ProductGallery({ featuredImage, images, productName, cur
 
     const handleFullscreen = () => {
         if (videoRef.current) {
-            if (videoRef.current.requestFullscreen) {
-                videoRef.current.requestFullscreen();
-            } else if ((videoRef.current as any).webkitRequestFullscreen) {
-                (videoRef.current as any).webkitRequestFullscreen();
-            } else if ((videoRef.current as any).msRequestFullscreen) {
-                (videoRef.current as any).msRequestFullscreen();
+            // Vendor-prefixed fullscreen fallbacks for older Safari / IE
+            const video = videoRef.current as HTMLVideoElement & {
+                webkitRequestFullscreen?: () => void;
+                msRequestFullscreen?: () => void;
+            };
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) {
+                video.msRequestFullscreen();
             }
         }
     };

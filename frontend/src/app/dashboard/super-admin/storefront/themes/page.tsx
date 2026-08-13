@@ -74,17 +74,20 @@ function hexToHsl(hex: string): string {
   }
 }
 
+interface ActiveTheme {
+  id: string;
+  name?: string;
+  lightVariables?: Record<string, string>;
+  darkVariables?: Record<string, string>;
+}
+
 export default function ColorsPage() {
-  const [theme, setTheme] = useState<any>(null);
+  const [theme, setTheme] = useState<ActiveTheme | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeMode, setActiveMode] = useState<"light" | "dark">("dark");
   const [lightVars, setLightVars] = useState<Record<string, string>>({});
   const [darkVars, setDarkVars] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    fetchTheme();
-  }, []);
 
   const fetchTheme = async () => {
     try {
@@ -95,12 +98,17 @@ export default function ColorsPage() {
         setLightVars(t.lightVariables || {});
         setDarkVars(t.darkVariables || {});
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to load color palette.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch on mount; state updates happen inside the async fetch
+    fetchTheme();
+  }, []);
 
   const handleColorChange = (mode: "light" | "dark", key: string, hex: string) => {
     const hsl = hexToHsl(hex);
@@ -117,7 +125,7 @@ export default function ColorsPage() {
         darkVariables: darkVars,
       });
       toast.success("Color palette saved!");
-    } catch (err) {
+    } catch {
       toast.error("Failed to save palette.");
     } finally {
       setSaving(false);

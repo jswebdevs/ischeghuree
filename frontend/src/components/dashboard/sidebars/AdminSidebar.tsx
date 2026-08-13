@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
     LayoutDashboard, CircleDollarSign,
-    Users, PackageSearch, MessageCircleMore,
-    Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle
+    Users, PackageSearch, MessageCircleMore, User,
+    Power, Menu, ChevronLeft, ChevronRight, ChevronDown, UserCircle
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 import Cookies from "js-cookie";
@@ -22,6 +22,7 @@ export default function AdminSidebar() {
     const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- close the mobile drawer whenever the route changes
         setIsOpen(false);
     }, [pathname]);
 
@@ -71,6 +72,7 @@ export default function AdminSidebar() {
             ]
         },
         { name: "Customers", icon: Users, href: "/dashboard/admin/customers" },
+        { name: "My Profile", icon: User, href: "/dashboard/admin/profile" },
     ];
 
     return (
@@ -110,6 +112,7 @@ export default function AdminSidebar() {
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 flex-shrink-0 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm overflow-hidden">
                             {user?.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element -- user avatar URL with unknown dimensions
                                 <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
                                 <UserCircle className="w-6 h-6" />

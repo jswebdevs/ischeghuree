@@ -1,8 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Store, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Store, Sparkles, type LucideIcon } from "lucide-react";
 import { getGlobalSettings } from "@/lib/getSettings";
 import FooterSocials from "./FooterSocials";
+
+interface FooterLink {
+  label?: string;
+  href: string;
+}
+
+interface FooterContact {
+  icon?: string;
+  text?: string;
+  link?: string;
+}
+
+interface FooterConfig {
+  col1?: { showLogo?: boolean; showTitle?: boolean; title?: string; description?: string };
+  col2?: { title?: string; links: FooterLink[] };
+  col3?: { title?: string; links: FooterLink[] };
+  col4?: { title?: string; contacts: FooterContact[] };
+}
 
 async function getPublicSocialLinks() {
   try {
@@ -23,36 +41,38 @@ export default async function Footer() {
     getPublicSocialLinks()
   ]);
 
-  const storeName = settings?.storeName || "Ginag";
-  const tagline = settings?.tagline || "The best place to find everything you need with fast delivery. Premium e-commerce experience right at your fingertips.";
-  const address = settings?.contactAddress || settings?.address || "Rajshahi, Bangladesh";
-  const phone = settings?.contactPhone || settings?.supportPhone || "+880 1700 000000";
-  const email = settings?.contactEmail || settings?.supportEmail || "support@jswebdevs.com";
+  const storeName = settings?.storeName || "ইচ্ছে ঘুড়ি";
+  const tagline = settings?.tagline || "আভিজাত্যের ছোঁয়া… A touch of elegance — পরিবেশবান্ধব পাটের ব্যাগ ও ওয়ার্ল্ড-ক্লাস হেয়ার অ্যাক্সেসরিজ, ঢাকা থেকে সারাদেশে ডেলিভারি।";
+  const address = settings?.contactAddress || settings?.address || "Dhaka Uddan, Mohammadpur, Dhaka 1207";
+  const phone = settings?.contactPhone || settings?.supportPhone || "01820-417426";
+  const email = settings?.contactEmail || settings?.supportEmail || "ischeghuree@gmail.com";
   const logoUrl = settings?.logo?.originalUrl || null;
-  const footerConfig = settings?.footerConfig as any;
+  const footerConfig = settings?.footerConfig as FooterConfig | undefined;
 
   const col1 = footerConfig?.col1 || {
     showLogo: true,
     showTitle: true,
-    title: settings?.storeName || "Industrial Artifacts",
-    description: settings?.companySlogan || "Precision engineered accessories designed for the modern architectural lifestyle. Each piece is a testament to materiality and handcrafted integrity."
+    title: "ইচ্ছে ঘুড়ি — Ische Ghuree",
+    description: settings?.companySlogan || "আবহমান বাংলার ঐতিহ্য — the timeless heritage of Bengal. Eco-friendly jute bags (খুচরা ও পাইকারী) and world-class hair accessories, made with care since 2020."
   };
 
   const col2 = footerConfig?.col2 || {
     title: "Quick Links",
     links: [
-      { label: "Browse Catalog", href: "/products" },
+      { label: "Shop", href: "/shop" },
       { label: "Order Now", href: "/order-now" },
       { label: "Categories", href: "/categories" },
-      { label: "FAQ", href: "/faq" },
-      { label: "About Us", href: "/about-us" }
+      { label: "About Us", href: "/about-us" },
+      { label: "Contact Us", href: "/contact-us" }
     ]
   };
 
   const col3 = footerConfig?.col3 || {
     title: "Information",
     links: [
-      { label: "Contact Us", href: "/contact-us" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Shipping & Delivery", href: "/shipping-policy" },
+      { label: "Return & Exchange", href: "/return-refund-policy" },
       { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Terms of Service", href: "/terms-of-service" }
     ]
@@ -62,12 +82,13 @@ export default async function Footer() {
     title: "Contact Us",
     contacts: [
       { icon: "MapPin", text: address },
-      { icon: "Phone", text: phone },
-      { icon: "Mail", text: email }
+      { icon: "Phone", text: phone, link: `tel:${String(phone).replace(/[^\d+]/g, "")}` },
+      { icon: "Mail", text: email, link: `mailto:${email}` },
+      { icon: "Store", text: "facebook.com/iccheghureeofficial", link: "https://www.facebook.com/iccheghureeofficial" }
     ]
   };
 
-  const IconMap: Record<string, any> = { Mail, Phone, MapPin, Store };
+  const IconMap: Record<string, LucideIcon> = { Mail, Phone, MapPin, Store };
 
   return (
     <footer className="bg-gradient-theme border-t border-border mt-auto pt-16 pb-24 md:pb-8">
@@ -91,8 +112,14 @@ export default async function Footer() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-primary">
-                      <Store className="w-8 h-8" />
-                      <span className="text-2xl font-bold tracking-tighter text-foreground uppercase">
+                      <Image
+                        src="/ische-ghuree.svg"
+                        alt="ইচ্ছে ঘুড়ি kite logo"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10"
+                      />
+                      <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
                         {storeName}
                       </span>
                     </div>
@@ -128,7 +155,7 @@ export default async function Footer() {
           <div className="lg:col-span-2">
             <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">{col2.title}</h3>
             <ul className="space-y-4">
-              {col2.links.map((link: any, i: number) => (
+              {col2.links.map((link, i) => (
                 <li key={i}>
                   <Link href={link.href} className="text-subheading hover:text-primary text-sm font-medium transition-colors">
                     {link.label}
@@ -142,7 +169,7 @@ export default async function Footer() {
           <div className="lg:col-span-3">
             <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">{col3.title}</h3>
             <ul className="space-y-4">
-              {col3.links.map((link: any, i: number) => (
+              {col3.links.map((link, i) => (
                 <li key={i}>
                   <Link href={link.href} className="text-subheading hover:text-primary text-sm font-medium transition-colors">
                     {link.label}
@@ -156,8 +183,8 @@ export default async function Footer() {
           <div className="lg:col-span-3">
             <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">{col4.title}</h3>
             <ul className="space-y-5">
-              {col4.contacts.map((contact: any, i: number) => {
-                const Icon = IconMap[contact.icon] || MapPin;
+              {col4.contacts.map((contact, i) => {
+                const Icon = (contact.icon && IconMap[contact.icon]) || MapPin;
                 return (
                   <li key={i} className="flex items-start gap-4 text-sm text-subheading">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">

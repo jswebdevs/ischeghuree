@@ -7,16 +7,33 @@ import { toast } from "sonner";
 import {
     Layout,
     ArrowLeft,
-    Check,
     X,
     Image as ImageIcon,
     Loader2,
-    Save,
-    Eye,
-    EyeOff
+    Save
 } from "lucide-react";
 
-import MediaManager from "@/components/dashboard/shared/media/MediaManager";
+import MediaManager, { type MediaItem } from "@/components/dashboard/shared/media/MediaManager";
+
+interface HeroImage {
+    originalUrl?: string;
+    thumbUrl?: string;
+}
+
+interface HeroRecord {
+    id: string;
+    title: string;
+    subtitle?: string | null;
+    description?: string | null;
+    buttonText: string;
+    buttonLink: string;
+    badgeLabel?: string | null;
+    badgeText?: string | null;
+    imageID?: string | null;
+    order: number;
+    isActive: boolean;
+    image?: HeroImage | null;
+}
 
 interface HeroFormProps {
     role: "super-admin" | "admin";
@@ -43,19 +60,13 @@ export default function HeroForm({ role }: HeroFormProps) {
         order: 0,
         isActive: true,
     });
-    const [selectedImage, setSelectedImage] = useState<any>(null);
-
-    useEffect(() => {
-        if (id) {
-            fetchHero();
-        }
-    }, [id]);
+    const [selectedImage, setSelectedImage] = useState<HeroImage | null | undefined>(null);
 
     const fetchHero = async () => {
         setIsLoading(true);
         try {
             const res = await api.get('/hero/all');
-            const hero = res.data.data.find((h: any) => h.id === id);
+            const hero = (res.data.data as HeroRecord[]).find((h) => h.id === id);
             if (hero) {
                 setFormData({
                     title: hero.title,
@@ -71,12 +82,20 @@ export default function HeroForm({ role }: HeroFormProps) {
                 });
                 setSelectedImage(hero.image);
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch hero data");
         } finally {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (id) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchHero flips the loading flag synchronously before its async fetch
+            fetchHero();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchHero is re-created every render; re-fetch must only run when the id changes
+    }, [id]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,7 +114,7 @@ export default function HeroForm({ role }: HeroFormProps) {
                 toast.success("Hero section created successfully");
             }
             router.push(`/dashboard/${role}/storefront/hero`);
-        } catch (error) {
+        } catch {
             toast.error("Failed to save hero section");
         } finally {
             setIsSaving(false);
@@ -145,6 +164,7 @@ export default function HeroForm({ role }: HeroFormProps) {
                             >
                                 {selectedImage ? (
                                     <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element -- CDN hero asset with unknown dimensions */}
                                         <img src={selectedImage.originalUrl} alt="Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                                             <p className="text-white text-[10px] font-black uppercase tracking-widest bg-primary px-4 py-2 rounded-full shadow-lg">Change Asset</p>
@@ -263,7 +283,7 @@ export default function HeroForm({ role }: HeroFormProps) {
                         <div className="flex-1 overflow-hidden relative p-2">
                             <MediaManager 
                                 isPicker={true} 
-                                onSelect={(media: any) => {
+                                onSelect={(media: MediaItem) => {
                                     setFormData({ ...formData, imageID: media.id });
                                     setSelectedImage(media);
                                     setIsMediaPickerOpen(false);

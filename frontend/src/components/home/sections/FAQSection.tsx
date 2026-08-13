@@ -5,13 +5,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import api from "@/lib/axios";
 
-export default function FAQSection({ data: initialData }: { data?: any }) {
-  const [data, setData] = useState<any>(initialData);
+interface FAQItem {
+  question?: string;
+  answer?: string;
+}
+
+interface FAQSectionData {
+  title?: string;
+  subtitle?: string;
+  faqs?: FAQItem[];
+}
+
+export default function FAQSection({ data: initialData }: { data?: FAQSectionData | null }) {
+  const [data, setData] = useState<FAQSectionData | null | undefined>(initialData);
   const [loading, setLoading] = useState(!initialData);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!initialData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
       setLoading(true);
       api.get("/settings/homepage")
         .then(res => {
@@ -44,7 +56,7 @@ export default function FAQSection({ data: initialData }: { data?: any }) {
 
   if (!data) return null;
 
-  const faqs = data.faqs?.length > 0 ? data.faqs : [];
+  const faqs = data.faqs ?? [];
 
   return (
     <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
@@ -72,9 +84,9 @@ export default function FAQSection({ data: initialData }: { data?: any }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase mb-4"
+            className="font-heading text-4xl md:text-6xl font-bold text-heading mb-4"
           >
-            ❓ {data.title || "Frequently Asked Questions"}
+            {data.title || "সচরাচর জিজ্ঞাসা"}
           </motion.h2>
 
           {data.subtitle && (
@@ -91,7 +103,7 @@ export default function FAQSection({ data: initialData }: { data?: any }) {
 
         {/* FAQ Accordion */}
         <div className="max-w-3xl mx-auto space-y-4">
-          {faqs.map((faq: any, i: number) => (
+          {faqs.map((faq, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}

@@ -5,7 +5,7 @@ import { MetadataRoute } from 'next';
 // correct sitemap.
 const BASE_URL =
     process.env['NEXT_PUBLIC_CLIENT_URL']?.replace(/\/$/, '') ||
-    'https://ginag-frontend.vercel.app';
+    'https://ischeghuree.com';
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -18,10 +18,6 @@ export default function robots(): MetadataRoute.Robots {
                     '/dashboard/',
                     '/login',
                     '/register',
-                    '/order-success',
-                    '/cart',
-                    '/checkout',
-                    '/wishlist',
                 ],
             },
         ],

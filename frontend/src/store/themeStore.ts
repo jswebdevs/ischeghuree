@@ -5,9 +5,9 @@ import { create } from 'zustand';
 // is a no-op and `initTheme` always applies the .dark class.
 interface ThemeState {
   isDark: boolean;
-  userTheme: any | null;
+  userTheme: unknown;
   toggleDark: () => void;
-  setTheme: (theme: any) => void;
+  setTheme: (theme: unknown) => void;
   initTheme: () => void;
 }
 

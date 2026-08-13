@@ -24,7 +24,7 @@ const allowedOrigins: string[] = [
     'http://127.0.0.1:5173',
   ]),
   process.env['CLIENT_URL'] || '',
-  process.env['Client_URL'] || '',
+  process.env['Client_URL'] || '', // legacy typo'd env name, kept as fallback
   process.env['CORS_ORIGIN'] || '',
   ...splitCsv(process.env['CORS_ALLOWED_ORIGINS']),
 ].filter(Boolean);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -30,7 +30,7 @@ const KPI = ({
 }: {
   label: string;
   value: number | string;
-  Icon: any;
+  Icon: ComponentType<{ className?: string }>;
   tone?: "primary" | "amber" | "emerald" | "violet";
 }) => {
   const tones: Record<string, string> = {

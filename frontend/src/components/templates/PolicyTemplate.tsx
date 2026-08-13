@@ -3,18 +3,19 @@
 import { motion } from "framer-motion";
 import { FileText, Clock, ShieldCheck } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
+import type { PageData } from "./types";
 
 interface PolicyTemplateProps {
-    data: any;
+    data: PageData;
 }
 
 export default function PolicyTemplate({ data }: PolicyTemplateProps) {
     const { settings } = useSettings();
-    const storeName = settings?.storeName || "GinaG";
+    const storeName = settings?.storeName || "ইচ্ছে ঘুড়ি — Ische Ghuree";
     const { title, content, updatedAt } = data;
     
-    const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
-    const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
+    const richTextBlocks = content.filter((b) => b.type === "rich-text");
+    const combinedContent = richTextBlocks.map((b) => b.data.content).join("");
 
     const formattedDate = new Date(updatedAt).toLocaleDateString('en-US', {
         year: 'numeric',

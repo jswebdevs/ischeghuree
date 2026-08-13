@@ -3,31 +3,59 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, Edit, Trash2, Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
+interface AdminProduct {
+  id: string;
+  name: string;
+  slug?: string | null;
+  productCode?: string | null;
+  priceMin?: number | string | null;
+  priceMax?: number | string | null;
+  priceNote?: string | null;
+  featuredImage?: { thumbUrl?: string; originalUrl?: string } | null;
+  categories?: { name?: string }[] | null;
+}
 
 interface ProductTableProps {
-  products: any[];
+  // Callers only guarantee an id; the rows are cast to the richer shape below.
+  products: { id: string }[];
   onDelete: (id: string) => void;
 }
 
 type SortKey = "name" | "price" | "category" | null;
 
-const formatRange = (p: any) => {
+const formatRange = (p: AdminProduct, symbol: string) => {
   const min = p.priceMin != null ? Number(p.priceMin) : null;
   const max = p.priceMax != null ? Number(p.priceMax) : null;
   if (min == null && max == null) return p.priceNote || "—";
   if (min != null && max != null && min !== max) {
-    return `$${min.toLocaleString()} – $${max.toLocaleString()}`;
+    return `${symbol}${min.toLocaleString()} – ${symbol}${max.toLocaleString()}`;
   }
   const v = (min ?? max)!;
-  return `$${v.toLocaleString()}`;
+  return `${symbol}${v.toLocaleString()}`;
 };
 
-export default function ProductTable({ products, onDelete }: ProductTableProps) {
+// Hoisted so it is not re-created on every render (react-hooks/static-components)
+const SortIcon = ({
+  columnKey,
+  sortConfig,
+}: {
+  columnKey: SortKey;
+  sortConfig: { key: SortKey; direction: "asc" | "desc" } | null;
+}) => {
+  if (sortConfig?.key !== columnKey) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+  return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+};
+
+export default function ProductTable({ products: productsProp, onDelete }: ProductTableProps) {
+  const products = productsProp as AdminProduct[];
+  const { symbol } = useCurrency();
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "asc" | "desc" } | null>(null);
 
-  const getCategoryText = (product: any) => {
+  const getCategoryText = (product: AdminProduct) => {
     if (!product.categories || product.categories.length === 0) return "";
-    return product.categories.map((c: any) => c.name).join(", ");
+    return product.categories.map((c) => c.name).join(", ");
   };
 
   const handleSort = (key: SortKey) => {
@@ -39,7 +67,8 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
   const sortedProducts = [...products].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    let aValue: any, bValue: any;
+    let aValue: string | number = 0;
+    let bValue: string | number = 0;
     if (key === "name") {
       aValue = a.name.toLowerCase();
       bValue = b.name.toLowerCase();
@@ -54,11 +83,6 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
     if (aValue > bValue) return direction === "asc" ? 1 : -1;
     return 0;
   });
-
-  const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
-    if (sortConfig?.key !== columnKey) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
-    return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
-  };
 
   if (products.length === 0) {
     return <div className="p-10 text-center text-muted-foreground">No products yet. Add one to get started.</div>;
@@ -95,6 +119,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-lg bg-background flex items-center justify-center border border-border overflow-hidden p-1 shrink-0">
                   {imageSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- CDN product thumbnail with unknown dimensions
                     <img src={imageSrc} alt={product.name} className="w-full h-full object-cover rounded-md" />
                   ) : (
                     <ImageIcon className="w-6 h-6 text-muted-foreground/30" />
@@ -111,7 +136,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
 
               <div className="py-3 border-y border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Price Range</p>
-                <p className="font-black text-foreground">{formatRange(product)}</p>
+                <p className="font-black text-foreground">{formatRange(product, symbol)}</p>
               </div>
 
               <div className="flex items-center justify-end gap-2">
@@ -150,19 +175,19 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                 className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
                 onClick={() => handleSort("name")}
               >
-                <div className="flex items-center gap-1.5">Product <SortIcon columnKey="name" /></div>
+                <div className="flex items-center gap-1.5">Product <SortIcon columnKey="name" sortConfig={sortConfig} /></div>
               </th>
               <th
                 className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
                 onClick={() => handleSort("category")}
               >
-                <div className="flex items-center gap-1.5">Category <SortIcon columnKey="category" /></div>
+                <div className="flex items-center gap-1.5">Category <SortIcon columnKey="category" sortConfig={sortConfig} /></div>
               </th>
               <th
                 className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none text-right"
                 onClick={() => handleSort("price")}
               >
-                <div className="flex items-center justify-end gap-1.5">Price Range <SortIcon columnKey="price" /></div>
+                <div className="flex items-center justify-end gap-1.5">Price Range <SortIcon columnKey="price" sortConfig={sortConfig} /></div>
               </th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
             </tr>
@@ -176,6 +201,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                   <td className="p-4">
                     <div className="w-12 h-12 rounded-lg bg-background flex items-center justify-center border border-border overflow-hidden p-1 shrink-0">
                       {imageSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- CDN product thumbnail with unknown dimensions
                         <img src={imageSrc} alt={product.name} className="w-full h-full object-cover rounded-md" />
                       ) : (
                         <ImageIcon className="w-5 h-5 text-muted-foreground/30" />
@@ -194,7 +220,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                     {categoryText || <span className="text-muted-foreground italic">None</span>}
                   </td>
 
-                  <td className="p-4 text-right font-black text-foreground">{formatRange(product)}</td>
+                  <td className="p-4 text-right font-black text-foreground">{formatRange(product, symbol)}</td>
 
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
