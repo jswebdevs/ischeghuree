@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
@@ -116,10 +116,11 @@ export default function OrdersInbox() {
   const [deliveryDraft, setDeliveryDraft] = useState<DeliveryDraft | null>(null);
   const [savingDelivery, setSavingDelivery] = useState(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const res = await api.get("/custom-orders", {
+        signal,
         params: {
           limit: 100,
           ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
@@ -128,23 +129,26 @@ export default function OrdersInbox() {
       });
       setOrders(res.data?.data || []);
     } catch (err) {
+      // Aborted by a newer filter/search change — the newer request owns the UI.
+      if (signal?.aborted) return;
       toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to load orders");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   };
 
+  // Single debounced fetch effect for mount, status-filter changes and search
+  // typing. Aborting the in-flight request on every change guarantees the
+  // last filter/search combination wins (no out-of-order responses).
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchOrders flips the loading flag synchronously before its async fetch
-    fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; refetch must only run when the filter changes
-  }, [statusFilter]);
-
-  useEffect(() => {
-    const t = setTimeout(fetchOrders, 300);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; the debounced refetch must only run when the search changes
-  }, [search]);
+    const controller = new AbortController();
+    const t = setTimeout(() => fetchOrders(controller.signal), 300);
+    return () => {
+      clearTimeout(t);
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; the debounced refetch must only run when the filter or search changes
+  }, [statusFilter, search]);
 
   const counts = useMemo(() => {
     const m: Record<string, number> = { ALL: orders.length };
@@ -163,11 +167,15 @@ export default function OrdersInbox() {
     });
   };
 
-  const closeView = () => {
+  // Stable identity (only calls stable useState setters). ViewModal's
+  // focus-trap effect depends on onClose — if this were re-created on every
+  // render, typing in the delivery fields would re-run the trap and steal
+  // focus back to the first button on each keystroke.
+  const closeView = useCallback(() => {
     setViewing(null);
     setDraftStatus(null);
     setDeliveryDraft(null);
-  };
+  }, []);
 
   // Save status only when the draft differs from the current value. Show a
   // success toast and auto-close the modal after ~1.5s so the user sees the

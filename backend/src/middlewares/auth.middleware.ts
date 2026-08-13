@@ -11,6 +11,14 @@ declare global {
   }
 }
 
+// Derive the single highest role from the roles array so legacy `.role`
+// consumers (audit logging, role gates) read a real value instead of undefined.
+const deriveHighestRole = (roles: string[]): string => {
+  if (roles.includes('SUPER_ADMIN')) return 'SUPER_ADMIN';
+  if (roles.includes('ADMIN')) return 'ADMIN';
+  return roles[0] || 'CUSTOMER';
+};
+
 // 1. PROTECT: Verifies if the user is logged in
 export const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   let token;
@@ -55,8 +63,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
       return;
     }
 
-    // Attach user to request object
-    req.user = user;
+    // Attach user to request object (with derived highest role for `.role` consumers)
+    req.user = { ...user, role: deriveHighestRole(user.roles) };
     next();
   } catch (error: any) {
     console.error('Auth Error:', error);
@@ -102,11 +110,25 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     token = req.headers.authorization.split(' ')[1];
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
-      (req as any).user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      // Mirror protect(): same narrow field selection (never the password hash),
+      // and SUSPENDED/BLOCKED users proceed as guests — no req.user attached.
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id },
+        select: {
+          id: true,
+          email: true,
+          roles: true,
+          status: true,
+          phoneVerified: true,
+        },
+      });
+      if (user && user.status !== 'SUSPENDED' && user.status !== 'BLOCKED') {
+        (req as any).user = { ...user, role: deriveHighestRole(user.roles) };
+      }
     } catch (error) {
       // Token is invalid or expired, but we just ignore it and let them proceed as a guest
     }
   }
-  
+
   next(); // Always proceed to the controller
 };

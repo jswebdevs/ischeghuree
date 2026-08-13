@@ -1,10 +1,10 @@
 ---
 name: react-hook-form-zod
-description: "react-hook-form + Zod validation pattern for ginag-frontend. Use when building any form (order form, contact, admin CRUD, login). Encodes the schema-first pattern, conditional required fields, error display with theme tokens, and submit handling that posts via the project's axios instance."
+description: "react-hook-form + Zod validation pattern for frontend. Use when building any form (order form, contact, admin CRUD, login). Encodes the schema-first pattern, conditional required fields, error display with theme tokens, and submit handling that posts via the project's axios instance."
 trigger: build form
 ---
 
-# react-hook-form + Zod (ginag-frontend)
+# react-hook-form + Zod (frontend)
 
 Stack: `react-hook-form` ^7 + `zod` ^4 + `@hookform/resolvers/zod`. Forms are **schema-first** — the Zod schema is the single source of truth for validation, and `z.infer` gives the TS type.
 
@@ -89,7 +89,7 @@ const Schema = z.object({
 });
 ```
 
-This keeps both client and server in sync (the backend re-validates the same shape in [customOrder.controller.ts](../../../ginag-backend/src/controllers/customOrder.controller.ts)).
+This keeps both client and server in sync (the backend re-validates the same shape in [customOrder.controller.ts](../../../backend/src/controllers/customOrder.controller.ts)).
 
 ## Watching values for conditional UI
 
@@ -105,8 +105,8 @@ Always use the project's CSS-variable utilities (`bg-background`, `border-border
 
 ## Existing reference forms
 
-- Order form: `ginag-frontend/src/app/order-now/page.tsx`
-- Login: `ginag-frontend/src/app/login/page.tsx`
-- Contact: `ginag-frontend/src/components/templates/ContactTemplate.tsx`
+- Order form: `frontend/src/app/order-now/page.tsx`
+- Login: `frontend/src/app/login/page.tsx`
+- Contact: `frontend/src/components/templates/ContactTemplate.tsx`
 
 When in doubt, copy the closest existing form and adapt — they all share the same skeleton above.

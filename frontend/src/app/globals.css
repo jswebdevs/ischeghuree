@@ -185,15 +185,17 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
 }
 
 /* Marquee track for the promo banner.
-   Text enters from the right edge, travels leftward across the bar, then
-   restarts from the right after exiting the left. Single span — only one
-   copy is ever on screen. Animates `left` (% of parent) so the start/end
-   positions are naturally relative to the container width. */
+   The message is rendered twice inside a max-content flex track; the track
+   translates 0 → -50% (exactly one copy's width) for a seamless infinite
+   loop that always shows the full text regardless of container width.
+   Animating transform stays on the compositor — animating `left` forced
+   layout every frame and clipped the second half of the text on phones.
+   Hover-pause is driven from the banner wrapper (.ig-banner) because a
+   full-bleed overlay link sits above the text and eats its :hover. */
 .ig-marquee-track {
-  left: 100%;
   animation: ig-marquee-rtl 18s linear infinite;
 }
-.ig-marquee-track:hover {
+.ig-banner:hover .ig-marquee-track {
   animation-play-state: paused;
 }
 @media (max-width: 640px) {
@@ -202,12 +204,12 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
   }
 }
 @keyframes ig-marquee-rtl {
-  from { left: 100%; }
-  to   { left: -100%; }
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ig-marquee-track {
     animation: none;
-    left: 0;
+    transform: none;
   }
 }

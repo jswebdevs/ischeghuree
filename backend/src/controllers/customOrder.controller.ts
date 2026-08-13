@@ -20,7 +20,9 @@ const isAdminUser = (user: any): boolean =>
 // Generate a collision-resistant order number without relying on an
 // app-level row count (which is racy under load — two simultaneous orders
 // would read the same count and write the same number, then violate the
-// unique index). The base36 timestamp + random suffix gives ~1.7B keyspace.
+// unique index). The base36 timestamp + 4-char random suffix gives ~1.68M
+// combinations per millisecond; the rare collision is retried in
+// createCustomOrder (unique-index violation → regenerate).
 const generateOrderNumber = (prefix: string) => {
   const stamp = Date.now().toString(36).toUpperCase();
   const rnd = Math.random().toString(36).toUpperCase().slice(2, 6).padStart(4, '0');
@@ -52,8 +54,8 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
   let parsedQuantity: number | null = null;
   if (quantity !== undefined && quantity !== null && String(quantity).trim() !== '') {
     const q = Number(quantity);
-    if (!Number.isInteger(q) || q < 1) {
-      return { ok: false, message: 'পরিমাণ একটি ধনাত্মক সংখ্যা হতে হবে। Quantity must be a positive whole number.' };
+    if (!Number.isInteger(q) || q < 1 || q > 100000) {
+      return { ok: false, message: 'পরিমাণ ১ থেকে ১,০০,০০০ এর মধ্যে একটি পূর্ণসংখ্যা হতে হবে। Quantity must be a whole number between 1 and 100,000.' };
     }
     parsedQuantity = q;
   }
@@ -67,9 +69,12 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
   if (deliveryMethod === 'MAILING' && (!mailingAddress || !String(mailingAddress).trim())) {
     return { ok: false, message: 'মেইলিং ঠিকানা আবশ্যক। Mailing address is required when delivery method is mailing.' };
   }
-  if (customerEmail && typeof customerEmail === 'string' && customerEmail.trim()) {
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim());
-    if (!ok) return { ok: false, message: 'ইমেইল ঠিকানাটি সঠিক নয়। Email is not a valid address.' };
+  // Present-but-non-string values (numbers, objects) must not slip past the
+  // format check and get stringified into the DB.
+  if (customerEmail !== undefined && customerEmail !== null && customerEmail !== '') {
+    if (typeof customerEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
+      return { ok: false, message: 'ইমেইল ঠিকানাটি সঠিক নয়। Email is not a valid address.' };
+    }
   }
 
   return {
@@ -82,7 +87,7 @@ const validateBody = (body: any): { ok: true; data: any } | { ok: false; message
       orderType: resolvedOrderType,
       deliveryMethod,
       mailingAddress: deliveryMethod === 'MAILING' ? String(mailingAddress).trim() : null,
-      customerEmail: customerEmail ? String(customerEmail).trim() : null,
+      customerEmail: typeof customerEmail === 'string' && customerEmail.trim() ? customerEmail.trim() : null,
       notes: notes ? String(notes).trim() : null,
     },
   };
@@ -100,11 +105,22 @@ export const createCustomOrder = async (req: Request, res: Response): Promise<vo
     const prefix = settings?.orderPrefix || 'IG-';
     const storeName = settings?.storeName || 'ইচ্ছে ঘুড়ি — Ische Ghuree';
 
-    const orderNumber = generateOrderNumber(prefix);
-
-    const order = await prisma.customOrder.create({
-      data: { ...validated.data, orderNumber },
-    });
+    // Retry on the (rare) order-number collision: P2002 on the unique index
+    // means two orders landed in the same millisecond with the same random
+    // suffix — regenerate and try again, up to 3 attempts total.
+    let order;
+    for (let attempt = 1; ; attempt++) {
+      const orderNumber = generateOrderNumber(prefix);
+      try {
+        order = await prisma.customOrder.create({
+          data: { ...validated.data, orderNumber },
+        });
+        break;
+      } catch (err: any) {
+        if (err?.code === 'P2002' && attempt < 3) continue;
+        throw err;
+      }
+    }
 
     if (order.customerEmail) {
       try {
@@ -162,7 +178,9 @@ export const listMyCustomOrders = async (req: Request, res: Response): Promise<v
       return;
     }
     const orders = await prisma.customOrder.findMany({
-      where: { customerEmail: user.email },
+      // Case-insensitive: matches getCustomOrder's ownership rule so the list
+      // and the detail view agree on which orders belong to this user.
+      where: { customerEmail: { equals: user.email, mode: 'insensitive' } },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
@@ -181,7 +199,19 @@ export const listCustomOrders = async (req: Request, res: Response): Promise<voi
     const safePage = Math.max(Number(page) || 1, 1);
     const skip = (safePage - 1) * safeLimit;
     const where: any = {};
-    if (status && typeof status === 'string') where.status = status;
+    if (status !== undefined && status !== '') {
+      // Validate against the CustomOrderStatus enum — anything else would
+      // throw a PrismaClientValidationError (500) instead of a clean 400.
+      const VALID_ORDER_STATUSES = ['PENDING', 'CONTACTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+      if (typeof status !== 'string' || !VALID_ORDER_STATUSES.includes(status)) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid status. Must be one of: ${VALID_ORDER_STATUSES.join(', ')}.`,
+        });
+        return;
+      }
+      where.status = status;
+    }
     if (search && typeof search === 'string') {
       where.OR = [
         { customerName: { contains: search, mode: 'insensitive' } },
@@ -245,6 +275,10 @@ export const getCustomOrder = async (req: Request, res: Response): Promise<void>
 export const updateCustomOrderDelivery = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
+    if (!id) {
+      res.status(400).json({ success: false, message: 'Order id is required.' });
+      return;
+    }
     const { deliveryProvider, trackingUrl, deliveryStatus, deliveryNote, deliveredAt } = req.body || {};
 
     const data: any = {};
@@ -287,7 +321,15 @@ export const updateCustomOrderDelivery = async (req: Request, res: Response): Pr
     }
 
     if (deliveredAt !== undefined) {
-      data.deliveredAt = deliveredAt ? new Date(deliveredAt) : null;
+      if (deliveredAt) {
+        if (isNaN(Date.parse(deliveredAt))) {
+          res.status(400).json({ success: false, message: 'deliveredAt must be a valid date.' });
+          return;
+        }
+        data.deliveredAt = new Date(deliveredAt);
+      } else {
+        data.deliveredAt = null;
+      }
     }
 
     if (Object.keys(data).length === 0) {
@@ -383,7 +425,12 @@ export const updateCustomOrderStatus = async (req: Request, res: Response): Prom
     });
 
     res.json({ success: true, data: order });
-  } catch (error) {
+  } catch (error: any) {
+    // P2025: record to update not found — a clean 404, not a 500.
+    if (error?.code === 'P2025') {
+      res.status(404).json({ success: false, message: 'Order not found' });
+      return;
+    }
     console.error('Update CustomOrder error:', error);
     res.status(500).json({ success: false, message: 'Failed to update order' });
   }

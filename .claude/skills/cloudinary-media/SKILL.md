@@ -1,19 +1,19 @@
 ---
 name: cloudinary-media
-description: "Media upload pipeline for ginag-backend (multer + sharp + ffmpeg + Cloudinary). Use when adding new upload endpoints, changing how images/videos are stored, or wiring a media field on a model. Encodes the WebP/WebM auto-conversion, Cloudinary streaming, and Media table linkage."
+description: "Media upload pipeline for backend (multer + sharp + ffmpeg + Cloudinary). Use when adding new upload endpoints, changing how images/videos are stored, or wiring a media field on a model. Encodes the WebP/WebM auto-conversion, Cloudinary streaming, and Media table linkage."
 trigger: media upload
 ---
 
-# Cloudinary Media Pipeline (ginag-backend)
+# Cloudinary Media Pipeline (backend)
 
 All file uploads (product images, hero banners, avatars, blog featured images, etc.) flow through one pipeline: **multer (memory) → sharp/ffmpeg (transcode) → Cloudinary (CDN) → `Media` table (metadata)**.
 
 ## Where things live
 
-- Cloudinary client: [src/config/cloudinary.ts](../../../ginag-backend/src/config/cloudinary.ts)
-- Multer config (memoryStorage): [src/config/upload.ts](../../../ginag-backend/src/config/upload.ts)
-- Pipeline implementation: [src/controllers/media.controller.ts](../../../ginag-backend/src/controllers/media.controller.ts)
-- Schema: `Media` model in [prisma/schema.prisma](../../../ginag-backend/prisma/schema.prisma)
+- Cloudinary client: [src/config/cloudinary.ts](../../../backend/src/config/cloudinary.ts)
+- Multer config (memoryStorage): [src/config/upload.ts](../../../backend/src/config/upload.ts)
+- Pipeline implementation: [src/controllers/media.controller.ts](../../../backend/src/controllers/media.controller.ts)
+- Schema: `Media` model in [prisma/schema.prisma](../../../backend/prisma/schema.prisma)
 
 Required env vars: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 

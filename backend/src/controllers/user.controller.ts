@@ -43,8 +43,31 @@ const uploadToCloudinary = (file: Express.Multer.File, folder: string): Promise<
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { firstName, lastName, username, email, password, phone: rawPhone, gender, dob } = req.body;
-    const phone = rawPhone && rawPhone.trim() !== '' ? rawPhone.trim() : undefined;
+    const { firstName, lastName, username, email, password, phone: rawPhone, gender, dob } = req.body || {};
+
+    // Input validation — reject malformed bodies before any DB/bcrypt work.
+    if (!firstName || typeof firstName !== 'string' || !firstName.trim()) {
+      res.status(400).json({ success: false, message: 'নামের প্রথম অংশ আবশ্যক। First name is required.' });
+      return;
+    }
+    if (!lastName || typeof lastName !== 'string' || !lastName.trim()) {
+      res.status(400).json({ success: false, message: 'নামের শেষ অংশ আবশ্যক। Last name is required.' });
+      return;
+    }
+    if (!username || typeof username !== 'string' || !username.trim()) {
+      res.status(400).json({ success: false, message: 'ইউজারনেম আবশ্যক। Username is required.' });
+      return;
+    }
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      res.status(400).json({ success: false, message: 'সঠিক ইমেইল ঠিকানা দিন। A valid email address is required.' });
+      return;
+    }
+    if (!password || typeof password !== 'string' || password.length < 8) {
+      res.status(400).json({ success: false, message: 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে। Password must be at least 8 characters.' });
+      return;
+    }
+
+    const phone = typeof rawPhone === 'string' && rawPhone.trim() !== '' ? rawPhone.trim() : undefined;
 
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -117,7 +140,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     res.status(201).json({ success: true, message: "Registration successful. Please verify your email.", data: { id: user.id, email: user.email } });
   } catch (error) {
-    res.status(500).json({ success: false, error });
+    console.error('Register User Error:', error);
+    res.status(500).json({ success: false, message: 'নিবন্ধন ব্যর্থ হয়েছে, আবার চেষ্টা করুন। Registration failed, please try again.' });
   }
 };
 
@@ -314,7 +338,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       include: { addresses: true }
     });
 
-    const { password: _, verificationToken, otp, ...safeUser } = updatedUser;
+    const { password: _, verificationToken, otp, otpExpires, ...safeUser } = updatedUser;
 
     // 🚨 LOG: PROFILE UPDATE
     await logAction({
@@ -328,7 +352,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       userAgent: req.headers['user-agent']
     });
 
-    res.json({ success: true, data: updatedUser });
+    res.json({ success: true, data: safeUser });
   } catch (error) {
     res.status(500).json({ success: false, error });
   }
@@ -463,8 +487,8 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
     const fullName = `${firstName} ${lastName}`;
 
     // SECURITY: Only SUPER_ADMIN can assign roles. Regular ADMIN can only create CUSTOMERS.
-    const requesterRole = (req as any).user?.role;
-    const assignedRoles = (requesterRole === 'SUPER_ADMIN') 
+    const isSuperAdmin = (((req as any).user?.roles ?? []) as string[]).includes('SUPER_ADMIN');
+    const assignedRoles = isSuperAdmin
       ? (roles && roles.length > 0 ? roles : ['CUSTOMER'])
       : ['CUSTOMER'];
 
@@ -511,12 +535,12 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     // SECURITY: Admins can't delete other Admins or Super Admins
-    const requesterRole = (req as any).user?.role;
-    const hasAdminRole = userToDelete.roles.some(role => 
+    const isSuperAdmin = (((req as any).user?.roles ?? []) as string[]).includes('SUPER_ADMIN');
+    const hasAdminRole = userToDelete.roles.some(role =>
       ['SUPER_ADMIN', 'ADMIN'].includes(role)
     );
 
-    if (requesterRole !== 'SUPER_ADMIN' && hasAdminRole) {
+    if (!isSuperAdmin && hasAdminRole) {
       res.status(403).json({ success: false, message: "You do not have permission to delete administrative accounts." });
       return;
     }

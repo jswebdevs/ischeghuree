@@ -1,12 +1,12 @@
 ---
 name: prisma
-description: "Prisma 7 + Supabase PostgreSQL workflow for ginag-backend. Use when adding/changing models in prisma/schema.prisma, generating the client, or syncing the DB. Catches Prisma 7 gotchas (datasource block must NOT contain url/directUrl)."
+description: "Prisma 7 + Supabase PostgreSQL workflow for backend. Use when adding/changing models in prisma/schema.prisma, generating the client, or syncing the DB. Catches Prisma 7 gotchas (datasource block must NOT contain url/directUrl)."
 trigger: prisma changes
 ---
 
-# Prisma 7 (ginag-backend)
+# Prisma 7 (backend)
 
-This project uses **Prisma 7** with **Supabase Postgres**. Schema lives at [ginag-backend/prisma/schema.prisma](../../../ginag-backend/prisma/schema.prisma). DB connection lives in [ginag-backend/prisma.config.ts](../../../ginag-backend/prisma.config.ts), NOT in the schema file.
+This project uses **Prisma 7** with **Supabase Postgres**. Schema lives at [backend/prisma/schema.prisma](../../../backend/prisma/schema.prisma). DB connection lives in [backend/prisma.config.ts](../../../backend/prisma.config.ts), NOT in the schema file.
 
 ## Prisma 7 gotcha — datasource block
 
@@ -36,7 +36,7 @@ export default defineConfig({
 This project never had a `prisma/migrations/` folder — schema was originally synced via `db push`. Stick with `db push` for changes; do **not** run `prisma migrate dev` (it will demand a baseline reset and try to wipe the Supabase DB).
 
 ```bash
-cd ginag-backend
+cd backend
 
 # Validate schema + regenerate client (always run after editing schema)
 npx prisma generate
@@ -65,6 +65,6 @@ Dropped (do NOT reintroduce without checking with the user): `Order`, `OrderItem
 ## After changing the schema
 
 1. `npx prisma generate` (mandatory — TS won't compile until the client matches).
-2. Update affected controllers in [ginag-backend/src/controllers/](../../../ginag-backend/src/controllers/).
+2. Update affected controllers in [backend/src/controllers/](../../../backend/src/controllers/).
 3. Run `npx prisma db push` (with user approval if destructive).
-4. If a new model needs admin CRUD, add a routes file under [ginag-backend/src/routes/](../../../ginag-backend/src/routes/) and register it in [routes/index.ts](../../../ginag-backend/src/routes/index.ts).
+4. If a new model needs admin CRUD, add a routes file under [backend/src/routes/](../../../backend/src/routes/) and register it in [routes/index.ts](../../../backend/src/routes/index.ts).

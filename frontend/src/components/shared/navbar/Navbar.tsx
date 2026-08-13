@@ -131,7 +131,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
       if (searchQuery.length > 2) {
         setIsSearching(true);
         try {
-          const res = await api.get(`/search?q=${searchQuery}&limit=6`);
+          const res = await api.get("/search", { params: { q: searchQuery, limit: 6 } });
           const data = res.data.data || res.data.results || res.data || [];
           setSearchResults(Array.isArray(data) ? data : []);
           setShowResults(true);

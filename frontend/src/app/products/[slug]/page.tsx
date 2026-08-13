@@ -72,7 +72,7 @@ export default async function ProductDetailsPage({
   if (!product) notFound();
 
   return (
-    <main className="min-h-screen bg-background py-6 md:py-12">
+    <div className="min-h-screen bg-background py-6 md:py-12">
       <div className="container mx-auto px-[5%] max-w-360">
         <nav
           aria-label="Breadcrumb"
@@ -99,6 +99,6 @@ export default async function ProductDetailsPage({
 
         <ProductTabs product={product} />
       </div>
-    </main>
+    </div>
   );
 }

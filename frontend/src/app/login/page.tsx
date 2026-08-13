@@ -33,7 +33,17 @@ function LoginForm() {
   }, []);
 
   const getSmartRedirect = (userRoles: string[]) => {
-    if (returnUrl && returnUrl !== "/" && !returnUrl.startsWith("/login")) {
+    // Only follow same-origin paths: must start with a single "/" — "//host"
+    // and "/\host" are protocol-relative externals (open redirect on the
+    // credential page), and absolute URLs fail the startsWith("/") check.
+    if (
+      returnUrl &&
+      returnUrl !== "/" &&
+      returnUrl.startsWith("/") &&
+      !returnUrl.startsWith("//") &&
+      !returnUrl.startsWith("/\\") &&
+      !returnUrl.startsWith("/login")
+    ) {
       return returnUrl;
     }
     return getDashboardRedirectPath(userRoles);

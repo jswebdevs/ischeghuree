@@ -91,13 +91,25 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { page = 1, limit = 10, search, category, minPrice, maxPrice, sort, material } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    const { page = 1, limit = 10, search, category, minPrice, maxPrice, sort, material, status } = req.query;
+    // Sanitize pagination: non-numeric input falls back to defaults, and both
+    // values are clamped so NaN/negative skip/take never reach Prisma.
+    const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 100);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
     const where: any = {};
 
     // Storefront callers never see unpublished products.
     if (!isAdminReq(req)) {
       where.productStatus = { notIn: [...HIDDEN_STATUSES] };
+    }
+
+    // Optional status filter — only publicly-visible statuses are accepted, so
+    // this can safely override the notIn guard above (e.g. ?status=FEATURED
+    // powers the homepage "Featured" grid).
+    const PUBLIC_STATUSES = ['ACTIVE', 'FEATURED', 'HOT', 'NEW'];
+    if (status && typeof status === 'string' && PUBLIC_STATUSES.includes(status.toUpperCase())) {
+      where.productStatus = status.toUpperCase();
     }
 
     if (search) {
@@ -125,7 +137,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       prisma.product.findMany({
         where,
         skip,
-        take: Number(limit),
+        take: safeLimit,
         orderBy,
         include: {
           categories: { select: { id: true, name: true, slug: true } },
@@ -140,9 +152,9 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       data: products,
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit)),
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
       },
     });
   } catch (error) {
@@ -312,7 +324,8 @@ export const getProductFilters = async (_req: Request, res: Response): Promise<v
   try {
     const [products, categories] = await Promise.all([
       prisma.product.findMany({
-        where: { productStatus: { not: 'ARCHIVED' } },
+        // Public endpoint: DRAFT products must not leak their materials either.
+        where: { productStatus: { notIn: [...HIDDEN_STATUSES] } },
         select: { material: true },
       }),
       prisma.category.findMany({ select: { id: true, name: true, slug: true } }),

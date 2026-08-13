@@ -4,16 +4,26 @@ import { useState, useEffect } from "react";
 import { Filter, SlidersHorizontal, X, Search } from "lucide-react";
 import api from "@/lib/axios";
 import ProductCard from "@/components/home/products/ProductCard";
+import { useCurrency } from "@/context/SettingsContext";
 
 interface ShopProduct {
   id: string;
   [key: string]: unknown;
 }
 
+interface ShopFilters {
+  search: string;
+  category: string;
+  minPrice: string;
+  maxPrice: string;
+  sort: string;
+}
+
 export default function ShopPage() {
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const { symbol } = useCurrency();
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -21,16 +31,20 @@ export default function ShopPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");
 
-  const fetchProducts = async () => {
+  // Accepts explicit filter values so callers that just changed state (e.g.
+  // "Clear All") can fetch with the new values instead of this render's
+  // stale closure; defaults to the current state.
+  const fetchProducts = async (filters?: Partial<ShopFilters>) => {
+    const f: ShopFilters = { search, category, minPrice, maxPrice, sort, ...filters };
     setLoading(true);
     try {
       const response = await api.get("/products", {
         params: {
-          search: search || undefined,
-          category: category || undefined,
-          minPrice: minPrice || undefined,
-          maxPrice: maxPrice || undefined,
-          sort: sort || undefined,
+          search: f.search || undefined,
+          category: f.category || undefined,
+          minPrice: f.minPrice || undefined,
+          maxPrice: f.maxPrice || undefined,
+          sort: f.sort || undefined,
         },
       });
       setProducts(response.data?.data || []);
@@ -59,7 +73,9 @@ export default function ShopPage() {
     setMinPrice("");
     setMaxPrice("");
     setSort("newest");
-    setTimeout(fetchProducts, 0);
+    // Fetch with the cleared values directly — state updates haven't rendered
+    // yet, so relying on the closure here would refetch with the OLD filters.
+    fetchProducts({ search: "", category: "", minPrice: "", maxPrice: "", sort: "newest" });
   };
 
   return (
@@ -113,7 +129,7 @@ export default function ShopPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-heading">Price Range ($)</label>
+                <label className="text-sm font-semibold text-heading">Price Range ({symbol})</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"

@@ -116,3 +116,11 @@ along with the whole checkout model; the site is now a catalog + custom-order
    (the DB moved projects — an old host entry there blocks product images
    through next/image).
 7. Change the seeded super-admin password immediately after first login.
+
+## Known design decisions
+
+- **Dark-pinned theme**: the storefront intentionally ships only the dark
+  "রাতের প্রশান্তি" (night-calm) palette — `layout.tsx` adds the `dark` class
+  before paint and there is no runtime toggle. The seeded `lightVariables`
+  (Sky Kite palette, DESIGN.md §1) are reserved for a future light-mode
+  toggle and are not rendered today.

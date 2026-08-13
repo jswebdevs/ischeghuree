@@ -1,17 +1,17 @@
 ---
 name: tailwind-v4-theme
-description: "Tailwind CSS v4 with @theme tokens for ginag-frontend. Use when adding utility classes, theme-aware colors, or new design tokens. Encodes this project's HSL CSS variable system so generated UI uses theme colors (text-primary, bg-card) instead of hard-coded hex/rgb."
+description: "Tailwind CSS v4 with @theme tokens for frontend. Use when adding utility classes, theme-aware colors, or new design tokens. Encodes this project's HSL CSS variable system so generated UI uses theme colors (text-primary, bg-card) instead of hard-coded hex/rgb."
 trigger: tailwind styling
 ---
 
-# Tailwind v4 + Dynamic Theme (ginag-frontend)
+# Tailwind v4 + Dynamic Theme (frontend)
 
 This project uses **Tailwind v4** (no `tailwind.config.js`) with the `@theme` directive in CSS. All design tokens are HSL CSS variables that get swapped at runtime by `ThemeProvider` based on the active `StoreTheme` row.
 
 ## Where things live
 
-- Tokens + base styles: [ginag-frontend/src/app/globals.css](../../../ginag-frontend/src/app/globals.css)
-- Active theme variables: pushed onto `<html>` by [src/components/ThemeProvider.tsx](../../../ginag-frontend/src/components/ThemeProvider.tsx) (sets `--background`, `--primary`, etc.)
+- Tokens + base styles: [frontend/src/app/globals.css](../../../frontend/src/app/globals.css)
+- Active theme variables: pushed onto `<html>` by [src/components/ThemeProvider.tsx](../../../frontend/src/components/ThemeProvider.tsx) (sets `--background`, `--primary`, etc.)
 - PostCSS plugin: configured in `postcss.config.mjs` via `@tailwindcss/postcss`
 
 ## Tokens you actually use
@@ -50,7 +50,7 @@ Avoid `bg-white`, `text-black`, `text-zinc-500`, `bg-[#1A1A1A]`, etc. They look 
 ## Dark mode
 
 The project uses **class-based** dark mode (`<html class="dark">`). The class is set:
-- Pre-paint by an inline script in [layout.tsx](../../../ginag-frontend/src/app/layout.tsx) reading `localStorage`
+- Pre-paint by an inline script in [layout.tsx](../../../frontend/src/app/layout.tsx) reading `localStorage`
 - At runtime by `useThemeStore` (Zustand)
 
 Don't add `prefers-color-scheme` media queries — the user toggle takes precedence.

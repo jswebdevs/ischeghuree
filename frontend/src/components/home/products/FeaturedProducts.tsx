@@ -13,10 +13,15 @@ interface FeaturedProductsProps {
 
 export default function FeaturedProducts({ initialProducts }: FeaturedProductsProps) {
   const [products, setProducts] = useState<CardProduct[]>(initialProducts || []);
-  const [loading, setLoading] = useState(!initialProducts);
+  // An empty server result also triggers the client fallback fetch: the
+  // server-side getFeaturedProducts() returns [] on API failure, which is
+  // indistinguishable from "no products" — retrying from the browser costs
+  // one request when the catalog is legitimately empty, but recovers the
+  // section whenever only the build/ISR-time fetch failed.
+  const [loading, setLoading] = useState(!initialProducts?.length);
 
   useEffect(() => {
-    if (!initialProducts) {
+    if (!initialProducts?.length) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous loading flag before the client-side fetch kicks off
       setLoading(true);
       api

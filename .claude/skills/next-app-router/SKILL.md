@@ -1,18 +1,18 @@
 ---
 name: next-app-router
-description: "Next.js 16 App Router conventions for ginag-frontend. Use when creating pages/layouts, server components, fetching data on the server, configuring metadata, or wiring providers. Encodes this project's specific port (5173), provider stack, and theme bootstrap."
+description: "Next.js 16 App Router conventions for frontend. Use when creating pages/layouts, server components, fetching data on the server, configuring metadata, or wiring providers. Encodes this project's specific port (5173), provider stack, and theme bootstrap."
 trigger: nextjs page changes
 ---
 
-# Next.js 16 App Router (ginag-frontend)
+# Next.js 16 App Router (frontend)
 
-Stack: **Next 16 + React 19 + Tailwind v4**. Dev server runs on **port 5173** (not 3000) — see [package.json](../../../ginag-frontend/package.json) `dev` script.
+Stack: **Next 16 + React 19 + Tailwind v4**. Dev server runs on **port 5173** (not 3000) — see [package.json](../../../frontend/package.json) `dev` script.
 
 ## Project layout
 
-- App routes live in [ginag-frontend/src/app/](../../../ginag-frontend/src/app/) (App Router, not Pages Router).
-- The root layout is [src/app/layout.tsx](../../../ginag-frontend/src/app/layout.tsx) — it's an **async server component** that fetches store settings + active theme on each render (revalidated every 60s via `export const revalidate = 60`).
-- Shared UI lives in [src/components/](../../../ginag-frontend/src/components/) (subfolders: `shared/`, `home/`, `dashboard/`, `templates/`).
+- App routes live in [frontend/src/app/](../../../frontend/src/app/) (App Router, not Pages Router).
+- The root layout is [src/app/layout.tsx](../../../frontend/src/app/layout.tsx) — it's an **async server component** that fetches store settings + active theme on each render (revalidated every 60s via `export const revalidate = 60`).
+- Shared UI lives in [src/components/](../../../frontend/src/components/) (subfolders: `shared/`, `home/`, `dashboard/`, `templates/`).
 - Dashboard routes are nested: `app/dashboard/{customer,admin,super-admin}/...`.
 
 ## Provider stack (top → bottom inside `<body>`)
@@ -36,8 +36,8 @@ When adding a new global provider, insert it inside `ThemeProvider` so theme tok
 
 ## Data fetching
 
-- **Server side:** call the backend directly via the helpers in [src/lib/getSettings.ts](../../../ginag-frontend/src/lib/getSettings.ts) (and similar). Use `fetch` with `next: { revalidate: N }` for ISR.
-- **Client side:** use the axios instance from [src/lib/axios.ts](../../../ginag-frontend/src/lib/axios.ts) (already configured with base URL + auth header) and TanStack Query for caching.
+- **Server side:** call the backend directly via the helpers in [src/lib/getSettings.ts](../../../frontend/src/lib/getSettings.ts) (and similar). Use `fetch` with `next: { revalidate: N }` for ISR.
+- **Client side:** use the axios instance from [src/lib/axios.ts](../../../frontend/src/lib/axios.ts) (already configured with base URL + auth header) and TanStack Query for caching.
 - Never call `axios` from a server component — it skips Next's caching layer.
 
 ## Metadata
@@ -46,7 +46,7 @@ The root layout exports a dynamic `generateMetadata()` that pulls store name, ta
 
 ## Theme bootstrap (no flash)
 
-Root layout injects an inline script in `<head>` that reads `localStorage['dreamshop-theme-storage']` BEFORE first paint and adds the `dark` class to `<html>` if the saved state is dark. Don't move this — moving it back to a `useEffect` causes a light/dark flash on every navigation.
+Root layout injects an inline script in `<head>` that adds the `dark` class to `<html>` BEFORE first paint — dark ("রাতের প্রশান্তি" night-calm) is the only supported theme, pinned before paint. Don't move this — moving it to a `useEffect` causes a flash of light styling on every navigation.
 
 ## File conventions
 

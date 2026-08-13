@@ -184,12 +184,17 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        {/* Intentional design decision: the site ships the dark "রাতের প্রশান্তি"
+            (night-calm) palette as its only theme, pinned before paint. The
+            seeded lightVariables (Sky Kite palette, DESIGN.md §1) are reserved
+            for a future light-mode toggle and are not rendered today. */}
         <script dangerouslySetInnerHTML={{
           __html: `
           // Dark mode is the only supported theme — pin it before paint to
           // avoid a flash of light styling.
           document.documentElement.classList.add('dark');
         `}} />
+
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
         <a

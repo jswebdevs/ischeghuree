@@ -32,7 +32,10 @@ export const logAction = async (data: {
 export const getAuditLogs = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page = 1, limit = 20, action, entity, userId } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    // Sanitize pagination so NaN/negative skip/take never reach Prisma.
+    const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
 
     const where: any = {};
     if (action) where.action = String(action);
@@ -43,7 +46,7 @@ export const getAuditLogs = async (req: Request, res: Response): Promise<void> =
       prisma.auditLog.findMany({
         where,
         skip,
-        take: Number(limit),
+        take: safeLimit,
         orderBy: { createdAt: 'desc' }
       }),
       prisma.auditLog.count({ where })
@@ -54,9 +57,9 @@ export const getAuditLogs = async (req: Request, res: Response): Promise<void> =
       data: logs,
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit))
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit)
       }
     });
   } catch (error) {

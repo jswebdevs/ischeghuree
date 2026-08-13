@@ -3,7 +3,7 @@ import { LuCloudOff } from "react-icons/lu";
 
 export default function CategoryNotFound() {
   return (
-    <main className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16">
+    <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16">
       <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
         <LuCloudOff className="w-10 h-10 text-muted-foreground opacity-50" />
       </div>
@@ -17,6 +17,6 @@ export default function CategoryNotFound() {
       >
         Browse All Categories
       </Link>
-    </main>
+    </div>
   );
 }

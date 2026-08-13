@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
+// Load .env before anything else — app.ts pulls in middlewares (rate limiters)
+// that read env tunables at module scope, so dotenv must run first.
+import 'dotenv/config';
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
 import { setupChatSocket } from './sockets/chat.socket';
-
-dotenv.config();
 
 const PORT = Number(process.env.PORT) || 5000;
 

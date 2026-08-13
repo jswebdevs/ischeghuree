@@ -151,7 +151,7 @@ export default async function DynamicStorefrontPage({
   let splitBlockCount = 0;
 
   return (
-    <main className="flex flex-col w-full min-h-screen pb-24 bg-background pt-8 animate-in fade-in duration-500">
+    <div className="flex flex-col w-full min-h-screen pb-24 bg-background pt-8 animate-in fade-in duration-500">
       <div className="container mx-auto px-4 pb-8 mb-8 border-b border-border">
         <h1 className="text-3xl md:text-4xl font-black uppercase tracking-widest text-muted-foreground/50">
           {pageData.title}
@@ -169,6 +169,6 @@ export default async function DynamicStorefrontPage({
         }
         return null;
       })}
-    </main>
+    </div>
   );
 }

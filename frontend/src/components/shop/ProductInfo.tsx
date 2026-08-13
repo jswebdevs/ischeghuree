@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { ClipboardList, Sparkles } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
 
-const formatRange = (min: number | null, max: number | null) => {
+const formatRange = (symbol: string, min: number | null, max: number | null) => {
   if (min == null && max == null) return null;
-  if (min != null && max != null && min !== max) return `$${min.toLocaleString()} – $${max.toLocaleString()}`;
+  if (min != null && max != null && min !== max)
+    return `${symbol}${min.toLocaleString()} – ${symbol}${max.toLocaleString()}`;
   const v = (min ?? max)!;
-  return `$${v.toLocaleString()}`;
+  return `${symbol}${v.toLocaleString()}`;
 };
 
 interface ProductInfoData {
@@ -19,9 +21,10 @@ interface ProductInfoData {
 }
 
 export default function ProductInfo({ product }: { product: ProductInfoData }) {
+  const { symbol } = useCurrency();
   const min = product?.priceMin != null ? Number(product.priceMin) : null;
   const max = product?.priceMax != null ? Number(product.priceMax) : null;
-  const priceLabel = formatRange(min, max);
+  const priceLabel = formatRange(symbol, min, max);
 
   const renderShortDesc = () => {
     if (!product.shortDesc) return null;

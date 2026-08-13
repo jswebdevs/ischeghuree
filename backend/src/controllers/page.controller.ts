@@ -79,13 +79,11 @@ export const getPageBySlug = async (req: Request, res: Response): Promise<void> 
 
     const page = await prisma.storefrontPage.findUnique({ where: { slug } });
 
-    if (!page) {
+    // Non-admins only ever see PUBLISHED pages — same allowlist as getAllPages.
+    // Unpublished pages are indistinguishable from missing ones (404, not 403)
+    // so slugs can't be probed.
+    if (!page || (page.status !== 'PUBLISHED' && !isAdminReq(req))) {
       res.status(404).json({ success: false, message: "Page not found" });
-      return;
-    }
-
-    if (page.status === "DRAFT" && !isAdminReq(req)) {
-      res.status(403).json({ success: false, message: "This page is not published yet." });
       return;
     }
 

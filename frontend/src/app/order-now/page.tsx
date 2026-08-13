@@ -33,7 +33,7 @@ export default async function OrderNowPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background p-3 md:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background p-3 md:p-6">
       <div className="max-w-[880px] mx-auto rounded-3xl border border-border overflow-hidden bg-card shadow-theme-lg">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <OrderHero hero={hero} />
@@ -44,6 +44,6 @@ export default async function OrderNowPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

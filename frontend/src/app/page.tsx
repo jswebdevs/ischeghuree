@@ -21,16 +21,18 @@ export default async function Home() {
   const whatsappLink: string = (hp.kiteHero as { whatsappLink?: string } | undefined)?.whatsappLink || "";
 
   return (
-    <main className="min-h-screen">
+    // <div>, not <main> — the root layout already provides the single
+    // <main id="main-content"> landmark around all page content.
+    <div className="min-h-screen">
       <StickyBanner data={hp.stickyBanner} whatsappLink={whatsappLink} />
       <KiteHero heroConfig={hp.kiteHero} />
-      <TrustBar />
+      <TrustBar data={hp.trustBar} />
       <FeaturedProducts initialProducts={products} />
       <NightLineSection />
       <StorySection data={hp.story} />
       <HowItWorks data={hp.howItWorks} whatsappLink={whatsappLink} />
       <GoogleReviewsSection />
       <FAQSection data={hp.faq} />
-    </main>
+    </div>
   );
 }

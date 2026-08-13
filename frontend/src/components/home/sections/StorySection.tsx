@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles, Star, type LucideIcon } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import api from "@/lib/axios";
+import IconRenderer from "@/components/shared/IconRenderer";
+
+// Seeded highlight rows store bare lucide names ("Heart") while the admin
+// icon picker writes react-icons names ("LuHeart", "FaLeaf", …). Alias the
+// legacy bare names so both namespaces resolve through IconRenderer.
+const LEGACY_ICON_ALIASES: Record<string, string> = {
+  Heart: "LuHeart",
+  Star: "LuStar",
+  Sparkles: "LuSparkles",
+};
 
 interface StoryHighlight {
   icon?: string;
@@ -56,7 +66,6 @@ export default function StorySection({ data: initialData }: { data?: StorySectio
   if (!data) return null;
 
   const content = data;
-  const IconMap: Record<string, LucideIcon> = { Heart, Star, Sparkles };
 
   const title = content.title || "আমাদের গল্প";
   const paragraphs = content.paragraphs || [];
@@ -151,7 +160,7 @@ export default function StorySection({ data: initialData }: { data?: StorySectio
               className="flex flex-wrap justify-center gap-6 mt-12"
             >
               {highlights.map((item, i) => {
-                const Icon = (item.icon && IconMap[item.icon]) || Sparkles;
+                const iconName = item.icon ? LEGACY_ICON_ALIASES[item.icon] ?? item.icon : undefined;
                 return (
                   <motion.div
                     key={item.label}
@@ -160,7 +169,7 @@ export default function StorySection({ data: initialData }: { data?: StorySectio
                     transition={{ delay: 0.4 + i * 0.1 }}
                     className="flex items-center gap-3 px-6 py-3 bg-muted/30 border border-border/50 rounded-full"
                   >
-                    <Icon className="w-4 h-4 text-primary" />
+                    <IconRenderer name={iconName} className="w-4 h-4 text-primary" fallback={Sparkles} />
                     <span className="text-sm font-bold text-foreground uppercase tracking-tight">{item.label}</span>
                   </motion.div>
                 );

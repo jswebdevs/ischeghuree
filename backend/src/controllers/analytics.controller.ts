@@ -42,8 +42,10 @@ export const getDashboardOverview = async (_req: Request, res: Response): Promis
 export const getChartData = async (req: Request, res: Response): Promise<void> => {
   try {
     const { days = 30 } = req.query;
+    // Clamp so non-numeric input can't produce an Invalid Date (500).
+    const safeDays = Math.min(Math.max(Number(days) || 30, 1), 365);
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - Number(days));
+    startDate.setDate(startDate.getDate() - safeDays);
     startDate.setHours(0, 0, 0, 0);
 
     const orders = await prisma.customOrder.findMany({
@@ -53,7 +55,7 @@ export const getChartData = async (req: Request, res: Response): Promise<void> =
     });
 
     const buckets = new Map<string, { date: string; totalOrders: number; completedOrders: number }>();
-    for (let i = 0; i <= Number(days); i++) {
+    for (let i = 0; i <= safeDays; i++) {
       const d = new Date(startDate);
       d.setDate(d.getDate() + i);
       const key = d.toISOString().slice(0, 10);

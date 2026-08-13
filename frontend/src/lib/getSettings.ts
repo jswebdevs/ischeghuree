@@ -57,7 +57,9 @@ export async function getPageBySlug(slug: string) {
 
 export async function getFeaturedProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?limit=3&page=1`, {
+    // status=FEATURED: the homepage "Featured" grid shows FEATURED-status
+    // products (backend getProducts filters on it), not just the newest 3.
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?limit=3&page=1&status=FEATURED`, {
       next: { revalidate: 60, tags: ["products"] },
     });
     if (!res.ok) return [];

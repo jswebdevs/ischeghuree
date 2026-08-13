@@ -18,11 +18,14 @@ import {
   getUsersByRole
 } from '../controllers/user.controller';
 import { protect, authorize, optionalAuth } from '../middlewares/auth.middleware'; // <-- Add optionalAuth
+import { writeLimiter } from '../middlewares/rateLimit';
 import { upload } from '../config/upload';
 
 const router = Router();
 
-router.post('/register', registerUser);
+// writeLimiter: each registration sends a verification email — keep abuse
+// from burning the shop's Gmail quota.
+router.post('/register', writeLimiter, registerUser);
 router.get('/verify-email/:token', verifyEmail);
 
 router.get('/me', protect, getMe);
