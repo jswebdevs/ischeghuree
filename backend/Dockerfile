@@ -32,6 +32,11 @@ FROM base AS runtime
 ENV NODE_ENV=production \
     PORT=4000
 
+# Coolify's healthcheck shells out to curl (or wget); slim ships neither.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build --chown=node:node /app/package.json ./
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
@@ -41,6 +46,6 @@ USER node
 EXPOSE 4000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||4000)+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  CMD curl -fsS "http://127.0.0.1:${PORT:-4000}/" > /dev/null || exit 1
 
 CMD ["node", "dist/server.js"]
