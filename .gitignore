@@ -53,6 +53,7 @@ Thumbs.db
 .claude/settings.local.json
 
 # ── Graphify cache / tool-local artifacts (rebuildable) ─────────────────────
+.graphify/
 graphify-out/cache/
 graphify-out/cost.json
 graphify-out/.graphify_labels.json
