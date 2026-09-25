@@ -1,0 +1,12 @@
+node_modules
+dist
+uploads
+src/generated
+prisma/generated
+.env
+.env.*
+!.env.example
+*.log
+Dockerfile
+.dockerignore
+README.md
