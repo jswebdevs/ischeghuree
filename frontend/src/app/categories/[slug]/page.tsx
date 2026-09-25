@@ -109,57 +109,38 @@ export default async function SingleCategoryPage({
       </div>
 
       <div className="container mx-auto px-4 space-y-12">
+        {/* Subcategories as a horizontal pill row — a sub-nav above the grid
+            rather than a tile block, so the products stay near the top. */}
         {subcategories.length > 0 && (
-          <section aria-labelledby="subcats-heading">
-            <div className="flex items-center gap-2 mb-6">
-              <h2
-                id="subcats-heading"
-                className="text-xl md:text-2xl font-extrabold text-foreground tracking-tight"
+          <nav aria-label="Subcategories" className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4">
+            {subcategories.map((subcat: Category) => (
+              <Link
+                key={subcat.id}
+                href={`/categories/${subcat.slug}`}
+                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-xs font-bold text-foreground hover:border-primary hover:text-primary transition-colors"
               >
-                Shop by Subcategory
-              </h2>
-              <div className="h-[2px] flex-1 bg-border/50 ml-4 rounded-full" />
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {subcategories.map((subcat: Category) => (
-                <Link
-                  key={subcat.id}
-                  href={`/categories/${subcat.slug}`}
-                  className="group relative bg-card border border-border rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-theme-md overflow-hidden"
-                >
-                  <div className="w-12 h-12 bg-muted/50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-primary/10 transition-colors duration-300">
-                    <IconRenderer
-                      name={subcat.icon}
-                      className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors"
-                    />
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                    {subcat.name}
-                  </h3>
-                </Link>
-              ))}
-            </div>
-          </section>
+                <IconRenderer name={subcat.icon} className="w-3.5 h-3.5" />
+                {subcat.name}
+              </Link>
+            ))}
+          </nav>
         )}
 
         <section aria-labelledby="products-heading">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <h2
-                id="products-heading"
-                className="text-xl md:text-2xl font-extrabold text-foreground tracking-tight"
-              >
-                All Products
-              </h2>
-              <span className="bg-muted text-muted-foreground text-xs font-bold px-2 py-1 rounded-md">
-                {products.length}
-              </span>
-            </div>
+          <div className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-border">
+            <h2
+              id="products-heading"
+              className="font-heading text-lg md:text-xl font-bold text-foreground tracking-tight"
+            >
+              সব পণ্য — All products
+            </h2>
+            <span className="text-xs md:text-sm font-bold text-muted-foreground tabular-nums">
+              {products.length} পণ্য — products
+            </span>
           </div>
 
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
               {products.map((product: { id: string }) => (
                 <ProductCard key={product.id} product={product} />
               ))}

@@ -12,8 +12,36 @@ export const metadata: Metadata = {
   alternates: { canonical: "/order-now" },
 };
 
-export default async function OrderNowPage() {
-  const [hp, settings] = await Promise.all([getHomepageConfig(), getGlobalSettings()]);
+/** Resolves ?product=<slug> into a human-readable line for the product-details
+ *  field. Falls back to the raw slug if the lookup fails, and to nothing at all
+ *  if no product was requested — a direct visit still gets an empty form. */
+async function buildProductPrefill(slug?: string): Promise<string> {
+  if (!slug) return "";
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
+      next: { revalidate: 120, tags: [`product-${slug}`] },
+    });
+    if (!res.ok) return slug;
+    const json = await res.json();
+    const product = json.product || json.data;
+    if (!product?.name) return slug;
+    return product.productCode ? `${product.name} (${product.productCode})` : product.name;
+  } catch {
+    return slug;
+  }
+}
+
+export default async function OrderNowPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ product?: string }>;
+}) {
+  const [hp, settings, { product: productSlug }] = await Promise.all([
+    getHomepageConfig(),
+    getGlobalSettings(),
+    searchParams,
+  ]);
+  const productPrefill = await buildProductPrefill(productSlug);
   const heroConfig = ((hp as { orderHero?: Partial<OrderHeroData> } | null)?.orderHero || {}) as Partial<OrderHeroData>;
 
   const hero: OrderHeroData = {
@@ -39,7 +67,7 @@ export default async function OrderNowPage() {
           <OrderHero hero={hero} />
           <div className="bg-card flex items-stretch border-t md:border-t-0 md:border-l border-border">
             <div className="w-full">
-              <OrderForm />
+              <OrderForm defaultProductDetails={productPrefill} />
             </div>
           </div>
         </div>

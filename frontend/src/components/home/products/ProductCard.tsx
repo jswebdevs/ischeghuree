@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Layers, ArrowUpRight, ClipboardList } from "lucide-react";
-import { useCurrency } from "@/context/SettingsContext";
+import { Layers, ClipboardList } from "lucide-react";
+import ProductPrice from "@/components/shop/ProductPrice";
 
 export interface CardProduct {
   id: string;
@@ -14,110 +14,92 @@ export interface CardProduct {
   priceMin?: number | string | null;
   priceMax?: number | string | null;
   priceNote?: string | null;
+  productStatus?: string | null;
   tags?: string[] | null;
 }
 
 interface ProductCardProps {
   product: CardProduct;
+  /** Rails render tighter padding than grids; the media ratio stays square either way. */
+  compact?: boolean;
 }
 
-const formatRange = (symbol: string, min: number | null, max: number | null) => {
-  if (min == null && max == null) return null;
-  if (min != null && max != null && min !== max)
-    return `${symbol}${min.toLocaleString()} – ${symbol}${max.toLocaleString()}`;
-  const v = (min ?? max)!;
-  return `${symbol}${v.toLocaleString()}`;
+// Status badge, top-left of the media — the catalog equivalent of a storefront
+// "Sale"/"New" flag. Only publicly meaningful statuses get a badge; ACTIVE is
+// the unremarkable default and deliberately renders nothing.
+const STATUS_BADGE: Record<string, { label: string; className: string }> = {
+  NEW: { label: "নতুন — New", className: "bg-kite-green/90 text-white" },
+  HOT: { label: "জনপ্রিয় — Popular", className: "bg-kite-orange/90 text-white" },
+  FEATURED: { label: "ফিচার্ড — Featured", className: "bg-primary text-primary-foreground" },
 };
 
-// Client component — currency symbol (৳/BDT) comes from SettingsContext.
-export default function ProductCard({ product }: ProductCardProps) {
-  const { symbol } = useCurrency();
+export default function ProductCard({ product, compact = false }: ProductCardProps) {
   const imageUrl = product.featuredImage?.originalUrl;
   const material = product.material;
-
-  const min = product.priceMin != null ? Number(product.priceMin) : null;
-  const max = product.priceMax != null ? Number(product.priceMax) : null;
-  const priceLabel = formatRange(symbol, min, max);
+  const badge = product.productStatus ? STATUS_BADGE[product.productStatus] : undefined;
 
   return (
-    <article
-      className="group relative bg-card border border-border rounded-[2rem] overflow-hidden hover:border-primary/40 transition-all duration-500 w-full animate-in fade-in slide-in-from-bottom-3 duration-400"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted/20">
+    <article className="group relative h-full flex flex-col bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-theme-md transition-all duration-300">
+      {/* Square media — the whole tile is the link target, so the card body
+          below is plain markup and the Order button can stay a real anchor
+          without nesting one inside another. */}
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative block aspect-square overflow-hidden bg-muted/20"
+        aria-label={product.name}
+      >
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={product.name ?? ""}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-            <Layers className="w-20 h-20" />
+            <Layers className="w-12 h-12" />
           </div>
         )}
 
-        {material && (
-          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-background/70 backdrop-blur-md border border-border rounded-full">
-            <span className="text-[10px] font-bold text-foreground/80 uppercase tracking-tighter">
+        <div className="absolute top-2.5 left-2.5 z-10 flex flex-col items-start gap-1.5">
+          {badge && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${badge.className}`}
+            >
+              {badge.label}
+            </span>
+          )}
+          {material && (
+            <span className="px-2 py-0.5 bg-background/75 backdrop-blur-md border border-border rounded-full text-[9px] font-bold text-foreground/80 uppercase tracking-wider">
               {material}
             </span>
-          </div>
-        )}
-
-        <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/90 to-transparent flex gap-3">
-          <Link
-            href={`/products/${product.slug}`}
-            className="flex-1 bg-background text-foreground py-3 rounded-full font-bold text-[10px] flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors tracking-widest"
-          >
-            বিস্তারিত দেখুন — DETAILS
-            <ArrowUpRight className="w-4 h-4" />
-          </Link>
+          )}
         </div>
-      </div>
+      </Link>
 
-      <div className="p-8 space-y-4">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1">
-              {product.tags?.slice(0, 2).map((tag: string) => (
-                <span key={tag} className="text-[8px] text-muted-foreground border border-border px-1.5 py-0.5 rounded uppercase">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-          <h3 className="text-xl font-bold text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors line-clamp-1">
-            {product.name}
-          </h3>
-        </div>
+      <div className={`flex-1 flex flex-col ${compact ? "p-3" : "p-4"}`}>
+        <h3 className="font-heading text-sm md:text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+          <Link href={`/products/${product.slug}`}>{product.name}</Link>
+        </h3>
 
-        <div className="flex items-end justify-between gap-3">
-          <div className="flex flex-col">
-            <span className="text-2xl font-black text-primary">
-              {priceLabel || product.priceNote || 'কোটেশন নিন — Quote on request'}
-            </span>
-            <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-medium">
-              {priceLabel ? 'মূল্য পরিসীমা — Price range' : 'পাইকারী ও খুচরা — Wholesale & retail'}
-            </span>
-          </div>
+        {/* Price sits directly under the name in a single column — storefront
+            convention — rather than sharing a row with the CTA. */}
+        <ProductPrice
+          priceMin={product.priceMin}
+          priceMax={product.priceMax}
+          priceNote={product.priceNote}
+          size="card"
+          className="mt-2 mb-3"
+        />
 
-          <Link
-            href="/order-now"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black uppercase tracking-tighter hover:scale-105 transition-transform whitespace-nowrap"
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            অর্ডার করুন
-          </Link>
-        </div>
-      </div>
-
-      <div className="absolute top-0 right-0 p-4 pointer-events-none opacity-20">
-        <div className="w-8 h-8 border-t border-r border-foreground/40 rounded-tr-lg" />
-      </div>
-      <div className="absolute bottom-0 left-0 p-4 pointer-events-none opacity-20">
-        <div className="w-8 h-8 border-b border-l border-foreground/40 rounded-bl-lg" />
+        <Link
+          href={`/order-now?product=${product.slug ?? ""}`}
+          className="mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-primary/10 text-primary text-[10px] md:text-[11px] font-black uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-colors"
+        >
+          <ClipboardList className="w-3.5 h-3.5" />
+          অর্ডার করুন — Order This
+        </Link>
       </div>
     </article>
   );

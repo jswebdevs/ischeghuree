@@ -1,19 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ClipboardList, Sparkles } from "lucide-react";
-import { useCurrency } from "@/context/SettingsContext";
-
-const formatRange = (symbol: string, min: number | null, max: number | null) => {
-  if (min == null && max == null) return null;
-  if (min != null && max != null && min !== max)
-    return `${symbol}${min.toLocaleString()} – ${symbol}${max.toLocaleString()}`;
-  const v = (min ?? max)!;
-  return `${symbol}${v.toLocaleString()}`;
-};
+import { useState } from "react";
+import { ClipboardList, Check, Share2 } from "lucide-react";
+import ProductPrice from "@/components/shop/ProductPrice";
 
 interface ProductInfoData {
   name: string;
+  slug?: string | null;
+  productCode?: string | null;
+  material?: string | null;
   shortDesc?: string | null;
   priceMin?: number | string | null;
   priceMax?: number | string | null;
@@ -21,10 +17,26 @@ interface ProductInfoData {
 }
 
 export default function ProductInfo({ product }: { product: ProductInfoData }) {
-  const { symbol } = useCurrency();
-  const min = product?.priceMin != null ? Number(product.priceMin) : null;
-  const max = product?.priceMax != null ? Number(product.priceMax) : null;
-  const priceLabel = formatRange(symbol, min, max);
+  const [shared, setShared] = useState(false);
+
+  // Web Share where supported (mobile), clipboard everywhere else. Both paths
+  // can reject — a blocked clipboard or a dismissed share sheet — so failure
+  // just leaves the button unchanged rather than surfacing an error.
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (!url) return;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.name, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {
+      // Dismissed or denied — nothing to report.
+    }
+  };
 
   const renderShortDesc = () => {
     if (!product.shortDesc) return null;
@@ -47,52 +59,58 @@ export default function ProductInfo({ product }: { product: ProductInfoData }) {
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-heading leading-[1.1] mb-4 tracking-tight uppercase">
+      {/* Brand line above the title, as storefront product pages do. */}
+      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">
+        ইচ্ছে ঘুড়ি — Ische Ghuree
+      </span>
+
+      {/* No uppercase here — it mangles Bangla glyphs. */}
+      <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-heading leading-tight mb-3 tracking-tight">
         {product.name}
       </h1>
 
-      <div className="flex flex-wrap items-end gap-3 sm:gap-4 mb-6 bg-muted/20 p-4 rounded-2xl border border-border">
-        {priceLabel ? (
-          <div className="flex flex-col gap-1">
-            <span className="text-4xl font-black text-primary tracking-tight">{priceLabel}</span>
-            <span className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
-              {min != null && max != null && min !== max ? 'Range pricing — final price varies by choice' : 'Per piece'}
-            </span>
-            {product.priceNote && (
-              <span className="text-xs text-muted-foreground italic mt-1">{product.priceNote}</span>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1">
-            <span className="inline-flex items-center gap-2 text-amber-600 bg-amber-500/10 px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest w-fit">
-              <Sparkles className="w-3.5 h-3.5" /> Custom
-            </span>
-            <span className="text-2xl sm:text-3xl font-black text-heading">
-              {product.priceNote || 'Quote on request'}
-            </span>
-            <span className="text-xs text-muted-foreground">Made just for you — submit the order form to confirm.</span>
-          </div>
-        )}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+        {product.productCode && <span>কোড — Code: {product.productCode}</span>}
+        {product.material && <span>উপাদান — Material: {product.material}</span>}
       </div>
+
+      <ProductPrice
+        priceMin={product.priceMin}
+        priceMax={product.priceMax}
+        priceNote={product.priceNote}
+        className="mb-6"
+      />
+
+      <div className="w-full h-px bg-border mb-6" />
 
       {renderShortDesc()}
 
-      <div className="w-full h-px bg-border mb-8"></div>
-
-      {/* In Stock pill (always — catalog model has no stock counting) */}
+      {/* Availability pill — the catalog does no stock counting, so every
+          published product reads as available and the quote confirms it. */}
       <div className="mb-6">
         <span className="inline-flex items-center gap-2 text-green-600 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> In Stock
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> স্টকে আছে — In Stock
         </span>
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 mb-10">
+      <div className="flex items-center gap-3 mb-10">
+        {/* Carries the slug so the order form opens with this product already
+            filled into "কী বানাতে/নিতে চান — Product details". */}
         <Link
-          href="/order-now"
+          href={`/order-now?product=${product.slug ?? ""}`}
           className="flex-grow h-14 flex items-center justify-center gap-3 bg-primary text-primary-foreground font-black uppercase tracking-widest text-sm rounded-2xl hover:shadow-theme-lg hover:-translate-y-1 transition-all"
         >
-          <ClipboardList className="w-5 h-5" /> Order Now
+          <ClipboardList className="w-5 h-5" /> অর্ডার করুন — Order This
         </Link>
+
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label="শেয়ার করুন — Share this product"
+          className="w-14 h-14 shrink-0 flex items-center justify-center rounded-2xl border border-border text-foreground hover:border-primary hover:text-primary transition-colors"
+        >
+          {shared ? <Check className="w-5 h-5 text-green-500" /> : <Share2 className="w-5 h-5" />}
+        </button>
       </div>
     </div>
   );

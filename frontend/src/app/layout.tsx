@@ -8,8 +8,9 @@ import Footer from "@/components/shared/footer/Footer";
 import { Toaster } from "sonner";
 
 // 1. Settings and Guard Imports
-import { getGlobalSettings, getActiveTheme } from "@/lib/getSettings";
+import { getGlobalSettings, getActiveTheme, getHomepageConfig } from "@/lib/getSettings";
 import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
+import StickyBanner from "@/components/home/sections/StickyBanner";
 
 // Global Floating Components
 import FloatingWidget from "@/components/shared/chatbox/FloatingWidget";
@@ -139,10 +140,19 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, activeTheme] = await Promise.all([
+  const [settings, activeTheme, homepage] = await Promise.all([
     getGlobalSettings(),
     getActiveTheme(),
+    getHomepageConfig(),
   ]);
+
+  // The announcement bar is sitewide, so its config is read here rather than on
+  // the homepage. The WhatsApp link lives under the hero section in
+  // homepageConfig, which is where the admin UI writes it.
+  const bannerData = (homepage as { stickyBanner?: { text?: string; btnText?: string } } | null)
+    ?.stickyBanner;
+  const bannerWhatsapp =
+    (homepage as { kiteHero?: { whatsappLink?: string } } | null)?.kiteHero?.whatsappLink || "";
 
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
   const maintenanceMessage = settings?.maintenanceMessage || "সাইটটি এখন রক্ষণাবেক্ষণে আছে — we are briefly down for maintenance. We'll be back shortly!";
@@ -211,6 +221,7 @@ export default async function RootLayout({
                 isMaintenanceMode={isMaintenanceMode}
                 message={maintenanceMessage}
               >
+                <StickyBanner data={bannerData} whatsappLink={bannerWhatsapp} />
                 <Navbar initialSettings={settings} />
                 <main id="main-content" className="flex-1">
                   {children}

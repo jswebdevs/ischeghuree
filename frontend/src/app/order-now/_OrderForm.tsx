@@ -60,7 +60,13 @@ const Schema = z
 
 type FormValues = z.infer<typeof Schema>;
 
-export default function OrderForm() {
+interface OrderFormProps {
+  /** Seeded from ?product=<slug> by the page, so an "Order This" click arrives
+   *  with the product already described. Empty for a direct visit. */
+  defaultProductDetails?: string;
+}
+
+export default function OrderForm({ defaultProductDetails = "" }: OrderFormProps) {
   const [submitted, setSubmitted] = useState<{ orderNumber: string } | null>(null);
 
   const {
@@ -75,7 +81,7 @@ export default function OrderForm() {
       customerName: "",
       customerPhone: "",
       customerEmail: "",
-      productDetails: "",
+      productDetails: defaultProductDetails,
       quantity: "",
       orderType: "RETAIL",
       deliveryMethod: "PICKUP",
@@ -201,6 +207,12 @@ export default function OrderForm() {
           rows={3}
           placeholder="যেমন: পাটের টোট ব্যাগ ২টি, কমলা হাতল — e.g. 2 jute tote bags with orange handles"
           {...register("productDetails")}
+          // Rendered onto the element as well as into useForm's defaultValues:
+          // that puts the prefill in the server HTML (no empty-then-filled
+          // flash) and does not depend on react-hook-form writing the DOM value
+          // at mount, which reactCompiler's memoization of this component
+          // suppresses. RHF still reads the live DOM value on submit.
+          defaultValue={defaultProductDetails}
           className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none placeholder:text-muted-foreground/60"
         />
         {errors.productDetails && <FieldError>{errors.productDetails.message}</FieldError>}

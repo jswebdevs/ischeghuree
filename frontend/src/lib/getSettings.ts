@@ -55,6 +55,55 @@ export async function getPageBySlug(slug: string) {
   }
 }
 
+const REVALIDATE_CATEGORIES = 300; // 5 min — the category tree changes rarely
+const REVALIDATE_PRODUCTS = 120;   // 2 min — new products should surface quickly
+
+/** Flat category list. Includes `parentId` and `_count.products`, which is how
+ *  the homepage decides which top-level categories are worth a rail. */
+export async function getCategoriesFlat() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
+      next: { revalidate: REVALIDATE_CATEGORIES, tags: ["categories"] },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json.data) ? json.data : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Two-level nested tree (parents → children), each with `featuredImage` —
+ *  feeds the header mega-menu and the collection tile grid. */
+export async function getCategoryTree() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?tree=true`, {
+      next: { revalidate: REVALIDATE_CATEGORIES, tags: ["categories"] },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json.data) ? json.data : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Products in one category. NOTE: the API filters on category **id**, not
+ *  slug — callers pass the id from getCategoriesFlat()/getCategoryTree(). */
+export async function getProductsByCategory(categoryId: string, limit = 12) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/products?category=${categoryId}&limit=${limit}&page=1`,
+      { next: { revalidate: REVALIDATE_PRODUCTS, tags: ["products", `category-products-${categoryId}`] } },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json.data) ? json.data : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getFeaturedProducts() {
   try {
     // status=FEATURED: the homepage "Featured" grid shows FEATURED-status

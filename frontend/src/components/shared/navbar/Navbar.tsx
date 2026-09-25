@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useUserStore, type User } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
+import MegaMenu from "./MegaMenu";
 import api from "@/lib/axios";
 import { useCurrency } from "@/context/SettingsContext";
 
@@ -384,6 +385,10 @@ export default function Navbar({ initialSettings }: NavbarProps) {
             </form>
           </div>
         )}
+
+        {/* Desktop category row — the storefront's primary navigation. Hidden
+            inside the dashboard, where the sidebars already own navigation. */}
+        {!isDashboard && <MegaMenu />}
       </nav>
 
       <MobileCategoryDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />

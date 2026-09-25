@@ -6,8 +6,33 @@ import type { Metadata } from "next";
 import ProductMediaViewer from "@/components/shop/ProductMediaViewer";
 import ProductInfo from "@/components/shop/ProductInfo";
 import ProductTabs from "@/components/shop/ProductTabs";
+import CollectionRail from "@/components/shared/CollectionRail";
+import { getProductsByCategory } from "@/lib/getSettings";
 
 export const revalidate = 120;
+
+interface RelatedProduct {
+  id: string;
+  name?: string;
+  slug?: string;
+}
+
+/** Curated suggestions win; otherwise fall back to siblings in the product's
+ *  first category so the rail is rarely empty. Self is always excluded. */
+async function fetchRelated(product: {
+  id: string;
+  suggestedProducts?: RelatedProduct[];
+  categories?: { id: string }[];
+}): Promise<RelatedProduct[]> {
+  const suggested = product.suggestedProducts ?? [];
+  if (suggested.length > 0) return suggested;
+
+  const categoryId = product.categories?.[0]?.id;
+  if (!categoryId) return [];
+
+  const siblings: RelatedProduct[] = await getProductsByCategory(categoryId, 12);
+  return siblings.filter((p) => p.id !== product.id).slice(0, 8);
+}
 
 async function fetchProduct(slug: string) {
   try {
@@ -71,6 +96,8 @@ export default async function ProductDetailsPage({
 
   if (!product) notFound();
 
+  const related = await fetchRelated(product);
+
   return (
     <div className="min-h-screen bg-background py-6 md:py-12">
       <div className="container mx-auto px-[5%] max-w-360">
@@ -85,19 +112,32 @@ export default async function ProductDetailsPage({
           <span className="text-primary truncate max-w-75">{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          <ProductMediaViewer
-            featuredImage={product.featuredImage}
-            images={product.images || []}
-            productName={product.name}
-            model3d={product.model3d}
-            turntableFrames={product.turntableFrames}
-            currentVariation={null}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 lg:items-start">
+          {/* Media sticks while the longer info column scrolls past it. */}
+          <div className="lg:sticky lg:top-24">
+            <ProductMediaViewer
+              featuredImage={product.featuredImage}
+              images={product.images || []}
+              productName={product.name}
+              model3d={product.model3d}
+              turntableFrames={product.turntableFrames}
+              currentVariation={null}
+            />
+          </div>
           <ProductInfo product={product} />
         </div>
 
         <ProductTabs product={product} />
+
+        {related.length > 0 && (
+          <div className="mt-8 pt-8 border-t border-border">
+            <CollectionRail
+              title="আরও দেখুন — You may also like"
+              products={related}
+              viewAllHref="/shop"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
