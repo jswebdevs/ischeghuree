@@ -1,6 +1,6 @@
 const REVALIDATE_SETTINGS = 300;  // 5 min — store settings rarely change
 const REVALIDATE_PAGE = 120;      // 2 min — admin edits show sooner
-const REVALIDATE_THEME    = 300;
+const REVALIDATE_THEME    = 60;   // 1 min — admin colour edits (Themes page) show quickly
 const REVALIDATE_HOMEPAGE = 120;  // 2 min — admin edits need to show sooner
 
 export async function getGlobalSettings() {

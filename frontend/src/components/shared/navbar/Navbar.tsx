@@ -14,6 +14,7 @@ import { useCurrency } from "@/context/SettingsContext";
 // 🔥 Import Chat Components for Mobile Overlay
 import ChatLogin from "@/components/shared/chatbox/ChatLogin";
 import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 // 🔥 Clean, specific imports for static UI elements
 import {
   LuMenu,
@@ -351,6 +352,8 @@ export default function Navbar({ initialSettings }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-3 md:gap-5">
+            <ThemeToggle />
+
             <Link
               href="/order-now"
               className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm tracking-tight shadow-theme-sm hover:shadow-theme-md hover:scale-105 transition-all"

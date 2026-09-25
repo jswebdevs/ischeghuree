@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 
-// Dark mode is the only supported theme. The toggle has been removed; this
-// store keeps `isDark`/`toggleDark` so existing callers compile, but flipping
-// is a no-op and `initTheme` always applies the .dark class.
+// Light ("দিনের আকাশ" day sky) is the default for every visitor; dark
+// ("রাতের প্রশান্তি" night calm) is opt-in via the header toggle and remembered
+// per browser. The pre-paint script in app/layout.tsx applies the saved choice
+// before first paint, so this store only has to read and flip it.
+export const THEME_STORAGE_KEY = 'ig-theme';
+
 interface ThemeState {
   isDark: boolean;
   userTheme: unknown;
@@ -11,22 +14,28 @@ interface ThemeState {
   initTheme: () => void;
 }
 
-const applyDarkClass = () => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.classList.add('dark');
+const applyMode = (dark: boolean) => {
+  if (typeof document === 'undefined') return;
+  document.documentElement.classList.toggle('dark', dark);
+  document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, dark ? 'dark' : 'light');
+  } catch {
+    // Storage blocked (private mode etc.) — the mode still applies for this visit.
   }
 };
 
-export const useThemeStore = create<ThemeState>()((set) => ({
-  isDark: true,
+export const useThemeStore = create<ThemeState>()((set, get) => ({
+  isDark: false,
   userTheme: null,
   setTheme: (theme) => set({ userTheme: theme }),
   toggleDark: () => {
-    // Light mode is disabled. Reapply the dark class in case something else
-    // tried to remove it.
-    applyDarkClass();
+    const next = !get().isDark;
+    applyMode(next);
+    set({ isDark: next });
   },
   initTheme: () => {
-    applyDarkClass();
+    if (typeof document === 'undefined') return;
+    set({ isDark: document.documentElement.classList.contains('dark') });
   },
 }));

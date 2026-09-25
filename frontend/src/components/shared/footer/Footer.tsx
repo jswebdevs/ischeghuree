@@ -140,7 +140,7 @@ export default async function Footer() {
               </p>
               
               {col1.description && (
-                <div className="pt-4 border-t border-white/5">
+                <div className="pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                     {col1.description}
                   </p>

@@ -5,7 +5,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import Navbar from "@/components/shared/navbar/Navbar";
 import TanstackProvider from "@/lib/tanstack";
 import Footer from "@/components/shared/footer/Footer";
-import { Toaster } from "sonner";
+import ThemedToaster from "@/components/shared/ThemedToaster";
 
 // 1. Settings and Guard Imports
 import { getGlobalSettings, getActiveTheme, getHomepageConfig } from "@/lib/getSettings";
@@ -185,7 +185,6 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${notoSerifBengali.variable} ${hindSiliguri.variable}`}
     >
-      {/* Apply dark class before paint to prevent flash of wrong theme */}
       <head>
         {/* Resource hints — establish early connection to the API server */}
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:4000'} />
@@ -194,15 +193,18 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
-        {/* Intentional design decision: the site ships the dark "রাতের প্রশান্তি"
-            (night-calm) palette as its only theme, pinned before paint. The
-            seeded lightVariables (Sky Kite palette, DESIGN.md §1) are reserved
-            for a future light-mode toggle and are not rendered today. */}
+        {/* Light ("দিনের আকাশ") is the default; visitors who picked dark
+            ("রাতের প্রশান্তি") via the header toggle get it applied before
+            paint, so there is no flash of the wrong palette. Both palettes are
+            admin-editable (Dashboard → Storefront → Themes). */}
         <script dangerouslySetInnerHTML={{
           __html: `
-          // Dark mode is the only supported theme — pin it before paint to
-          // avoid a flash of light styling.
-          document.documentElement.classList.add('dark');
+          (function () {
+            var dark = false;
+            try { dark = localStorage.getItem('ig-theme') === 'dark'; } catch (e) {}
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+          })();
         `}} />
 
       </head>
@@ -237,35 +239,7 @@ export default async function RootLayout({
                 </>
               )}
 
-              {/* Centered toaster styled with the Ische Ghuree theme tokens
-                  (sky-blue primary). Palette changes in the DB flow through
-                  here automatically. */}
-              <Toaster
-                position="top-center"
-                offset="40vh"
-                mobileOffset="35vh"
-                theme="dark"
-                richColors={false}
-                closeButton
-                toastOptions={{
-                  classNames: {
-                    toast:
-                      "!bg-card !border !border-primary/30 !text-foreground !shadow-2xl !shadow-primary/10 !rounded-2xl",
-                    title: "!text-foreground !font-bold !tracking-tight",
-                    description: "!text-muted-foreground",
-                    actionButton:
-                      "!bg-primary !text-primary-foreground !font-black !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!bg-primary/90",
-                    cancelButton:
-                      "!bg-transparent !text-muted-foreground !border !border-border !font-bold !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!text-foreground",
-                    closeButton:
-                      "!bg-card !border !border-border !text-muted-foreground hover:!text-foreground !cursor-pointer",
-                    success: "!border-emerald-500/40 !text-emerald-200",
-                    error: "!border-destructive/40 !text-destructive",
-                    warning: "!border-secondary/40 !text-secondary",
-                    info: "!border-primary/40 !text-primary",
-                  },
-                }}
-              />
+              <ThemedToaster />
 
             </ThemeProvider>
           </SettingsProvider>

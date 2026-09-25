@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Palette, Save, Loader2, Sun, Moon } from "lucide-react";
+import { Palette, Save, Loader2, Sun, Moon, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import { FALLBACK_LIGHT, FALLBACK_DARK } from "@/components/ThemeProvider";
 
 const VARIABLE_LABELS: Record<string, string> = {
   background: "App Background",
@@ -85,7 +86,8 @@ export default function ColorsPage() {
   const [theme, setTheme] = useState<ActiveTheme | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeMode, setActiveMode] = useState<"light" | "dark">("dark");
+  // Light is the storefront default, so edit it first.
+  const [activeMode, setActiveMode] = useState<"light" | "dark">("light");
   const [lightVars, setLightVars] = useState<Record<string, string>>({});
   const [darkVars, setDarkVars] = useState<Record<string, string>>({});
 
@@ -132,6 +134,16 @@ export default function ColorsPage() {
     }
   };
 
+  // Restores the brand palette (DESIGN.md §1) for the open tab only. Nothing
+  // is stored until "Save Palette" is pressed.
+  const handleReset = () => {
+    const label = activeMode === "light" ? "Light Mode" : "Dark Mode";
+    if (!window.confirm(`Reset all ${label} colors to the original Ische Ghuree brand colors? You can still review them before saving.`)) return;
+    if (activeMode === "light") setLightVars({ ...FALLBACK_LIGHT });
+    else setDarkVars({ ...FALLBACK_DARK });
+    toast.info(`${label} colors reset — press "Save Palette" to apply them to the website.`);
+  };
+
   const currentVars = activeMode === "light" ? lightVars : darkVars;
   const setCurrentVar = (key: string, hex: string) => handleColorChange(activeMode, key, hex);
 
@@ -154,7 +166,9 @@ export default function ColorsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-black text-foreground tracking-tight">Store Colors</h1>
-            <p className="text-sm text-muted-foreground mt-1">Customize the light and dark mode color palette for your storefront.</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Customize the light and dark mode colors of your website. Visitors see Light Mode by default and can switch with the sun/moon button in the header. Saved changes appear on the website within about a minute.
+            </p>
           </div>
         </div>
         <button
@@ -181,6 +195,16 @@ export default function ColorsPage() {
             className={`flex-1 flex items-center justify-center gap-2 py-4 font-bold text-sm transition-all ${activeMode === "light" ? "bg-muted/50 text-foreground border-b-2 border-primary" : "text-muted-foreground hover:bg-muted/30"}`}
           >
             <Sun size={16} /> Light Mode
+          </button>
+        </div>
+
+        <div className="flex justify-end px-6 pt-5">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+          >
+            <RotateCcw size={14} /> Reset {activeMode === "light" ? "Light" : "Dark"} Mode to brand colors
           </button>
         </div>
 

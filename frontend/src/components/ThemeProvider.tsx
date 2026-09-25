@@ -6,7 +6,7 @@ import { useThemeStore } from "@/store/themeStore";
 // Ische Ghuree fallback palettes (DESIGN.md §1) — used when the DB is
 // unreachable so the brand look survives any API outage.
 // Light: "দিনের আকাশ" (day sky) — cloud white, kite-sky blue, jute tan.
-const FALLBACK_LIGHT: Record<string, string> = {
+export const FALLBACK_LIGHT: Record<string, string> = {
   background: "204 45% 98%",
   foreground: "215 45% 15%",
   heading: "215 45% 15%",
@@ -34,7 +34,7 @@ const FALLBACK_LIGHT: Record<string, string> = {
 };
 
 // Dark: "রাতের প্রশান্তি" (night tranquility) — deep night blue, not black.
-const FALLBACK_DARK: Record<string, string> = {
+export const FALLBACK_DARK: Record<string, string> = {
   background: "215 50% 8%",
   foreground: "204 40% 94%",
   heading: "204 40% 94%",

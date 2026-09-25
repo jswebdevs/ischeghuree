@@ -88,7 +88,7 @@ export default function ProductInfo({ product }: { product: ProductInfoData }) {
       {/* Availability pill — the catalog does no stock counting, so every
           published product reads as available and the quote confirms it. */}
       <div className="mb-6">
-        <span className="inline-flex items-center gap-2 text-green-600 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
+        <span className="inline-flex items-center gap-2 text-green-700 dark:text-green-400 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> স্টকে আছে — In Stock
         </span>
       </div>

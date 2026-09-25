@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* `dark:` follows the site's own light/dark switch (the .dark class on <html>,
+   set by the header toggle), not the visitor's OS setting — Tailwind v4's
+   default would otherwise mix both palettes for OS-dark visitors in light mode. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Dynamic HSL Mappings */
   --color-background: hsl(var(--background));
