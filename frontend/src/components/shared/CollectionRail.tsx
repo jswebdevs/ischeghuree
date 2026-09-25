@@ -45,14 +45,9 @@ export default function CollectionRail({
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
 
-    // The track is full-bleed (-mx-4) with px-4 padding back, so the first
-    // item's snap position is padLeft — not 0. Resting scrollLeft is therefore
-    // padLeft, and comparing against 0 would leave "previous" forever enabled.
-    const padLeft = parseFloat(getComputedStyle(el).paddingLeft) || 0;
-    // A 2px tolerance on top: fractional layout widths mean scrollLeft rarely
-    // lands exactly on either bound.
-    const atMin = el.scrollLeft <= padLeft + 2;
-    setAtStart(atMin);
+    // A 2px tolerance: fractional layout widths mean scrollLeft rarely lands
+    // exactly on either bound.
+    setAtStart(el.scrollLeft <= 2);
     setAtEnd(max <= 2 || el.scrollLeft >= max - 2);
 
     const pages = el.clientWidth > 0 ? Math.max(Math.ceil(el.scrollWidth / el.clientWidth), 1) : 1;
@@ -60,8 +55,7 @@ export default function CollectionRail({
     // Derive the page from scroll *progress*, not scrollLeft/clientWidth: the
     // last page is only partly scrollable (max/clientWidth < pages - 1), so the
     // naive ratio can never report the final page.
-    const travel = max - padLeft;
-    const progress = travel <= 2 ? 0 : Math.min(Math.max((el.scrollLeft - padLeft) / travel, 0), 1);
+    const progress = max <= 2 ? 0 : Math.min(Math.max(el.scrollLeft / max, 0), 1);
     setPage(Math.min(pages, Math.round(progress * (pages - 1)) + 1));
   }, []);
 
@@ -129,10 +123,13 @@ export default function CollectionRail({
       </div>
 
       {/* Item widths are percentages of the track, so ~2 cards show on a phone,
-          3 on a tablet and 4 on a desktop — the same density as the grids. */}
+          3 on a tablet and 4 on a desktop — the same density as the grids.
+          The track is full-bleed (-mx-4) with px-4 padding back; scroll-px-4
+          makes snapping honour that padding, otherwise the first card snaps
+          flush to the viewport edge. */}
       <div
         ref={trackRef}
-        className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-2"
+        className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-4 scrollbar-hide -mx-4 px-4 pb-2"
       >
         {products.map((p) => (
           <div

@@ -191,11 +191,11 @@ export default async function Footer() {
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
                     {contact.link ? (
-                      <a href={contact.link} className="mt-2 font-medium leading-relaxed hover:text-primary transition-colors">
+                      <a href={contact.link} className="mt-2 min-w-0 wrap-anywhere font-medium leading-relaxed hover:text-primary transition-colors">
                         {contact.text}
                       </a>
                     ) : (
-                      <span className="mt-2 font-medium leading-relaxed">{contact.text}</span>
+                      <span className="mt-2 min-w-0 wrap-anywhere font-medium leading-relaxed">{contact.text}</span>
                     )}
                   </li>
                 );
