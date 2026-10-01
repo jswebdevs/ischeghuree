@@ -46,21 +46,21 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
   // the dismiss button inside an anchor (anchor-in-anchor / button-in-anchor
   // is invalid HTML). Interactive controls sit above the overlay via z-10.
   return (
-    <div className="ig-banner relative block w-full bg-primary text-primary-foreground py-2.5 hover:opacity-95 transition-opacity overflow-hidden">
+    <div className="ig-banner relative block w-full bg-primary text-primary-foreground py-2 hover:opacity-95 transition-opacity overflow-hidden">
       <Link
         href="/order-now"
         aria-label={text}
         className="absolute inset-0 cursor-pointer"
       />
       <div className="container mx-auto px-4 flex items-center gap-3">
-        <MessageCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
+        <MessageCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
 
         {/* Marquee — the message is rendered twice inside a track that
             translates 0 → -50% (exactly one copy's width), giving a seamless
             infinite loop that shows the FULL text on any container width —
             a single-span pass clipped the second half on narrow phones. */}
-        <div className="relative flex-1 min-w-0 overflow-hidden h-5">
-          <div className="ig-marquee-track flex w-max whitespace-nowrap text-sm font-bold will-change-transform">
+        <div className="relative flex-1 min-w-0 overflow-hidden h-8">
+          <div className="ig-marquee-track flex w-max whitespace-nowrap text-xl leading-8 font-bold will-change-transform">
             <span className="pr-16">🪁 {text}</span>
             <span className="pr-16" aria-hidden="true">🪁 {text}</span>
           </div>
