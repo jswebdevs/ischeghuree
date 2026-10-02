@@ -12,7 +12,10 @@ import { toast } from "sonner";
 import IconRenderer from "@/components/shared/IconRenderer";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 import PageMediaAddin from "@/app/dashboard/super-admin/storefront/pages/_components/PageMediaAddin";
-import { BANNER_FONT_SIZE, BANNER_SPEED, BANNER_GAP, DEFAULT_BANNER_MESSAGE } from "@/components/home/sections/StickyBanner";
+import {
+  BANNER_FONT_SIZE, BANNER_SPEED, BANNER_GAP, DEFAULT_BANNER_MESSAGE,
+  normalizeBannerMessages, type BannerMessage,
+} from "@/components/home/sections/StickyBanner";
 import MarqueeTicker from "@/components/home/sections/MarqueeTicker";
 import { CATEGORY_BAR_DEFAULTS } from "@/components/shared/navbar/MegaMenu";
 
@@ -63,13 +66,14 @@ interface HowItWorksConfig {
 interface FaqItem { question: string; answer: string }
 interface FaqConfig { title: string; subtitle: string; faqs: FaqItem[] }
 interface BannerConfig {
-  /** Marquee messages, scrolled one after another. */
-  messages: string[];
+  /** Marquee messages, scrolled one after another, each with its own scroll time. */
+  messages: BannerMessage[];
   /** Legacy single message — kept in sync with messages[0] on save. */
   text?: string;
   btnText: string;
   fontSize: number;
-  speed: number;
+  /** Legacy shared scroll time — only a fallback for older plain-text messages. */
+  speed?: number;
   /** Seconds between one message leaving and the next entering. */
   gap: number;
 }
@@ -136,10 +140,9 @@ const DEFAULTS: SectionConfigs = {
     ],
   },
   banner: {
-    messages: [DEFAULT_BANNER_MESSAGE],
+    messages: [{ text: DEFAULT_BANNER_MESSAGE, speed: BANNER_SPEED.default }],
     btnText: "অর্ডার করুন — Order Now",
     fontSize: BANNER_FONT_SIZE.default,
-    speed: BANNER_SPEED.default,
     gap: BANNER_GAP.default,
   },
   categoryBar: { ...CATEGORY_BAR_DEFAULTS },
@@ -152,11 +155,14 @@ function normalizeHero(hero: Partial<HeroConfig> | undefined, fallback: HeroConf
   return { ...fallback, ...hero, images: images.length ? images : hero.image ? [hero.image] : [] };
 }
 
-// Configs saved before multi-message support only have the single `text`.
-function normalizeBanner(banner: Partial<BannerConfig> | undefined, fallback: BannerConfig): BannerConfig {
+// Older configs hold a single `text`, or plain-string messages sharing one
+// `speed`; both become messages that carry their own scroll time.
+function normalizeBanner(
+  banner: (Omit<Partial<BannerConfig>, "messages"> & { messages?: (string | Partial<BannerMessage>)[] }) | undefined,
+  fallback: BannerConfig,
+): BannerConfig {
   if (!banner) return fallback;
-  const messages = (banner.messages ?? []).filter(Boolean);
-  return { ...fallback, ...banner, messages: messages.length ? messages : banner.text ? [banner.text] : fallback.messages };
+  return { ...fallback, ...banner, messages: normalizeBannerMessages(banner) };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -197,7 +203,10 @@ export default function HomepageAdminPage() {
     const sectionKey = tab === "hero" ? "kiteHero" : tab === "banner" ? "stickyBanner" : tab;
     const payload =
       tab === "hero"   ? { ...configs.hero, image: configs.hero.images[0] || "" } :
-      tab === "banner" ? { ...configs.banner, messages: configs.banner.messages.filter(m => m.trim()), text: configs.banner.messages.find(m => m.trim()) || "" } :
+      tab === "banner" ? (() => {
+        const messages = configs.banner.messages.filter(m => m.text.trim());
+        return { ...configs.banner, messages, text: messages[0]?.text || "" };
+      })() :
       configs[tab];
     try {
       await api.patch(`/settings/homepage/${sectionKey}`, payload);
@@ -416,14 +425,6 @@ export default function HomepageAdminPage() {
                       onChange={v => update("banner", "fontSize", v)}
                     />
                   </Field>
-                  <Field label={`Scroll Time — ${configs.banner.speed}s`} hint={`Seconds for each message to cross the bar, from entering on the right to fully gone on the left — lower is faster. ${BANNER_SPEED.min}–${BANNER_SPEED.max}s. Default ${BANNER_SPEED.default}s.`}>
-                    <RangeInput
-                      value={configs.banner.speed}
-                      min={BANNER_SPEED.min}
-                      max={BANNER_SPEED.max}
-                      onChange={v => update("banner", "speed", v)}
-                    />
-                  </Field>
                   <Field label={`Gap Between Messages — ${configs.banner.gap}s`} hint={`Pause after a message has fully left before the next one starts. ${BANNER_GAP.min}–${BANNER_GAP.max}s. Default ${BANNER_GAP.default}s.`}>
                     <RangeInput
                       value={configs.banner.gap}
@@ -434,20 +435,17 @@ export default function HomepageAdminPage() {
                   </Field>
                 </FieldGroup>
 
-                <StringList
-                  label="Marquee Messages  (shown one after another, then repeat)"
-                  items={configs.banner.messages || []}
-                  onChange={items => update("banner", "messages", items)}
-                  placeholder="Type a banner message…"
+                <BannerMessageList
+                  messages={configs.banner.messages || []}
+                  onChange={messages => update("banner", "messages", messages)}
                 />
 
                 {/* Live preview — same ticker as the storefront banner */}
                 <div className="ig-banner rounded-2xl overflow-hidden border border-border">
                   <div className="bg-primary text-primary-foreground py-2 px-4 flex items-center gap-3">
                     <MarqueeTicker
-                      messages={configs.banner.messages}
+                      messages={normalizeBannerMessages({ messages: configs.banner.messages })}
                       fontSize={configs.banner.fontSize}
-                      speed={configs.banner.speed}
                       gap={configs.banner.gap}
                     />
                     <span className="shrink-0 px-4 py-1.5 bg-primary-foreground text-primary rounded-full text-xs font-black uppercase">
@@ -700,6 +698,63 @@ function ColorInput({ value, fallback, onChange }: { value: string; fallback: st
         placeholder={fallback}
         className={`w-32 bg-muted/30 border rounded-xl px-3 py-2 text-sm font-mono focus:border-primary outline-none transition-all ${valid ? "border-border" : "border-destructive"}`}
       />
+    </div>
+  );
+}
+
+// ─── Banner Message List (text + own scroll time) ───────────────────────────
+
+function BannerMessageList({ messages, onChange }: { messages: BannerMessage[]; onChange: (m: BannerMessage[]) => void }) {
+  const add    = ()          => onChange([...messages, { text: "", speed: BANNER_SPEED.default }]);
+  const remove = (i: number) => onChange(messages.filter((_, idx) => idx !== i));
+  const edit   = (i: number, patch: Partial<BannerMessage>) =>
+    onChange(messages.map((m, idx) => (idx === i ? { ...m, ...patch } : m)));
+  const clampSpeed = (n: number) => Math.min(BANNER_SPEED.max, Math.max(BANNER_SPEED.min, n));
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">
+          Marquee Messages  (shown one after another, then repeat)
+        </label>
+        <button onClick={add} className="flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity">
+          <Plus className="w-3.5 h-3.5" /> Add
+        </button>
+      </div>
+      <p className="text-[10px] text-muted-foreground/70">
+        Scroll time = seconds for that message to cross the bar, from entering on the right to fully gone on the left — lower is faster ({BANNER_SPEED.min}–{BANNER_SPEED.max}s).
+      </p>
+      <div className="space-y-3">
+        {messages.map((m, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="w-6 h-6 mt-2 rounded-full bg-primary/10 text-primary text-[10px] font-black flex items-center justify-center shrink-0">{i + 1}</span>
+            <input
+              type="text"
+              value={m.text}
+              onChange={e => edit(i, { text: e.target.value })}
+              placeholder="Type a banner message…"
+              className="flex-1 min-w-0 bg-muted/30 border border-border rounded-xl px-4 py-2.5 text-sm font-medium focus:border-primary outline-none transition-all"
+            />
+            <div className="flex items-center gap-1 shrink-0" title="Scroll time (seconds)">
+              <input
+                type="number"
+                min={BANNER_SPEED.min}
+                max={BANNER_SPEED.max}
+                value={m.speed}
+                onChange={e => { const n = Number(e.target.value); if (Number.isFinite(n)) edit(i, { speed: n }); }}
+                onBlur={() => edit(i, { speed: clampSpeed(m.speed) })}
+                aria-label={`Scroll time for message ${i + 1} (seconds)`}
+                className="w-16 bg-muted/30 border border-border rounded-xl px-2 py-2.5 text-sm font-bold text-center focus:border-primary outline-none transition-all"
+              />
+              <span className="text-xs font-bold text-muted-foreground">s</span>
+            </div>
+            <button onClick={() => remove(i)} className="mt-2 p-1.5 text-muted-foreground hover:text-destructive transition-colors shrink-0" aria-label={`Remove message ${i + 1}`}>
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+        {messages.length === 0 && <p className="text-sm text-muted-foreground italic py-2">No messages — click Add</p>}
+      </div>
     </div>
   );
 }

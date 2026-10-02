@@ -5,15 +5,22 @@ import { useEffect, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import MarqueeTicker from "./MarqueeTicker";
 
+/** One marquee message and its own scroll time (seconds to cross the bar). */
+export interface BannerMessage {
+  text: string;
+  speed: number;
+}
+
 interface StickyBannerData {
-  /** Marquee messages, shown one after another. */
-  messages?: string[];
+  /** Marquee messages, shown one after another. Plain strings are the older
+   *  shape and use `speed` as their scroll time. */
+  messages?: (string | Partial<BannerMessage>)[];
   /** Legacy single message — fallback when `messages` is empty. */
   text?: string;
   btnText?: string;
   /** Marquee font size in px. */
   fontSize?: number;
-  /** Seconds for one message to cross the bar (lower = faster). */
+  /** Fallback scroll time for messages without their own (legacy). */
   speed?: number;
   /** Seconds of pause between one message leaving and the next entering. */
   gap?: number;
@@ -30,6 +37,24 @@ const clamp = (v: unknown, { min, max, default: d }: { min: number; max: number;
 
 export const DEFAULT_BANNER_MESSAGE =
   "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426";
+
+export const clampBannerSpeed = (v: unknown) => clamp(v, BANNER_SPEED);
+
+// Resolves any saved shape (object messages, plain-string messages, or the
+// legacy single `text`) into messages that each carry their own scroll time.
+export function normalizeBannerMessages(data?: StickyBannerData | null): BannerMessage[] {
+  const fallbackSpeed = clampBannerSpeed(data?.speed);
+  const messages = (data?.messages ?? [])
+    .map((m) =>
+      typeof m === "string"
+        ? { text: m, speed: fallbackSpeed }
+        : { text: m?.text ?? "", speed: m?.speed === undefined ? fallbackSpeed : clampBannerSpeed(m.speed) },
+    )
+    .filter((m) => m.text.trim());
+  return messages.length
+    ? messages
+    : [{ text: data?.text || DEFAULT_BANNER_MESSAGE, speed: fallbackSpeed }];
+}
 
 interface StickyBannerProps {
   data?: StickyBannerData | null;
@@ -55,12 +80,10 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     sessionStorage.setItem("ig-banner-dismissed", "1");
   };
 
-  const configured = (data?.messages ?? []).filter((m) => m?.trim());
-  const messages = configured.length ? configured : [data?.text || DEFAULT_BANNER_MESSAGE];
+  const messages = normalizeBannerMessages(data);
   const btnText = data?.btnText || "অর্ডার করুন — Order Now";
   const link = whatsappLink || "";
   const fontSize = clamp(data?.fontSize, BANNER_FONT_SIZE);
-  const speed = clamp(data?.speed, BANNER_SPEED);
   const gap = clamp(data?.gap, BANNER_GAP);
 
   if (!visible) return null;
@@ -73,13 +96,13 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     <div className="ig-banner relative block w-full bg-primary text-primary-foreground py-2 hover:opacity-95 transition-opacity overflow-hidden">
       <Link
         href="/order-now"
-        aria-label={messages.join(" · ")}
+        aria-label={messages.map((m) => m.text).join(" · ")}
         className="absolute inset-0 cursor-pointer"
       />
       <div className="container mx-auto px-4 flex items-center gap-3">
         <MessageCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
 
-        <MarqueeTicker messages={messages} fontSize={fontSize} speed={speed} gap={gap} />
+        <MarqueeTicker messages={messages} fontSize={fontSize} gap={gap} />
 
         <div className="relative z-10 flex items-center gap-2 shrink-0">
           {/* CTA always renders and goes where its label promises: the order

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { BannerMessage } from "./StickyBanner";
 
 interface MarqueeTickerProps {
-  messages: string[];
+  /** Each message carries its own scroll time: seconds to cross the bar,
+   *  from entering on the right to fully gone on the left. */
+  messages: BannerMessage[];
   /** Font size in px. */
   fontSize: number;
-  /** Seconds for one message to cross the bar, entering right to fully gone left. */
-  speed: number;
   /** Seconds of empty bar between one message leaving and the next entering. */
   gap: number;
 }
@@ -22,8 +23,8 @@ interface MarqueeTickerProps {
 // the text travels exactly bar width + text width, so it starts fully
 // off-screen right and ends fully off-screen left, for any text length.
 // Hover-pause comes from the .ig-banner wrapper (see globals.css).
-export default function MarqueeTicker({ messages, fontSize, speed, gap }: MarqueeTickerProps) {
-  const items = messages.filter((m) => m.trim());
+export default function MarqueeTicker({ messages, fontSize, gap }: MarqueeTickerProps) {
+  const items = messages.filter((m) => m.text.trim());
   const [index, setIndex] = useState(0);
   const [cycle, setCycle] = useState(0);
   const [running, setRunning] = useState(true);
@@ -45,7 +46,7 @@ export default function MarqueeTicker({ messages, fontSize, speed, gap }: Marque
     }, gap * 1000);
   };
 
-  const style = { "--ig-marquee-duration": `${speed}s` } as React.CSSProperties;
+  const style = { "--ig-marquee-duration": `${current.speed}s` } as React.CSSProperties;
 
   return (
     <div className="relative flex-1 min-w-0 overflow-hidden leading-normal font-bold" style={{ fontSize: `${fontSize}px` }}>
@@ -54,12 +55,12 @@ export default function MarqueeTicker({ messages, fontSize, speed, gap }: Marque
       {running && (
         <div key={cycle} className="ig-marquee-enter absolute inset-0" style={style} onAnimationEnd={onEnd}>
           <span className="ig-marquee-exit inline-block whitespace-nowrap will-change-transform" style={style}>
-            🪁 {current}
+            🪁 {current.text}
           </span>
         </div>
       )}
       {/* Reduced motion: no scrolling, just the first message. */}
-      <span className="ig-marquee-static hidden absolute inset-0 truncate">🪁 {items[0]}</span>
+      <span className="ig-marquee-static hidden absolute inset-0 truncate">🪁 {items[0].text}</span>
     </div>
   );
 }
