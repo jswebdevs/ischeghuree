@@ -64,7 +64,6 @@ export default function Navbar({ initialSettings, categoryBar }: NavbarProps) {
 
   // --- DYNAMIC SETTINGS STATE ---
   const [storeName, setStoreName] = useState(initialSettings?.storeName || "");
-  const [storeTagline, setStoreTagline] = useState(initialSettings?.tagline || "");
   const [storeLogo, setStoreLogo] = useState<string | null>(
     initialSettings?.logo?.thumbUrl || 
     initialSettings?.logo?.originalUrl || 
@@ -90,7 +89,6 @@ export default function Navbar({ initialSettings, categoryBar }: NavbarProps) {
           const res = await api.get('/settings');
           if (res.data?.data) {
             setStoreName(res.data.data.storeName);
-            setStoreTagline(res.data.data.tagline || "");
             setStoreLogo(
               res.data.data.logo?.thumbUrl ||
               res.data.data.logo?.originalUrl ||
@@ -201,37 +199,43 @@ export default function Navbar({ initialSettings, categoryBar }: NavbarProps) {
   return (
     <>
       <nav className="sticky top-0 z-40 w-full bg-gradient-theme border-b border-border shadow-theme-sm">
-        <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
+        <div className="relative container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
 
           <div className="flex items-center gap-3">
             <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
               <LuMenu className="w-6 h-6" />
             </button>
 
-            <Link href="/" className="relative flex items-center gap-2">
+            {/* Logo + "Ischeghuree" wordmark. Centered in the header on
+                mobile (between the menu button and the theme toggle). */}
+            <Link
+              href="/"
+              className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex items-center gap-2 md:gap-3"
+            >
               {loadingSettings && !storeName && !storeLogo ? (
-                <div className="h-8 md:h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
-              ) : storeLogo ? (
-                // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded logo URL with unknown dimensions; CSS h/w-auto sizing depends on intrinsic ratio
-                <img
-                  src={storeLogo}
-                  alt={`${storeName || "ইচ্ছে ঘুড়ি — Ische Ghuree"} Logo`}
-                  className="h-8 md:h-10 w-auto max-w-40 object-contain"
-                />
+                <div className="h-10 md:h-14 w-40 bg-muted/40 rounded-lg animate-pulse" />
               ) : (
-                <div className="flex items-center gap-2 text-primary">
-                  <Image
-                    src="/ische-ghuree.svg"
-                    alt="ইচ্ছে ঘুড়ি kite logo"
-                    width={64}
-                    height={84}
-                    className="h-8 md:h-10 w-auto"
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-heading font-black text-xl tracking-tight leading-none">{storeName || "ইচ্ছে ঘুড়ি"}</span>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline || "Ische Ghuree"}</span>
-                  </div>
-                </div>
+                <>
+                  {storeLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded logo URL with unknown dimensions; CSS h/w-auto sizing depends on intrinsic ratio
+                    <img
+                      src={storeLogo}
+                      alt={`${storeName || "ইচ্ছে ঘুড়ি — Ische Ghuree"} Logo`}
+                      className="h-10 md:h-14 w-auto max-w-48 object-contain"
+                    />
+                  ) : (
+                    <Image
+                      src="/ische-ghuree.svg"
+                      alt="ইচ্ছে ঘুড়ি kite logo"
+                      width={64}
+                      height={84}
+                      className="h-10 md:h-14 w-auto"
+                    />
+                  )}
+                  <span className="text-2xl md:text-3xl font-black tracking-tight leading-none whitespace-nowrap bg-gradient-to-r from-kite-cyan via-kite-magenta to-kite-orange bg-clip-text text-transparent">
+                    Ischeghuree
+                  </span>
+                </>
               )}
             </Link>
           </div>
