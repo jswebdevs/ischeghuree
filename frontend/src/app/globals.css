@@ -189,28 +189,33 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
   to   { opacity: 1; }
 }
 
-/* Marquee track for the promo banner.
-   The message is rendered twice inside a max-content flex track; the track
-   translates 0 → -50% (exactly one copy's width) for a seamless infinite
-   loop that always shows the full text regardless of container width.
-   Animating transform stays on the compositor — animating `left` forced
-   layout every frame and clipped the second half of the text on phones.
+/* Promo banner ticker (MarqueeTicker.tsx). One message at a time: the
+   wrapper (bar-wide) slides 100% → 0 while the text slides 0 → -100% of its
+   own width over the same duration, so each message enters fully from the
+   right and leaves fully on the left. Duration is admin-set
+   (stickyBanner.speed) via an inline custom property. Transform-only, so it
+   stays on the compositor.
    Hover-pause is driven from the banner wrapper (.ig-banner) because a
    full-bleed overlay link sits above the text and eats its :hover. */
-.ig-marquee-track {
-  /* Duration is admin-set (stickyBanner.speed) via an inline custom property. */
-  animation: ig-marquee-rtl var(--ig-marquee-duration, 18s) linear infinite;
+.ig-marquee-enter {
+  animation: ig-marquee-enter var(--ig-marquee-duration, 18s) linear 1 both;
 }
-.ig-banner:hover .ig-marquee-track {
+.ig-marquee-exit {
+  animation: ig-marquee-exit var(--ig-marquee-duration, 18s) linear 1 both;
+}
+.ig-banner:hover .ig-marquee-enter,
+.ig-banner:hover .ig-marquee-exit {
   animation-play-state: paused;
 }
-@keyframes ig-marquee-rtl {
+@keyframes ig-marquee-enter {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes ig-marquee-exit {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  to   { transform: translateX(-100%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ig-marquee-track {
-    animation: none;
-    transform: none;
-  }
+  .ig-marquee-enter { display: none; }
+  .ig-marquee-static { display: block; }
 }

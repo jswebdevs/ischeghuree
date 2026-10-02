@@ -12,7 +12,8 @@ import { toast } from "sonner";
 import IconRenderer from "@/components/shared/IconRenderer";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 import PageMediaAddin from "@/app/dashboard/super-admin/storefront/pages/_components/PageMediaAddin";
-import { BANNER_FONT_SIZE, BANNER_SPEED } from "@/components/home/sections/StickyBanner";
+import { BANNER_FONT_SIZE, BANNER_SPEED, BANNER_GAP, DEFAULT_BANNER_MESSAGE } from "@/components/home/sections/StickyBanner";
+import MarqueeTicker from "@/components/home/sections/MarqueeTicker";
 import { CATEGORY_BAR_DEFAULTS } from "@/components/shared/navbar/MegaMenu";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -61,7 +62,17 @@ interface HowItWorksConfig {
 }
 interface FaqItem { question: string; answer: string }
 interface FaqConfig { title: string; subtitle: string; faqs: FaqItem[] }
-interface BannerConfig { text: string; btnText: string; fontSize: number; speed: number }
+interface BannerConfig {
+  /** Marquee messages, scrolled one after another. */
+  messages: string[];
+  /** Legacy single message — kept in sync with messages[0] on save. */
+  text?: string;
+  btnText: string;
+  fontSize: number;
+  speed: number;
+  /** Seconds between one message leaving and the next entering. */
+  gap: number;
+}
 interface CategoryBarConfig { bgColor: string; textColor: string }
 
 interface SectionConfigs {
@@ -125,10 +136,11 @@ const DEFAULTS: SectionConfigs = {
     ],
   },
   banner: {
-    text: "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426",
+    messages: [DEFAULT_BANNER_MESSAGE],
     btnText: "অর্ডার করুন — Order Now",
     fontSize: BANNER_FONT_SIZE.default,
     speed: BANNER_SPEED.default,
+    gap: BANNER_GAP.default,
   },
   categoryBar: { ...CATEGORY_BAR_DEFAULTS },
 };
@@ -138,6 +150,13 @@ function normalizeHero(hero: Partial<HeroConfig> | undefined, fallback: HeroConf
   if (!hero) return fallback;
   const images = (hero.images ?? []).filter(Boolean);
   return { ...fallback, ...hero, images: images.length ? images : hero.image ? [hero.image] : [] };
+}
+
+// Configs saved before multi-message support only have the single `text`.
+function normalizeBanner(banner: Partial<BannerConfig> | undefined, fallback: BannerConfig): BannerConfig {
+  if (!banner) return fallback;
+  const messages = (banner.messages ?? []).filter(Boolean);
+  return { ...fallback, ...banner, messages: messages.length ? messages : banner.text ? [banner.text] : fallback.messages };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -156,7 +175,7 @@ export default function HomepageAdminPage() {
           story:       data.data.story        ?? prev.story,
           howItWorks:  data.data.howItWorks   ?? prev.howItWorks,
           faq:         data.data.faq          ?? prev.faq,
-          banner:      { ...prev.banner, ...data.data.stickyBanner },
+          banner:      normalizeBanner(data.data.stickyBanner, prev.banner),
           categoryBar: { ...prev.categoryBar, ...data.data.categoryBar },
         }));
       }
@@ -176,9 +195,10 @@ export default function HomepageAdminPage() {
   const save = async (tab: TabId) => {
     setSaving(tab);
     const sectionKey = tab === "hero" ? "kiteHero" : tab === "banner" ? "stickyBanner" : tab;
-    const payload = tab === "hero"
-      ? { ...configs.hero, image: configs.hero.images[0] || "" }
-      : configs[tab];
+    const payload =
+      tab === "hero"   ? { ...configs.hero, image: configs.hero.images[0] || "" } :
+      tab === "banner" ? { ...configs.banner, messages: configs.banner.messages.filter(m => m.trim()), text: configs.banner.messages.find(m => m.trim()) || "" } :
+      configs[tab];
     try {
       await api.patch(`/settings/homepage/${sectionKey}`, payload);
       toast.success("Section saved successfully");
@@ -385,9 +405,6 @@ export default function HomepageAdminPage() {
             <SectionPanel key="banner">
               <div className="max-w-2xl space-y-6">
                 <FieldGroup title="Sticky Banner Content" icon={<MessageSquare className="w-5 h-5 text-primary" />}>
-                  <Field label="Banner Text" hint="Shown in the sticky bar at the top of the homepage">
-                    <Input value={configs.banner.text} onChange={v => update("banner", "text", v)} />
-                  </Field>
                   <Field label="Button Text">
                     <Input value={configs.banner.btnText} onChange={v => update("banner", "btnText", v)} />
                   </Field>
@@ -399,7 +416,7 @@ export default function HomepageAdminPage() {
                       onChange={v => update("banner", "fontSize", v)}
                     />
                   </Field>
-                  <Field label={`Scroll Time — ${configs.banner.speed}s`} hint={`Seconds for one full pass of the text — lower is faster. ${BANNER_SPEED.min}–${BANNER_SPEED.max}s. Default ${BANNER_SPEED.default}s.`}>
+                  <Field label={`Scroll Time — ${configs.banner.speed}s`} hint={`Seconds for each message to cross the bar, from entering on the right to fully gone on the left — lower is faster. ${BANNER_SPEED.min}–${BANNER_SPEED.max}s. Default ${BANNER_SPEED.default}s.`}>
                     <RangeInput
                       value={configs.banner.speed}
                       min={BANNER_SPEED.min}
@@ -407,20 +424,32 @@ export default function HomepageAdminPage() {
                       onChange={v => update("banner", "speed", v)}
                     />
                   </Field>
+                  <Field label={`Gap Between Messages — ${configs.banner.gap}s`} hint={`Pause after a message has fully left before the next one starts. ${BANNER_GAP.min}–${BANNER_GAP.max}s. Default ${BANNER_GAP.default}s.`}>
+                    <RangeInput
+                      value={configs.banner.gap}
+                      min={BANNER_GAP.min}
+                      max={BANNER_GAP.max}
+                      onChange={v => update("banner", "gap", v)}
+                    />
+                  </Field>
                 </FieldGroup>
 
-                {/* Live preview — same marquee track as the storefront banner */}
+                <StringList
+                  label="Marquee Messages  (shown one after another, then repeat)"
+                  items={configs.banner.messages || []}
+                  onChange={items => update("banner", "messages", items)}
+                  placeholder="Type a banner message…"
+                />
+
+                {/* Live preview — same ticker as the storefront banner */}
                 <div className="ig-banner rounded-2xl overflow-hidden border border-border">
                   <div className="bg-primary text-primary-foreground py-2 px-4 flex items-center gap-3">
-                    <div className="relative flex-1 min-w-0 overflow-hidden">
-                      <div
-                        className="ig-marquee-track flex w-max whitespace-nowrap leading-normal font-bold"
-                        style={{ fontSize: `${configs.banner.fontSize}px`, "--ig-marquee-duration": `${configs.banner.speed}s` } as React.CSSProperties}
-                      >
-                        <span className="pr-16">🪁 {configs.banner.text}</span>
-                        <span className="pr-16" aria-hidden="true">🪁 {configs.banner.text}</span>
-                      </div>
-                    </div>
+                    <MarqueeTicker
+                      messages={configs.banner.messages}
+                      fontSize={configs.banner.fontSize}
+                      speed={configs.banner.speed}
+                      gap={configs.banner.gap}
+                    />
                     <span className="shrink-0 px-4 py-1.5 bg-primary-foreground text-primary rounded-full text-xs font-black uppercase">
                       {configs.banner.btnText}
                     </span>

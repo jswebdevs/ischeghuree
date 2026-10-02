@@ -149,7 +149,7 @@ export default async function RootLayout({
   // The announcement bar is sitewide, so its config is read here rather than on
   // the homepage. The WhatsApp link lives under the hero section in
   // homepageConfig, which is where the admin UI writes it.
-  const bannerData = (homepage as { stickyBanner?: { text?: string; btnText?: string; fontSize?: number; speed?: number } } | null)
+  const bannerData = (homepage as { stickyBanner?: { messages?: string[]; text?: string; btnText?: string; fontSize?: number; speed?: number; gap?: number } } | null)
     ?.stickyBanner;
   const bannerWhatsapp =
     (homepage as { kiteHero?: { whatsappLink?: string } } | null)?.kiteHero?.whatsappLink || "";

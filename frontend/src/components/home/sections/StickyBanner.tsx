@@ -3,23 +3,33 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
+import MarqueeTicker from "./MarqueeTicker";
 
 interface StickyBannerData {
+  /** Marquee messages, shown one after another. */
+  messages?: string[];
+  /** Legacy single message — fallback when `messages` is empty. */
   text?: string;
   btnText?: string;
   /** Marquee font size in px. */
   fontSize?: number;
-  /** Seconds for one full pass of the message (lower = faster). */
+  /** Seconds for one message to cross the bar (lower = faster). */
   speed?: number;
+  /** Seconds of pause between one message leaving and the next entering. */
+  gap?: number;
 }
 
 export const BANNER_FONT_SIZE = { min: 10, max: 48, default: 20 };
 export const BANNER_SPEED = { min: 4, max: 120, default: 18 };
+export const BANNER_GAP = { min: 0, max: 30, default: 2 };
 
 const clamp = (v: unknown, { min, max, default: d }: { min: number; max: number; default: number }) => {
   const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? Math.min(max, Math.max(min, n)) : d;
+  return v !== undefined && v !== null && v !== "" && Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : d;
 };
+
+export const DEFAULT_BANNER_MESSAGE =
+  "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426";
 
 interface StickyBannerProps {
   data?: StickyBannerData | null;
@@ -27,8 +37,8 @@ interface StickyBannerProps {
 }
 
 // Top promo banner. Renders ABOVE the navbar in normal document flow (so it
-// can never overlap the sticky header), with a CSS-only marquee for the
-// message text — no JS animation, pauses on hover so users can read.
+// can never overlap the sticky header), with a ticker that scrolls the
+// admin's messages one after another — pauses on hover so users can read.
 export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) {
   const [visible, setVisible] = useState(false);
 
@@ -45,13 +55,13 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     sessionStorage.setItem("ig-banner-dismissed", "1");
   };
 
-  const text =
-    data?.text ||
-    "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426";
+  const configured = (data?.messages ?? []).filter((m) => m?.trim());
+  const messages = configured.length ? configured : [data?.text || DEFAULT_BANNER_MESSAGE];
   const btnText = data?.btnText || "অর্ডার করুন — Order Now";
   const link = whatsappLink || "";
   const fontSize = clamp(data?.fontSize, BANNER_FONT_SIZE);
   const speed = clamp(data?.speed, BANNER_SPEED);
+  const gap = clamp(data?.gap, BANNER_GAP);
 
   if (!visible) return null;
 
@@ -63,25 +73,13 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     <div className="ig-banner relative block w-full bg-primary text-primary-foreground py-2 hover:opacity-95 transition-opacity overflow-hidden">
       <Link
         href="/order-now"
-        aria-label={text}
+        aria-label={messages.join(" · ")}
         className="absolute inset-0 cursor-pointer"
       />
       <div className="container mx-auto px-4 flex items-center gap-3">
         <MessageCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
 
-        {/* Marquee — the message is rendered twice inside a track that
-            translates 0 → -50% (exactly one copy's width), giving a seamless
-            infinite loop that shows the FULL text on any container width —
-            a single-span pass clipped the second half on narrow phones. */}
-        <div className="relative flex-1 min-w-0 overflow-hidden">
-          <div
-            className="ig-marquee-track flex w-max whitespace-nowrap leading-normal font-bold will-change-transform"
-            style={{ fontSize: `${fontSize}px`, "--ig-marquee-duration": `${speed}s` } as React.CSSProperties}
-          >
-            <span className="pr-16">🪁 {text}</span>
-            <span className="pr-16" aria-hidden="true">🪁 {text}</span>
-          </div>
-        </div>
+        <MarqueeTicker messages={messages} fontSize={fontSize} speed={speed} gap={gap} />
 
         <div className="relative z-10 flex items-center gap-2 shrink-0">
           {/* CTA always renders and goes where its label promises: the order

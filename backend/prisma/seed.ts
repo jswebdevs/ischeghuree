@@ -267,11 +267,15 @@ function buildHomepageConfig() {
       ],
     },
     stickyBanner: {
+      messages: [
+        'পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426',
+      ],
       text:
         'পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426',
       btnText: 'অর্ডার করুন — Order Now',
       fontSize: 20,
       speed: 18,
+      gap: 2,
     },
     categoryBar: {
       bgColor: '#f76707',
