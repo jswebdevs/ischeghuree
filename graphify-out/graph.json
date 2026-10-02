@@ -2702,7 +2702,7 @@
       "file_type": "code",
       "norm_label": "handleclickoutside()",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L122"
+      "source_location": "L120"
     },
     {
       "id": "frontend_src_components_shared_themedtoaster_themedtoaster",
@@ -20784,7 +20784,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L356",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -20796,7 +20796,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L395",
+      "source_location": "L399",
       "weight": 1.0
     },
     {
@@ -20808,7 +20808,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L398",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -20820,7 +20820,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L425",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -20832,7 +20832,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L427",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -49203,7 +49203,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "frontend/src/components/shared/navbar/Navbar.tsx",
-      "source_location": "L127",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -50061,5 +50061,5 @@
       "source_file": "CHANGES.md"
     }
   ],
-  "built_at_commit": "ad22e9ddb6054d70674424cebbc327bb6f70f31e"
+  "built_at_commit": "06e436e8317523fe214583ac544d2149714c97a1"
 }

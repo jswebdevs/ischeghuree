@@ -1128,9 +1128,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/navbar/Navbar.tsx": {
-    "mtime": 1790955711.4820337,
-    "seen": 1790956213.5618641,
-    "ast_hash": "4b31a4889791bb9ca7120c3bf5f04a3e",
+    "mtime": 1790958148.9940708,
+    "seen": 1790958310.3025117,
+    "ast_hash": "ecfa5b6f6061bba855b5a325678b80d5",
     "semantic_hash": ""
   },
   "frontend/src/components/shared/totop/ToTopButton.tsx": {
@@ -1626,9 +1626,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/navbar/MegaMenu.tsx": {
-    "mtime": 1790957112.007463,
-    "seen": 1790957574.330042,
-    "ast_hash": "9ce0004a128df87024444655048ac299",
+    "mtime": 1790958187.477397,
+    "seen": 1790958310.3025093,
+    "ast_hash": "673bcfb7608d29772a5499252602fdb3",
     "semantic_hash": ""
   },
   "frontend/src/components/shop/ProductPrice.tsx": {
