@@ -202,7 +202,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   };
 
   return (
-    <div className="flex flex-col h-full min-h-[70vh] bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden relative">
+    <div className={`flex flex-col h-full ${isPicker ? "min-h-0" : "min-h-[70vh]"} bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden relative`}>
 
       {/* TOP TABS & BULK ACTIONS */}
       <div className="flex items-center justify-between px-6 border-b border-border bg-muted/10 shrink-0">
@@ -261,7 +261,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
 
         {/* MEDIA LIBRARY GRID + SEARCH */}
         {activeTab === "library" && (
-          <div className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${previewItem ? 'md:pr-80' : ''}`}>
+          <div className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${previewItem ? 'md:pr-72' : ''}`}>
 
             {/* SEARCH BAR */}
             <div className="p-4 border-b border-border bg-card shrink-0">
@@ -341,47 +341,49 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
 
         {/* RIGHT SIDEBAR: ATTACHMENT DETAILS */}
         {activeTab === "library" && previewItem && (
-          <div className="absolute top-0 right-0 h-full w-full md:w-80 bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right-8 duration-300 z-10">
+          <div className="absolute top-0 right-0 h-full w-full md:w-72 bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right-8 duration-300 z-10">
 
-            <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10 shrink-0">
-              <h3 className="font-black text-foreground uppercase tracking-wider text-sm">Attachment Details</h3>
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/10 shrink-0">
+              <h3 className="font-black text-foreground uppercase tracking-wider text-xs">Attachment Details</h3>
               <button onClick={() => setPreviewItem(null)} className="p-1 hover:bg-muted rounded text-muted-foreground transition-colors">
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-              <div className="aspect-square bg-muted rounded-xl border border-border/50 overflow-hidden flex items-center justify-center p-2 relative">
+            {/* Compact, non-scrolling body: the preview flexes to whatever
+                height is left, details and actions keep their natural size. */}
+            <div className="flex-1 min-h-0 flex flex-col gap-3 p-3 overflow-hidden">
+              <div className="flex-1 min-h-24 max-h-64 bg-muted rounded-xl border border-border/50 overflow-hidden flex items-center justify-center p-1.5">
                 {isVideo(previewItem.originalUrl) ? (
-                  <video src={previewItem.originalUrl} controls className="max-w-full max-h-full object-contain rounded-lg drop-shadow-md" />
+                  <video src={previewItem.originalUrl} controls className="max-w-full max-h-full object-contain rounded-lg" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element -- CDN media preview with unknown dimensions
-                  <img src={previewItem.originalUrl} alt={previewItem.title ?? "Media"} className="max-w-full max-h-full object-contain drop-shadow-md" />
+                  <img src={previewItem.originalUrl} alt={previewItem.title ?? "Media"} className="max-w-full max-h-full object-contain" />
                 )}
               </div>
 
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground font-bold text-xs uppercase tracking-wider">File name</p>
-                  <p className="text-foreground break-all font-medium">{previewItem.filename || previewItem.title || "Uploaded File"}</p>
-                </div>
+              <div className="shrink-0 space-y-1">
+                <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-wider">File name</p>
+                <p className="text-foreground text-xs font-medium truncate" title={previewItem.filename || previewItem.title}>
+                  {previewItem.filename || previewItem.title || "Uploaded File"}
+                </p>
               </div>
 
-              <div className="pt-4 border-t border-border">
-                <label className="text-muted-foreground font-bold text-xs uppercase tracking-wider mb-2 block">File URL</label>
-                <div className="flex items-center gap-2">
-                  <input type="text" readOnly value={previewItem.originalUrl} className="w-full bg-muted border border-border rounded-lg p-2 text-xs text-foreground outline-none" />
-                  <button onClick={() => handleCopyUrl(previewItem.originalUrl ?? "")} className="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors shrink-0" title="Copy URL">
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <div className="shrink-0 space-y-1">
+                <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-wider">File URL</p>
+                <div className="flex items-center gap-1.5">
+                  <input type="text" readOnly value={previewItem.originalUrl} className="w-full min-w-0 bg-muted border border-border rounded-lg px-2 py-1.5 text-[11px] text-foreground outline-none" />
+                  <button onClick={() => handleCopyUrl(previewItem.originalUrl ?? "")} className="p-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors shrink-0" title="Copy URL">
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border flex flex-col gap-3 pb-8">
+              <div className="shrink-0 pt-3 border-t border-border flex flex-col gap-2">
                 {/* Fallback delete if only 1 is selected */}
                 {selectedItems.length === 1 && (
-                  <button onClick={handleBulkDelete} className="flex items-center justify-center gap-2 w-full py-2.5 text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 rounded-xl font-bold transition-all text-sm">
-                    <Trash2 className="w-4 h-4" /> Delete Permanently
+                  <button onClick={handleBulkDelete} className="flex items-center justify-center gap-1.5 w-full py-1.5 text-destructive hover:bg-destructive/10 border border-transparent hover:border-destructive/20 rounded-lg font-bold transition-all text-xs">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete Permanently
                   </button>
                 )}
 
@@ -391,9 +393,9 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                       onSelect(multiple ? selectedItems : selectedItems[0]);
                       setSelectedItems([]);
                     }}
-                    className="w-full py-3 mt-4 bg-primary text-primary-foreground font-black rounded-xl shadow-theme-md hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
+                    className="w-full py-2 bg-primary text-primary-foreground text-sm font-black rounded-lg shadow-theme-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
                   >
-                    <Check size={18} />
+                    <Check size={16} />
                     {multiple ? `Insert ${selectedItems.length} Files` : `Set as Featured Media`}
                   </button>
                 )}

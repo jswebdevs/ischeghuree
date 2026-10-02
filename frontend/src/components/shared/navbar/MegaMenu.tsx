@@ -36,6 +36,9 @@ export default function MegaMenu({ config }: { config?: CategoryBarConfig | null
   const textColor = safeColor(config?.textColor, CATEGORY_BAR_DEFAULTS.textColor);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
+  // Left offset (px) of the open item within the bar, so the sub-category row
+  // sits directly under it.
+  const [anchorLeft, setAnchorLeft] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -98,18 +101,24 @@ export default function MegaMenu({ config }: { config?: CategoryBarConfig | null
           const hasChildren = children.length > 0;
           const isOpen = openId === cat.id;
 
+          const open = (el: HTMLElement) => {
+            const box = containerRef.current?.getBoundingClientRect();
+            if (box) setAnchorLeft(el.getBoundingClientRect().left - box.left);
+            setOpenId(cat.id);
+          };
+
           return (
             <div
               key={cat.id}
               className="shrink-0"
-              onMouseEnter={() => setOpenId(hasChildren ? cat.id : null)}
+              onMouseEnter={(e) => (hasChildren ? open(e.currentTarget) : setOpenId(null))}
             >
               {hasChildren ? (
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   aria-haspopup="true"
-                  onClick={() => setOpenId(isOpen ? null : cat.id)}
+                  onClick={(e) => (isOpen ? setOpenId(null) : open(e.currentTarget))}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
                     isOpen ? "bg-black/15" : "hover:bg-black/10"
                   }`}
@@ -139,35 +148,27 @@ export default function MegaMenu({ config }: { config?: CategoryBarConfig | null
         </Link>
       </nav>
 
-      {/* Sub-category strip. Rendered outside the nav because the nav scrolls
-          horizontally (overflow-x-auto), which would clip a dropdown hanging
-          below it. Items are a single row separated by "|" walls. */}
+      {/* Sub-categories: a small row directly under the open item, with white
+          "|" separators. Rendered outside the nav because the nav scrolls
+          horizontally (overflow-x-auto), which would clip it. */}
       {openCat && openChildren.length > 0 && (
-        <div className="absolute top-full inset-x-0 z-50 bg-card text-foreground border-b border-border shadow-theme-lg animate-in fade-in slide-in-from-top-1 duration-150">
-          <ul className="container mx-auto px-4 flex flex-wrap items-center gap-y-1 py-2.5">
-            <li>
+        <ul
+          className="absolute top-full z-50 flex items-center w-max max-w-[calc(100%-2rem)] flex-wrap px-2 py-1.5 rounded-b-lg shadow-theme-lg animate-in fade-in slide-in-from-top-1 duration-150"
+          style={{ left: anchorLeft, backgroundColor: bgColor, color: textColor }}
+        >
+          {openChildren.map((child, i) => (
+            <li key={child.id} className="flex items-center">
+              {i > 0 && <span aria-hidden="true" className="text-white/80 font-light">|</span>}
               <Link
-                href={`/categories/${openCat.slug}`}
+                href={`/categories/${child.slug}`}
                 onClick={() => setOpenId(null)}
-                className="block px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity"
+                className="block px-2.5 py-1 rounded-md text-xs font-bold hover:bg-black/15 transition-colors"
               >
-                সব দেখুন — View all {openCat.name}
+                {child.name}
               </Link>
             </li>
-            {openChildren.map((child) => (
-              <li key={child.id} className="flex items-center">
-                <span aria-hidden="true" className="h-4 w-px bg-border" />
-                <Link
-                  href={`/categories/${child.slug}`}
-                  onClick={() => setOpenId(null)}
-                  className="block px-3 py-1.5 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-                >
-                  {child.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          ))}
+        </ul>
       )}
     </div>
   );
