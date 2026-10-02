@@ -20196,7 +20196,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/dashboard/shared/media/MediaManager.tsx",
-      "source_location": "L391",
+      "source_location": "L393",
       "weight": 1.0
     },
     {
@@ -50061,5 +50061,5 @@
       "source_file": "CHANGES.md"
     }
   ],
-  "built_at_commit": "c19fd21d3364c504d1e778c896b1df63efddf77a"
+  "built_at_commit": "ad22e9ddb6054d70674424cebbc327bb6f70f31e"
 }
