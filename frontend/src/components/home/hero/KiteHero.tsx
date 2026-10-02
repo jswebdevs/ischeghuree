@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, ArrowRight, ClipboardList } from "lucide-react";
+import HeroImageSlider from "./HeroImageSlider";
 
 interface KiteHeroConfig {
   headline?: string;
@@ -9,6 +10,7 @@ interface KiteHeroConfig {
   brandName?: string;
   contactPhone?: string;
   contactEmail?: string;
+  images?: string[];
   image?: string;
   imageUrl?: string;
 }
@@ -30,7 +32,12 @@ export default function KiteHero({ heroConfig = {} }: KiteHeroProps) {
   const brandName = heroConfig.brandName || "ইচ্ছে ঘুড়ি — Ische Ghuree";
   const contactPhone = heroConfig.contactPhone || "01820-417426";
   const contactEmail = heroConfig.contactEmail || "ischeghuree@gmail.com";
-  const image = heroConfig.image || heroConfig.imageUrl || "/ische-ghuree-logo.jpg";
+  // `images` drives the slider; the legacy single `image` field is the
+  // fallback for configs saved before the slider existed.
+  const configured = (heroConfig.images ?? []).filter(Boolean);
+  const legacy = heroConfig.image || heroConfig.imageUrl;
+  const images =
+    configured.length > 0 ? configured : [legacy || "/ische-ghuree-logo.jpg"];
 
   const telHref = `tel:${contactPhone.replace(/[^\d+]/g, "")}`;
   const mailHref = `mailto:${contactEmail}`;
@@ -161,14 +168,7 @@ export default function KiteHero({ heroConfig = {} }: KiteHeroProps) {
                 aria-hidden="true"
               />
               <div className="relative w-full h-full rounded-[3rem] overflow-hidden border border-border bg-card shadow-theme-xl">
-                <Image
-                  src={image}
-                  alt={`${brandName} — ${headline}`}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 90vw, 520px"
-                  className="object-cover"
-                />
+                <HeroImageSlider images={images} alt={`${brandName} — ${headline}`} />
               </div>
             </div>
           </div>

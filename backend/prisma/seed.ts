@@ -159,7 +159,8 @@ async function seedMedia(adminId: string) {
 // ── 3. Site settings singleton ───────────────────────────────────────────────
 // homepageConfig section keys/fields mirror exactly what the frontend
 // components read: kiteHero (KiteHero.tsx), story (StorySection), howItWorks
-// (HowItWorks), faq (FAQSection), stickyBanner (StickyBanner), trustBar,
+// (HowItWorks), faq (FAQSection), stickyBanner (StickyBanner), categoryBar
+// (MegaMenu), trustBar,
 // orderHero (app/order-now/page.tsx).
 
 function buildHomepageConfig() {
@@ -172,6 +173,7 @@ function buildHomepageConfig() {
         'আবহমান বাংলার ঐতিহ্য — পরিবেশবান্ধব পাটের ব্যাগ আর বিশ্বমানের হেয়ার অ্যাক্সেসরিজ, আপনার দরজায়। The timeless heritage of Bengal — eco-friendly jute bags & world-class hair accessories, delivered across Dhaka.',
       contactPhone: BRAND.phone,
       contactEmail: BRAND.email,
+      images: ['/ische-ghuree-logo.jpg'],
       image: '/ische-ghuree-logo.jpg',
       whatsappLink: '',
     },
@@ -268,6 +270,12 @@ function buildHomepageConfig() {
       text:
         'পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426',
       btnText: 'অর্ডার করুন — Order Now',
+      fontSize: 20,
+      speed: 18,
+    },
+    categoryBar: {
+      bgColor: '#f76707',
+      textColor: '#ffffff',
     },
     trustBar: {
       items: [

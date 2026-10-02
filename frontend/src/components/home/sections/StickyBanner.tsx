@@ -7,7 +7,19 @@ import { MessageCircle, X } from "lucide-react";
 interface StickyBannerData {
   text?: string;
   btnText?: string;
+  /** Marquee font size in px. */
+  fontSize?: number;
+  /** Seconds for one full pass of the message (lower = faster). */
+  speed?: number;
 }
+
+export const BANNER_FONT_SIZE = { min: 10, max: 48, default: 20 };
+export const BANNER_SPEED = { min: 4, max: 120, default: 18 };
+
+const clamp = (v: unknown, { min, max, default: d }: { min: number; max: number; default: number }) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? Math.min(max, Math.max(min, n)) : d;
+};
 
 interface StickyBannerProps {
   data?: StickyBannerData | null;
@@ -38,6 +50,8 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426";
   const btnText = data?.btnText || "অর্ডার করুন — Order Now";
   const link = whatsappLink || "";
+  const fontSize = clamp(data?.fontSize, BANNER_FONT_SIZE);
+  const speed = clamp(data?.speed, BANNER_SPEED);
 
   if (!visible) return null;
 
@@ -59,8 +73,11 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
             translates 0 → -50% (exactly one copy's width), giving a seamless
             infinite loop that shows the FULL text on any container width —
             a single-span pass clipped the second half on narrow phones. */}
-        <div className="relative flex-1 min-w-0 overflow-hidden h-8">
-          <div className="ig-marquee-track flex w-max whitespace-nowrap text-xl leading-8 font-bold will-change-transform">
+        <div className="relative flex-1 min-w-0 overflow-hidden">
+          <div
+            className="ig-marquee-track flex w-max whitespace-nowrap leading-normal font-bold will-change-transform"
+            style={{ fontSize: `${fontSize}px`, "--ig-marquee-duration": `${speed}s` } as React.CSSProperties}
+          >
             <span className="pr-16">🪁 {text}</span>
             <span className="pr-16" aria-hidden="true">🪁 {text}</span>
           </div>

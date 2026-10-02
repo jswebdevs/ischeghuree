@@ -5,6 +5,19 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import api from "@/lib/axios";
 
+export interface CategoryBarConfig {
+  bgColor?: string;
+  textColor?: string;
+}
+
+// Admin-editable via homepageConfig.categoryBar (Storefront → Homepage →
+// Category Bar). Defaults: brand kite-orange with white text.
+export const CATEGORY_BAR_DEFAULTS = { bgColor: "#f76707", textColor: "#ffffff" };
+
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+const safeColor = (v: string | undefined, fallback: string) =>
+  v && HEX_COLOR.test(v) ? v : fallback;
+
 interface MenuCategory {
   id: string;
   name: string;
@@ -18,7 +31,9 @@ interface MenuCategory {
 // Panels open on hover for mouse users and on click for keyboard/touch users;
 // Escape and an outside click both close, matching the search dropdown's
 // behaviour in Navbar.tsx.
-export default function MegaMenu() {
+export default function MegaMenu({ config }: { config?: CategoryBarConfig | null }) {
+  const bgColor = safeColor(config?.bgColor, CATEGORY_BAR_DEFAULTS.bgColor);
+  const textColor = safeColor(config?.textColor, CATEGORY_BAR_DEFAULTS.textColor);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,10 +79,14 @@ export default function MegaMenu() {
 
   if (!categories.length) return null;
 
+  const openCat = categories.find((c) => c.id === openId);
+  const openChildren = openCat?.children ?? [];
+
   return (
     <div
       ref={containerRef}
-      className="hidden md:block border-t border-border/60 bg-background/40"
+      className="hidden md:block relative border-t border-border/60"
+      style={{ backgroundColor: bgColor, color: textColor }}
       onMouseLeave={() => setOpenId(null)}
     >
       <nav
@@ -82,8 +101,8 @@ export default function MegaMenu() {
           return (
             <div
               key={cat.id}
-              className="relative shrink-0"
-              onMouseEnter={() => hasChildren && setOpenId(cat.id)}
+              className="shrink-0"
+              onMouseEnter={() => setOpenId(hasChildren ? cat.id : null)}
             >
               {hasChildren ? (
                 <button
@@ -92,7 +111,7 @@ export default function MegaMenu() {
                   aria-haspopup="true"
                   onClick={() => setOpenId(isOpen ? null : cat.id)}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                    isOpen ? "text-primary bg-primary/10" : "text-foreground hover:text-primary"
+                    isOpen ? "bg-black/15" : "hover:bg-black/10"
                   }`}
                 >
                   {cat.name}
@@ -103,35 +122,10 @@ export default function MegaMenu() {
               ) : (
                 <Link
                   href={`/categories/${cat.slug}`}
-                  className="flex items-center px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors"
+                  className="flex items-center px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-black/10 transition-colors"
                 >
                   {cat.name}
                 </Link>
-              )}
-
-              {hasChildren && isOpen && (
-                <div className="absolute top-full left-0 z-50 mt-1 min-w-56 bg-card border border-border rounded-xl shadow-theme-lg overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
-                  <Link
-                    href={`/categories/${cat.slug}`}
-                    onClick={() => setOpenId(null)}
-                    className="block px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
-                  >
-                    সব দেখুন — View all {cat.name}
-                  </Link>
-                  <ul className="py-1">
-                    {children.map((child) => (
-                      <li key={child.id}>
-                        <Link
-                          href={`/categories/${child.slug}`}
-                          onClick={() => setOpenId(null)}
-                          className="block px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted hover:text-primary transition-colors"
-                        >
-                          {child.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               )}
             </div>
           );
@@ -139,11 +133,42 @@ export default function MegaMenu() {
 
         <Link
           href="/shop"
-          className="shrink-0 ml-auto px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+          className="shrink-0 ml-auto px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider opacity-85 hover:opacity-100 hover:bg-black/10 transition-colors"
         >
           সব পণ্য — All products
         </Link>
       </nav>
+
+      {/* Sub-category strip. Rendered outside the nav because the nav scrolls
+          horizontally (overflow-x-auto), which would clip a dropdown hanging
+          below it. Items are a single row separated by "|" walls. */}
+      {openCat && openChildren.length > 0 && (
+        <div className="absolute top-full inset-x-0 z-50 bg-card text-foreground border-b border-border shadow-theme-lg animate-in fade-in slide-in-from-top-1 duration-150">
+          <ul className="container mx-auto px-4 flex flex-wrap items-center gap-y-1 py-2.5">
+            <li>
+              <Link
+                href={`/categories/${openCat.slug}`}
+                onClick={() => setOpenId(null)}
+                className="block px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity"
+              >
+                সব দেখুন — View all {openCat.name}
+              </Link>
+            </li>
+            {openChildren.map((child) => (
+              <li key={child.id} className="flex items-center">
+                <span aria-hidden="true" className="h-4 w-px bg-border" />
+                <Link
+                  href={`/categories/${child.slug}`}
+                  onClick={() => setOpenId(null)}
+                  className="block px-3 py-1.5 text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                >
+                  {child.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

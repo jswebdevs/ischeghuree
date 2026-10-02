@@ -198,15 +198,11 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
    Hover-pause is driven from the banner wrapper (.ig-banner) because a
    full-bleed overlay link sits above the text and eats its :hover. */
 .ig-marquee-track {
-  animation: ig-marquee-rtl 18s linear infinite;
+  /* Duration is admin-set (stickyBanner.speed) via an inline custom property. */
+  animation: ig-marquee-rtl var(--ig-marquee-duration, 18s) linear infinite;
 }
 .ig-banner:hover .ig-marquee-track {
   animation-play-state: paused;
-}
-@media (max-width: 640px) {
-  .ig-marquee-track {
-    animation-duration: 12s;
-  }
 }
 @keyframes ig-marquee-rtl {
   from { transform: translateX(0); }

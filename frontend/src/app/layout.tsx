@@ -149,10 +149,13 @@ export default async function RootLayout({
   // The announcement bar is sitewide, so its config is read here rather than on
   // the homepage. The WhatsApp link lives under the hero section in
   // homepageConfig, which is where the admin UI writes it.
-  const bannerData = (homepage as { stickyBanner?: { text?: string; btnText?: string } } | null)
+  const bannerData = (homepage as { stickyBanner?: { text?: string; btnText?: string; fontSize?: number; speed?: number } } | null)
     ?.stickyBanner;
   const bannerWhatsapp =
     (homepage as { kiteHero?: { whatsappLink?: string } } | null)?.kiteHero?.whatsappLink || "";
+
+  const categoryBar = (homepage as { categoryBar?: { bgColor?: string; textColor?: string } } | null)
+    ?.categoryBar;
 
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
   const maintenanceMessage = settings?.maintenanceMessage || "সাইটটি এখন রক্ষণাবেক্ষণে আছে — we are briefly down for maintenance. We'll be back shortly!";
@@ -224,7 +227,7 @@ export default async function RootLayout({
                 message={maintenanceMessage}
               >
                 <StickyBanner data={bannerData} whatsappLink={bannerWhatsapp} />
-                <Navbar initialSettings={settings} />
+                <Navbar initialSettings={settings} categoryBar={categoryBar} />
                 <main id="main-content" className="flex-1">
                   {children}
                 </main>

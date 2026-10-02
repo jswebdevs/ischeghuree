@@ -5,17 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Save, Loader2, Home, Heart, Workflow, HelpCircle, MessageSquare,
   Plus, Trash2, GripVertical, Image as ImageIcon, Type,
-  ChevronDown, ChevronUp, ExternalLink, Link as LinkIcon,
+  ChevronDown, ChevronUp, ExternalLink, Link as LinkIcon, PanelTop,
 } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import IconRenderer from "@/components/shared/IconRenderer";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 import PageMediaAddin from "@/app/dashboard/super-admin/storefront/pages/_components/PageMediaAddin";
+import { BANNER_FONT_SIZE, BANNER_SPEED } from "@/components/home/sections/StickyBanner";
+import { CATEGORY_BAR_DEFAULTS } from "@/components/shared/navbar/MegaMenu";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TabId = "hero" | "story" | "howItWorks" | "faq" | "banner";
+type TabId = "hero" | "story" | "howItWorks" | "faq" | "banner" | "categoryBar";
 type IconComp = React.FC<{ className?: string }>;
 
 const TABS: { id: TabId; label: string; icon: IconComp }[] = [
@@ -24,6 +26,7 @@ const TABS: { id: TabId; label: string; icon: IconComp }[] = [
   { id: "howItWorks",  label: "How It Works",   icon: Workflow    as IconComp },
   { id: "faq",         label: "FAQ",            icon: HelpCircle  as IconComp },
   { id: "banner",      label: "Sticky Banner",  icon: MessageSquare as IconComp },
+  { id: "categoryBar", label: "Category Bar",   icon: PanelTop    as IconComp },
 ];
 
 // ─── Section config shapes ────────────────────────────────────────────────────
@@ -33,7 +36,10 @@ interface HeroConfig {
   headline: string;
   subheadline: string;
   tagline: string;
-  image: string;
+  /** Slider images, in display order. */
+  images: string[];
+  /** Legacy single image — kept in sync with images[0] on save. */
+  image?: string;
   contactPhone: string;
   contactEmail: string;
   whatsappLink: string;
@@ -55,7 +61,8 @@ interface HowItWorksConfig {
 }
 interface FaqItem { question: string; answer: string }
 interface FaqConfig { title: string; subtitle: string; faqs: FaqItem[] }
-interface BannerConfig { text: string; btnText: string }
+interface BannerConfig { text: string; btnText: string; fontSize: number; speed: number }
+interface CategoryBarConfig { bgColor: string; textColor: string }
 
 interface SectionConfigs {
   hero: HeroConfig;
@@ -63,6 +70,7 @@ interface SectionConfigs {
   howItWorks: HowItWorksConfig;
   faq: FaqConfig;
   banner: BannerConfig;
+  categoryBar: CategoryBarConfig;
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -74,7 +82,7 @@ const DEFAULTS: SectionConfigs = {
     subheadline: "A touch of elegance…",
     tagline:
       "পরিবেশবান্ধব পাটের ব্যাগ আর বিশ্বমানের হেয়ার অ্যাক্সেসরিজ — আবহমান বাংলার ঐতিহ্য, আপনার দরজায়। Eco-friendly jute bags & world-class hair accessories, delivered across Dhaka.",
-    image: "/ische-ghuree-logo.jpg",
+    images: ["/ische-ghuree-logo.jpg"],
     contactPhone: "01820-417426",
     contactEmail: "ischeghuree@gmail.com",
     whatsappLink: "",
@@ -119,8 +127,18 @@ const DEFAULTS: SectionConfigs = {
   banner: {
     text: "পরিবেশবান্ধব পাটের ব্যাগ ও হেয়ার অ্যাক্সেসরিজ — সারা ঢাকায় হোম ডেলিভারি · Eco-friendly jute bags & hair accessories, home delivery across Dhaka · কল করুন: 01820-417426",
     btnText: "অর্ডার করুন — Order Now",
+    fontSize: BANNER_FONT_SIZE.default,
+    speed: BANNER_SPEED.default,
   },
+  categoryBar: { ...CATEGORY_BAR_DEFAULTS },
 };
+
+// Configs saved before the slider only have the single `image` field.
+function normalizeHero(hero: Partial<HeroConfig> | undefined, fallback: HeroConfig): HeroConfig {
+  if (!hero) return fallback;
+  const images = (hero.images ?? []).filter(Boolean);
+  return { ...fallback, ...hero, images: images.length ? images : hero.image ? [hero.image] : [] };
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -134,11 +152,12 @@ export default function HomepageAdminPage() {
       const { data } = await api.get("/settings/homepage");
       if (data.success && data.data) {
         setConfigs(prev => ({
-          hero:       data.data.kiteHero     ?? prev.hero,
-          story:      data.data.story        ?? prev.story,
-          howItWorks: data.data.howItWorks   ?? prev.howItWorks,
-          faq:        data.data.faq          ?? prev.faq,
-          banner:     data.data.stickyBanner ?? prev.banner,
+          hero:        normalizeHero(data.data.kiteHero, prev.hero),
+          story:       data.data.story        ?? prev.story,
+          howItWorks:  data.data.howItWorks   ?? prev.howItWorks,
+          faq:         data.data.faq          ?? prev.faq,
+          banner:      { ...prev.banner, ...data.data.stickyBanner },
+          categoryBar: { ...prev.categoryBar, ...data.data.categoryBar },
         }));
       }
     } catch {
@@ -157,8 +176,11 @@ export default function HomepageAdminPage() {
   const save = async (tab: TabId) => {
     setSaving(tab);
     const sectionKey = tab === "hero" ? "kiteHero" : tab === "banner" ? "stickyBanner" : tab;
+    const payload = tab === "hero"
+      ? { ...configs.hero, image: configs.hero.images[0] || "" }
+      : configs[tab];
     try {
-      await api.patch(`/settings/homepage/${sectionKey}`, configs[tab]);
+      await api.patch(`/settings/homepage/${sectionKey}`, payload);
       toast.success("Section saved successfully");
     } catch {
       toast.error("Failed to save section");
@@ -260,10 +282,10 @@ export default function HomepageAdminPage() {
                 </FieldGroup>
 
                 {/* Right: image picker */}
-                <FieldGroup title="Hero Image" icon={<ImageIcon className="w-5 h-5 text-primary" />}>
-                  <HeroImagePicker
-                    imageUrl={configs.hero.image || ""}
-                    onChange={url => update("hero", "image", url)}
+                <FieldGroup title="Hero Images (slider)" icon={<ImageIcon className="w-5 h-5 text-primary" />}>
+                  <HeroImagesPicker
+                    images={configs.hero.images || []}
+                    onChange={images => update("hero", "images", images)}
                   />
                 </FieldGroup>
               </SectionGrid>
@@ -369,18 +391,88 @@ export default function HomepageAdminPage() {
                   <Field label="Button Text">
                     <Input value={configs.banner.btnText} onChange={v => update("banner", "btnText", v)} />
                   </Field>
+                  <Field label={`Text Size — ${configs.banner.fontSize}px`} hint={`Marquee font size, ${BANNER_FONT_SIZE.min}–${BANNER_FONT_SIZE.max}px. Default ${BANNER_FONT_SIZE.default}px.`}>
+                    <RangeInput
+                      value={configs.banner.fontSize}
+                      min={BANNER_FONT_SIZE.min}
+                      max={BANNER_FONT_SIZE.max}
+                      onChange={v => update("banner", "fontSize", v)}
+                    />
+                  </Field>
+                  <Field label={`Scroll Time — ${configs.banner.speed}s`} hint={`Seconds for one full pass of the text — lower is faster. ${BANNER_SPEED.min}–${BANNER_SPEED.max}s. Default ${BANNER_SPEED.default}s.`}>
+                    <RangeInput
+                      value={configs.banner.speed}
+                      min={BANNER_SPEED.min}
+                      max={BANNER_SPEED.max}
+                      onChange={v => update("banner", "speed", v)}
+                    />
+                  </Field>
                 </FieldGroup>
 
-                {/* Live preview */}
-                <div className="rounded-2xl overflow-hidden border border-border">
-                  <div className="bg-primary text-primary-foreground py-2.5 px-4 flex items-center justify-between gap-3">
-                    <p className="text-sm font-bold truncate">🪁 {configs.banner.text}</p>
+                {/* Live preview — same marquee track as the storefront banner */}
+                <div className="ig-banner rounded-2xl overflow-hidden border border-border">
+                  <div className="bg-primary text-primary-foreground py-2 px-4 flex items-center gap-3">
+                    <div className="relative flex-1 min-w-0 overflow-hidden">
+                      <div
+                        className="ig-marquee-track flex w-max whitespace-nowrap leading-normal font-bold"
+                        style={{ fontSize: `${configs.banner.fontSize}px`, "--ig-marquee-duration": `${configs.banner.speed}s` } as React.CSSProperties}
+                      >
+                        <span className="pr-16">🪁 {configs.banner.text}</span>
+                        <span className="pr-16" aria-hidden="true">🪁 {configs.banner.text}</span>
+                      </div>
+                    </div>
                     <span className="shrink-0 px-4 py-1.5 bg-primary-foreground text-primary rounded-full text-xs font-black uppercase">
                       {configs.banner.btnText}
                     </span>
                   </div>
                   <p className="text-[10px] text-muted-foreground text-center py-2 bg-muted/30">
-                    Live preview — clicking links to Hero Section WhatsApp Link
+                    Live preview — hover to pause. The button links to the order form.
+                  </p>
+                </div>
+              </div>
+            </SectionPanel>
+          )}
+
+          {/* ── CATEGORY BAR ── */}
+          {activeTab === "categoryBar" && (
+            <SectionPanel key="categoryBar">
+              <div className="max-w-2xl space-y-6">
+                <FieldGroup title="Category Bar Colors" icon={<PanelTop className="w-5 h-5 text-primary" />}>
+                  <Field label="Background Color" hint={`The category row under the header (desktop). Default ${CATEGORY_BAR_DEFAULTS.bgColor} (kite orange).`}>
+                    <ColorInput
+                      value={configs.categoryBar.bgColor}
+                      fallback={CATEGORY_BAR_DEFAULTS.bgColor}
+                      onChange={v => update("categoryBar", "bgColor", v)}
+                    />
+                  </Field>
+                  <Field label="Text Color" hint={`Category names on the bar. Default ${CATEGORY_BAR_DEFAULTS.textColor}.`}>
+                    <ColorInput
+                      value={configs.categoryBar.textColor}
+                      fallback={CATEGORY_BAR_DEFAULTS.textColor}
+                      onChange={v => update("categoryBar", "textColor", v)}
+                    />
+                  </Field>
+                  <button
+                    onClick={() => setConfigs(prev => ({ ...prev, categoryBar: { ...CATEGORY_BAR_DEFAULTS } }))}
+                    className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Reset to default
+                  </button>
+                </FieldGroup>
+
+                {/* Live preview */}
+                <div className="rounded-2xl overflow-hidden border border-border">
+                  <div
+                    className="flex items-center gap-1 h-11 px-4"
+                    style={{ backgroundColor: configs.categoryBar.bgColor, color: configs.categoryBar.textColor }}
+                  >
+                    {["পাটের ব্যাগ — Jute Bags", "হেয়ার অ্যাক্সেসরিজ — Hair Accessories"].map(name => (
+                      <span key={name} className="px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider">{name}</span>
+                    ))}
+                    <span className="ml-auto px-3 py-2 text-xs font-bold uppercase tracking-wider opacity-85">সব পণ্য — All products</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground text-center py-2 bg-muted/30">
+                    Live preview — remember to save
                   </p>
                 </div>
               </div>
@@ -393,64 +485,85 @@ export default function HomepageAdminPage() {
   );
 }
 
-// ─── Hero Image Picker ────────────────────────────────────────────────────────
+// ─── Hero Images Picker (slider) ─────────────────────────────────────────────
 
-function HeroImagePicker({ imageUrl, onChange }: { imageUrl: string; onChange: (url: string) => void }) {
-  const [mediaOpen, setMediaOpen] = useState(false);
+function HeroImagesPicker({ images, onChange }: { images: string[]; onChange: (images: string[]) => void }) {
+  // null = closed; -1 = add new; >= 0 = replace that slot
+  const [target, setTarget] = useState<number | null>(null);
+
+  const remove = (i: number) => onChange(images.filter((_, idx) => idx !== i));
+  const move = (i: number, step: number) => {
+    const j = i + step;
+    if (j < 0 || j >= images.length) return;
+    const n = [...images];
+    [n[i], n[j]] = [n[j], n[i]];
+    onChange(n);
+  };
 
   return (
     <div className="space-y-3">
-      {/* Preview */}
-      <div
-        onClick={() => setMediaOpen(true)}
-        className="relative w-full aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary cursor-pointer overflow-hidden group transition-all bg-muted/20"
-      >
-        {imageUrl ? (
-          <>
+      <p className="text-[10px] text-muted-foreground/70 ml-1">
+        Images cross-fade every 5 seconds in an infinite loop; visitors can also drag/swipe to change. The first image loads first.
+      </p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {images.map((url, i) => (
+          <div key={`${url}-${i}`} className="relative aspect-square rounded-2xl border border-border overflow-hidden group bg-muted/20">
             {/* eslint-disable-next-line @next/next/no-img-element -- dynamic media-library URL with unknown dimensions; simple cover preview */}
-            <img src={imageUrl} alt="Hero" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <div className="bg-background/90 rounded-xl px-4 py-2 text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-primary" />
-                Change Image
-              </div>
+            <img src={url} alt={`Hero slide ${i + 1}`} className="w-full h-full object-cover" />
+            <span className="absolute top-2 left-2 w-6 h-6 rounded-full bg-background/90 text-[10px] font-black flex items-center justify-center">{i + 1}</span>
+            <div className="absolute inset-x-0 bottom-0 p-1.5 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+              <IconBtn label="Move earlier" disabled={i === 0} onClick={() => move(i, -1)}><ChevronUp className="w-3.5 h-3.5 -rotate-90" /></IconBtn>
+              <IconBtn label="Replace" onClick={() => setTarget(i)}><ImageIcon className="w-3.5 h-3.5" /></IconBtn>
+              <IconBtn label="Remove" onClick={() => remove(i)}><Trash2 className="w-3.5 h-3.5" /></IconBtn>
+              <IconBtn label="Move later" disabled={i === images.length - 1} onClick={() => move(i, 1)}><ChevronDown className="w-3.5 h-3.5 -rotate-90" /></IconBtn>
             </div>
-          </>
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground group-hover:text-primary transition-colors">
-            <ImageIcon className="w-10 h-10" />
-            <span className="text-sm font-bold uppercase tracking-widest">Select from Media Library</span>
           </div>
-        )}
+        ))}
+
+        <button
+          onClick={() => setTarget(-1)}
+          className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-all bg-muted/20"
+        >
+          <Plus className="w-8 h-8" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Add Image</span>
+        </button>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={() => setMediaOpen(true)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/30 text-primary rounded-xl text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all"
-        >
-          <ImageIcon className="w-4 h-4" />
-          {imageUrl ? "Change Image" : "Select Image"}
-        </button>
-        {imageUrl && (
-          <button
-            onClick={() => onChange("")}
-            className="px-4 py-2.5 border border-border rounded-xl text-sm font-bold text-muted-foreground hover:text-destructive hover:border-destructive transition-all"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+      {images.length === 0 && (
+        <p className="text-sm text-muted-foreground italic">No images — the storefront falls back to the logo.</p>
+      )}
 
       <PageMediaAddin
-        isOpen={mediaOpen}
-        onClose={() => setMediaOpen(false)}
+        isOpen={target !== null}
+        onClose={() => setTarget(null)}
         onSelect={(medias) => {
-          if (medias[0]?.url) onChange(medias[0].url);
-          setMediaOpen(false);
+          const url = medias[0]?.url;
+          if (url && target !== null) {
+            if (target === -1) onChange([...images, url]);
+            else onChange(images.map((u, idx) => (idx === target ? url : u)));
+          }
+          setTarget(null);
         }}
       />
     </div>
+  );
+}
+
+function IconBtn({ label, onClick, disabled, children }: {
+  label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="p-1.5 rounded-lg bg-background/90 text-foreground hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-colors"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -513,6 +626,52 @@ function Textarea({ value, onChange, rows = 3 }: { value: string; onChange: (v: 
       rows={rows}
       className="w-full bg-muted/30 border border-border rounded-xl px-4 py-2.5 text-sm font-medium focus:border-primary outline-none transition-all resize-none"
     />
+  );
+}
+
+function RangeInput({ value, min, max, onChange }: { value: number; min: number; max: number; onChange: (v: number) => void }) {
+  const clamp = (n: number) => Math.min(max, Math.max(min, n));
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
+        className="flex-1 accent-primary"
+      />
+      <input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={e => { const n = Number(e.target.value); if (Number.isFinite(n)) onChange(n); }}
+        onBlur={() => onChange(clamp(value))}
+        className="w-20 bg-muted/30 border border-border rounded-xl px-3 py-2 text-sm font-bold text-center focus:border-primary outline-none transition-all"
+      />
+    </div>
+  );
+}
+
+function ColorInput({ value, fallback, onChange }: { value: string; fallback: string; onChange: (v: string) => void }) {
+  const valid = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        type="color"
+        value={valid && value.length === 7 ? value : fallback}
+        onChange={e => onChange(e.target.value)}
+        className="w-12 h-10 rounded-lg border border-border bg-transparent cursor-pointer"
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value.trim())}
+        placeholder={fallback}
+        className={`w-32 bg-muted/30 border rounded-xl px-3 py-2 text-sm font-mono focus:border-primary outline-none transition-all ${valid ? "border-border" : "border-destructive"}`}
+      />
+    </div>
   );
 }
 

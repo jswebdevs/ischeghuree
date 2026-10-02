@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useUserStore, type User } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
-import MegaMenu from "./MegaMenu";
+import MegaMenu, { type CategoryBarConfig } from "./MegaMenu";
 import api from "@/lib/axios";
 import { useCurrency } from "@/context/SettingsContext";
 
@@ -45,9 +45,10 @@ interface SearchResultItem {
 
 interface NavbarProps {
   initialSettings?: NavbarSettings | null;
+  categoryBar?: CategoryBarConfig | null;
 }
 
-export default function Navbar({ initialSettings }: NavbarProps) {
+export default function Navbar({ initialSettings, categoryBar }: NavbarProps) {
   const router = useRouter();
   const { symbol } = useCurrency();
 
@@ -391,7 +392,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
 
         {/* Desktop category row — the storefront's primary navigation. Hidden
             inside the dashboard, where the sidebars already own navigation. */}
-        {!isDashboard && <MegaMenu />}
+        {!isDashboard && <MegaMenu config={categoryBar} />}
       </nav>
 
       <MobileCategoryDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
