@@ -394,7 +394,7 @@ export default function Navbar({ initialSettings, categoryBar }: NavbarProps) {
           </div>
         )}
 
-        {/* Desktop category row — the storefront's primary navigation. Hidden
+        {/* Category row (all screen sizes) — the storefront's primary navigation. Hidden
             inside the dashboard, where the sidebars already own navigation. */}
         {!isDashboard && <MegaMenu config={categoryBar} />}
       </nav>
