@@ -4,6 +4,7 @@ import {
   createProduct,
   getProducts,
   getProductBySlug,
+  getProductById,
   updateProduct,
   deleteProduct,
   getProductFilters,
@@ -36,6 +37,7 @@ const upload360 = multer({
 // and customers only ever get published ones (filtered in the controller).
 router.get('/', optionalAuth, getProducts);
 router.get('/filters/options', getProductFilters);
+router.get('/id/:id', protect, authorize('SUPER_ADMIN', 'ADMIN'), getProductById);
 router.get('/:slug', optionalAuth, getProductBySlug);
 
 router.post(

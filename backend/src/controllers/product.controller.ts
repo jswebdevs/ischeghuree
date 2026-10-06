@@ -17,15 +17,46 @@ const isAdminReq = (req: Request): boolean => {
 
 const HIDDEN_STATUSES = ['DRAFT', 'ARCHIVED'] as const;
 
+// Variation swatches arrive as the full ordered list on every save; they are
+// stored replace-all (delete + recreate), which keeps the admin form simple.
+// Rows without a name are dropped; a malformed colour is ignored rather than
+// failing the whole save.
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+const parseVariants = (raw: unknown) => {
+  if (!Array.isArray(raw)) return null;
+  return raw
+    .filter((v: any) => v && typeof v.name === 'string' && v.name.trim() !== '')
+    .map((v: any, i: number) => ({
+      name: v.name.trim(),
+      colorHex: typeof v.colorHex === 'string' && HEX_COLOR.test(v.colorHex) ? v.colorHex : null,
+      imageId: typeof v.imageId === 'string' && v.imageId ? v.imageId : null,
+      priceMin: cleanPrice(v.priceMin),
+      priceMax: cleanPrice(v.priceMax),
+      isAvailable: v.isAvailable !== false,
+      sortOrder: i,
+    }));
+};
+
+const variantInclude = {
+  orderBy: { sortOrder: 'asc' as const },
+  include: { image: { select: { id: true, originalUrl: true, thumbUrl: true } } },
+};
+
 // Maps the Prisma errors an admin can actually cause from the product form to
 // a 4xx with a readable message (shown in the dashboard's error popup),
 // instead of a bare 500. Returns false for anything else.
 const sendPrismaError = (error: any, res: Response): boolean => {
   if (error?.code === 'P2002') {
-    const target = ([] as string[]).concat(error.meta?.target ?? []).join(', ');
+    // meta.target is empty under the Prisma 7 pg driver adapter; the column
+    // then only appears in the adapter cause or the message text.
+    const target = [
+      ...([] as string[]).concat(error.meta?.target ?? []),
+      ...([] as string[]).concat(error.meta?.driverAdapterError?.cause?.constraint?.fields ?? []),
+      String(error.message ?? ''),
+    ].join(' ');
     const field = target.includes('productCode') ? 'Product code'
       : target.includes('slug') ? 'Slug'
-      : target || 'A unique field';
+      : 'A unique field';
     res.status(409).json({ success: false, message: `${field} already exists — use a different one.` });
     return true;
   }
@@ -53,6 +84,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       material, usage, usefulness, awareness, specifications,
       productStatus, blogUrl,
       suggestedProducts,
+      variantLabel, variants,
     } = req.body;
 
     if (!name || !productCode) {
@@ -79,6 +111,11 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         specifications,
         productStatus: productStatus || 'DRAFT',
         blogUrl: blogUrl || null,
+        variantLabel: variantLabel || null,
+        variants: (() => {
+          const rows = parseVariants(variants);
+          return rows && rows.length > 0 ? { create: rows } : undefined;
+        })(),
         categories: categoryIds && categoryIds.length > 0
           ? { connect: categoryIds.map((id: string) => ({ id })) }
           : undefined,
@@ -94,6 +131,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         categories: { select: { id: true, name: true, slug: true } },
         featuredImage: { select: { id: true, originalUrl: true, thumbUrl: true } },
         images: { select: { id: true, originalUrl: true, thumbUrl: true } },
+        variants: variantInclude,
       },
     });
 
@@ -204,6 +242,7 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
           orderBy: { sequence: 'asc' },
           select: { id: true, originalUrl: true, sequence: true },
         },
+        variants: variantInclude,
         suggestedProducts: {
           take: 4,
           select: {
@@ -237,6 +276,38 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
   }
 };
 
+// Admin edit form: the full record by id, with every relation the form saves
+// back (the public by-slug view caps suggestions at 4, and the list endpoint
+// omits gallery/3D/variants — loading either into the form would drop data
+// on the next save).
+export const getProductById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: req.params.id as string },
+      include: {
+        categories: { select: { id: true, name: true, slug: true } },
+        featuredImage: { select: { id: true, originalUrl: true, thumbUrl: true } },
+        images: { select: { id: true, originalUrl: true, thumbUrl: true } },
+        model3d: { select: { id: true, originalUrl: true } },
+        turntableFrames: {
+          orderBy: { sequence: 'asc' },
+          select: { id: true, originalUrl: true, sequence: true },
+        },
+        suggestedProducts: { select: { id: true, name: true } },
+        variants: variantInclude,
+      },
+    });
+    if (!product) {
+      res.status(404).json({ success: false, message: 'Product not found' });
+      return;
+    }
+    res.json({ success: true, product });
+  } catch (error) {
+    console.error('Get Product By Id Error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching product' });
+  }
+};
+
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
@@ -247,6 +318,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       usefulness, awareness, specifications,
       priceMin, priceMax, priceNote,
       featuredImageId, galleryImageIds, categoryIds, suggestedProducts,
+      variantLabel, variants,
     } = req.body;
 
     const dataToUpdate: any = {};
@@ -267,6 +339,9 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     if (priceMin !== undefined) dataToUpdate.priceMin = cleanPrice(priceMin);
     if (priceMax !== undefined) dataToUpdate.priceMax = cleanPrice(priceMax);
     if (priceNote !== undefined) dataToUpdate.priceNote = priceNote || null;
+    if (variantLabel !== undefined) dataToUpdate.variantLabel = variantLabel || null;
+    const variantRows = parseVariants(variants);
+    if (variantRows) dataToUpdate.variants = { deleteMany: {}, create: variantRows };
 
     if (featuredImageId !== undefined) {
       dataToUpdate.featuredImage = featuredImageId
@@ -294,6 +369,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
         images: { select: { id: true, originalUrl: true, thumbUrl: true } },
         categories: true,
         suggestedProducts: { select: { id: true, name: true } },
+        variants: variantInclude,
       },
     });
 

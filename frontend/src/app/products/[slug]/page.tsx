@@ -3,8 +3,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
-import ProductMediaViewer from "@/components/shop/ProductMediaViewer";
-import ProductInfo from "@/components/shop/ProductInfo";
+import ProductDetailHero from "@/components/shop/ProductDetailHero";
 import ProductTabs from "@/components/shop/ProductTabs";
 import CollectionRail from "@/components/shared/CollectionRail";
 import { getProductsByCategory } from "@/lib/getSettings";
@@ -112,20 +111,7 @@ export default async function ProductDetailsPage({
           <span className="text-primary truncate max-w-75">{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 lg:items-start">
-          {/* Media sticks while the longer info column scrolls past it. */}
-          <div className="lg:sticky lg:top-24">
-            <ProductMediaViewer
-              featuredImage={product.featuredImage}
-              images={product.images || []}
-              productName={product.name}
-              model3d={product.model3d}
-              turntableFrames={product.turntableFrames}
-              currentVariation={null}
-            />
-          </div>
-          <ProductInfo product={product} />
-        </div>
+        <ProductDetailHero product={product} />
 
         <ProductTabs product={product} />
 

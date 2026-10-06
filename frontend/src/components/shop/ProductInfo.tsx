@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ClipboardList, Check, Share2 } from "lucide-react";
 import ProductPrice from "@/components/shop/ProductPrice";
+import VariantSwatches, { type StoreVariant } from "@/components/shop/VariantSwatches";
 
 interface ProductInfoData {
   name: string;
@@ -16,8 +17,36 @@ interface ProductInfoData {
   priceNote?: string | null;
 }
 
-export default function ProductInfo({ product }: { product: ProductInfoData }) {
+interface ProductInfoProps {
+  product: ProductInfoData;
+  variantLabel?: string | null;
+  variants?: StoreVariant[];
+  selectedVariant?: StoreVariant | null;
+  onSelectVariant?: (id: string | null) => void;
+}
+
+const hasPrice = (v: number | string | null | undefined) => v !== null && v !== undefined && v !== "";
+
+export default function ProductInfo({
+  product,
+  variantLabel,
+  variants = [],
+  selectedVariant = null,
+  onSelectVariant,
+}: ProductInfoProps) {
   const [shared, setShared] = useState(false);
+
+  // A selected variation with its own price overrides the product's range;
+  // otherwise the product price stands.
+  const variantPriced =
+    !!selectedVariant && (hasPrice(selectedVariant.priceMin) || hasPrice(selectedVariant.priceMax));
+  const priceMin = variantPriced ? selectedVariant?.priceMin : product.priceMin;
+  const priceMax = variantPriced ? selectedVariant?.priceMax : product.priceMax;
+  const available = selectedVariant ? selectedVariant.isAvailable !== false : true;
+
+  const orderHref =
+    `/order-now?product=${encodeURIComponent(product.slug ?? "")}` +
+    (selectedVariant ? `&variant=${encodeURIComponent(selectedVariant.id)}` : "");
 
   // Web Share where supported (mobile), clipboard everywhere else. Both paths
   // can reject — a blocked clipboard or a dismissed share sheet — so failure
@@ -75,8 +104,8 @@ export default function ProductInfo({ product }: { product: ProductInfoData }) {
       </div>
 
       <ProductPrice
-        priceMin={product.priceMin}
-        priceMax={product.priceMax}
+        priceMin={priceMin}
+        priceMax={priceMax}
         priceNote={product.priceNote}
         className="mb-6"
       />
@@ -85,19 +114,34 @@ export default function ProductInfo({ product }: { product: ProductInfoData }) {
 
       {renderShortDesc()}
 
+      {variants.length > 0 && onSelectVariant && (
+        <VariantSwatches
+          label={variantLabel}
+          variants={variants}
+          selectedId={selectedVariant?.id ?? null}
+          onSelect={onSelectVariant}
+        />
+      )}
+
       {/* Availability pill — the catalog does no stock counting, so every
           published product reads as available and the quote confirms it. */}
       <div className="mb-6">
-        <span className="inline-flex items-center gap-2 text-green-700 dark:text-green-400 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> স্টকে আছে — In Stock
-        </span>
+        {available ? (
+          <span className="inline-flex items-center gap-2 text-green-700 dark:text-green-400 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> স্টকে আছে — In Stock
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2 text-destructive bg-destructive/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
+            <span className="w-2 h-2 rounded-full bg-destructive" /> স্টকে নেই — Out of Stock
+          </span>
+        )}
       </div>
 
       <div className="flex items-center gap-3 mb-10">
         {/* Carries the slug so the order form opens with this product already
             filled into "কী বানাতে/নিতে চান — Product details". */}
         <Link
-          href={`/order-now?product=${product.slug ?? ""}`}
+          href={orderHref}
           className="flex-grow h-14 flex items-center justify-center gap-3 bg-primary text-primary-foreground font-black uppercase tracking-widest text-sm rounded-2xl hover:shadow-theme-lg hover:-translate-y-1 transition-all"
         >
           <ClipboardList className="w-5 h-5" /> অর্ডার করুন — Order This

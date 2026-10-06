@@ -23,9 +23,10 @@ export default function EditProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // Fetching from the list and finding by ID
-        const res = await api.get(`/products?limit=100`); 
-        const found = res.data.data?.find((p: ProductRow) => p.id === id);
+        // Full record by id: the list endpoint omits gallery, 3D/360 media
+        // and variations, so editing from it would wipe them on save.
+        const res = await api.get(`/products/id/${id}`);
+        const found: ProductRow | undefined = res.data.product;
         if (found) setProduct(found);
       } catch (err) {
         console.error("Failed to load product", err);

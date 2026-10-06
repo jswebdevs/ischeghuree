@@ -111,6 +111,7 @@ model Media {
   linkedCategoryFeatured Category[]    @relation("CategoryFeatured")
   linkedProductFeatured Product[]      @relation("ProductFeatured")
   linkedProductGallery  Product[]      @relation("ProductGallery")
+  linkedProductVariants ProductVariant[] @relation("ProductVariantImage")
 
   linkedStoreLogos      SiteSettings[] @relation("StoreLogo")
   linkedStoreFavicons   SiteSettings[] @relation("StoreFavicon")
@@ -212,6 +213,10 @@ model Product {
   priceMin          Decimal?       @db.Decimal(10, 2)
   priceMax          Decimal?       @db.Decimal(10, 2)
   priceNote         String?
+  // Variation swatches (colour / pattern options). variantLabel names the
+  // option group on the product page, e.g. "রং — Color".
+  variantLabel      String?
+  variants          ProductVariant[]
   categories        Category[]
   createdAt         DateTime       @default(now())
   createdBy         String?
@@ -219,6 +224,27 @@ model Product {
 
   @@index([productStatus])
   @@index([productStatus, createdAt])
+}
+
+// One selectable option of a product, shown as a swatch. The swatch is the
+// colour when colorHex is set, otherwise the image thumbnail; selecting it
+// swaps the product photo to the image and the price to its own range.
+model ProductVariant {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name        String
+  colorHex    String?
+  imageId     String?
+  image       Media?   @relation("ProductVariantImage", fields: [imageId], references: [id], onDelete: SetNull)
+  priceMin    Decimal? @db.Decimal(10, 2)
+  priceMax    Decimal? @db.Decimal(10, 2)
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId, sortOrder])
 }
 
 enum ProductStatus {

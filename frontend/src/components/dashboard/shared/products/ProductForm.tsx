@@ -13,6 +13,7 @@ import AdditionalInfoPart from "./form-parts/AdditionalInfoPart";
 import MediaPart from "./form-parts/MediaPart";
 import ImmersiveMediaPart from "./form-parts/ImmersiveMediaPart";
 import CategorySidebar from "./form-parts/CategorySidebar";
+import VariantsPart, { type VariantFormRow, newVariantRow } from "./form-parts/VariantsPart";
 
 export interface ProductFormState {
   name: string;
@@ -36,14 +37,28 @@ export interface ProductFormState {
   awareness: string;
   specifications: string;
   suggestedProducts: string[];
+  variantLabel: string;
+  variants: VariantFormRow[];
+}
+
+/** A variant as returned by the API. */
+interface ApiVariant {
+  name: string;
+  colorHex?: string | null;
+  image?: { id: string; thumbUrl?: string; originalUrl: string } | null;
+  priceMin?: number | string | null;
+  priceMax?: number | string | null;
+  isAvailable?: boolean;
 }
 
 // The product record as fetched from the API for edit mode — a superset of
 // the form state with relational fields.
 export type ProductFormInitialData = Omit<
   Partial<ProductFormState>,
-  "specifications" | "suggestedProducts"
+  "specifications" | "suggestedProducts" | "variants" | "variantLabel"
 > & {
+  variantLabel?: string | null;
+  variants?: ApiVariant[] | null;
   id: string;
   specifications?: string | { key: string; value: string }[] | null;
   suggestedProducts?: { id: string }[] | string[];
@@ -85,6 +100,8 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
     awareness: "",
     specifications: "",
     suggestedProducts: [] as string[],
+    variantLabel: "",
+    variants: [] as VariantFormRow[],
   });
 
   useEffect(() => {
@@ -138,6 +155,16 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
         usefulness: initialData.usefulness || "",
         awareness: initialData.awareness || "",
         specifications: parsedSpecs,
+        variantLabel: initialData.variantLabel || "",
+        variants: (initialData.variants || []).map((v) => ({
+          ...newVariantRow(),
+          name: v.name,
+          colorHex: v.colorHex || "",
+          image: v.image || undefined,
+          priceMin: v.priceMin === null || v.priceMin === undefined ? "" : Number(v.priceMin),
+          priceMax: v.priceMax === null || v.priceMax === undefined ? "" : Number(v.priceMax),
+          isAvailable: v.isAvailable !== false,
+        })),
       }));
 
       setIsInitialized(true);
@@ -162,6 +189,16 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
     const maxN = cleanPrice(product.priceMax);
     if (minN != null && maxN != null && minN > maxN) {
       return Swal.fire("Error", "Min price cannot be greater than max price.", "error");
+    }
+    // Rows the admin added but left unnamed are dropped rather than blocking
+    // the save; a named row with a bad price range does block it.
+    const namedVariants = product.variants.filter((v) => v.name.trim() !== "");
+    for (const v of namedVariants) {
+      const vMin = cleanPrice(v.priceMin);
+      const vMax = cleanPrice(v.priceMax);
+      if (vMin != null && vMax != null && vMin > vMax) {
+        return Swal.fire("Error", `"${v.name}": min price cannot be greater than max price.`, "error");
+      }
     }
 
     setLoading(true);
@@ -188,6 +225,15 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
         suggestedProducts: product.suggestedProducts,
         featuredImageId: product.featuredImage ? product.featuredImage.id : null,
         galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
+        variantLabel: product.variantLabel.trim() || null,
+        variants: namedVariants.map((v) => ({
+          name: v.name.trim(),
+          colorHex: v.colorHex || null,
+          imageId: v.image?.id || null,
+          priceMin: cleanPrice(v.priceMin),
+          priceMax: cleanPrice(v.priceMax),
+          isAvailable: v.isAvailable,
+        })),
       };
 
       if (isEdit && initialData) {
@@ -215,6 +261,7 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
           <BasicInfoPart product={product} update={updateProduct} />
           <DescriptionPart product={product} update={updateProduct} />
           <MediaPart product={product} update={updateProduct} />
+          <VariantsPart product={product} update={updateProduct} />
           {isEdit && initialData?.id && (
             <ImmersiveMediaPart
               productId={initialData.id}

@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/order-now" },
 };
 
-/** Resolves ?product=<slug> into a human-readable line for the product-details
- *  field. Falls back to the raw slug if the lookup fails, and to nothing at all
- *  if no product was requested — a direct visit still gets an empty form. */
-async function buildProductPrefill(slug?: string): Promise<string> {
+/** Resolves ?product=<slug>[&variant=<id>] into a human-readable line for the
+ *  product-details field. Falls back to the raw slug if the lookup fails, and
+ *  to nothing at all if no product was requested — a direct visit still gets
+ *  an empty form. An unknown variant id is simply left out. */
+async function buildProductPrefill(slug?: string, variantId?: string): Promise<string> {
   if (!slug) return "";
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
@@ -25,7 +26,12 @@ async function buildProductPrefill(slug?: string): Promise<string> {
     const json = await res.json();
     const product = json.product || json.data;
     if (!product?.name) return slug;
-    return product.productCode ? `${product.name} (${product.productCode})` : product.name;
+    const base = product.productCode ? `${product.name} (${product.productCode})` : product.name;
+    const variant = variantId
+      ? (product.variants as { id: string; name: string }[] | undefined)?.find((v) => v.id === variantId)
+      : undefined;
+    if (!variant) return base;
+    return `${base} — ${product.variantLabel || "অপশন — Option"}: ${variant.name}`;
   } catch {
     return slug;
   }
@@ -34,14 +40,14 @@ async function buildProductPrefill(slug?: string): Promise<string> {
 export default async function OrderNowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ product?: string }>;
+  searchParams: Promise<{ product?: string; variant?: string }>;
 }) {
-  const [hp, settings, { product: productSlug }] = await Promise.all([
+  const [hp, settings, { product: productSlug, variant: variantId }] = await Promise.all([
     getHomepageConfig(),
     getGlobalSettings(),
     searchParams,
   ]);
-  const productPrefill = await buildProductPrefill(productSlug);
+  const productPrefill = await buildProductPrefill(productSlug, variantId);
   const heroConfig = ((hp as { orderHero?: Partial<OrderHeroData> } | null)?.orderHero || {}) as Partial<OrderHeroData>;
 
   const hero: OrderHeroData = {

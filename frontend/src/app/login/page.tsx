@@ -146,7 +146,7 @@ function LoginForm() {
 
   // --- STANDARD LOGIN FORM ---
   return (
-    <div className="max-w-md w-full bg-card border border-border p-8 rounded-2xl shadow-theme-lg transition-colors">
+    <div className="max-w-md w-full bg-card border border-border p-6 sm:p-8 rounded-2xl shadow-theme-lg transition-colors">
       <div className="text-center mb-8">
         <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
           <LogIn className="w-6 h-6" />
@@ -169,12 +169,7 @@ function LoginForm() {
         </div>
 
         <div className="space-y-1">
-          <div className="flex justify-between items-center">
-            <label className="text-sm font-medium text-foreground">Password</label>
-            <Link href="/contact-us" className="text-xs text-primary hover:underline font-medium">
-              পাসওয়ার্ড ভুলে গেলে যোগাযোগ করুন — Contact us to reset
-            </Link>
-          </div>
+          <label className="text-sm font-medium text-foreground">Password</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange}
@@ -188,6 +183,13 @@ function LoginForm() {
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
+          </div>
+          {/* Own line under the field: beside the label, the long bilingual
+              text squeezed against "Password" and wrapped badly on phones. */}
+          <div className="pt-1 text-right">
+            <Link href="/contact-us" className="inline-block text-xs text-primary hover:underline font-medium leading-relaxed">
+              পাসওয়ার্ড ভুলে গেছেন? যোগাযোগ করুন — Forgot password? Contact us
+            </Link>
           </div>
         </div>
 
