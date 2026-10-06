@@ -1,6 +1,7 @@
 // src/controllers/search.controller.ts
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
+import { variantCardSelect } from '../utils/productCard';
 
 // Only admins (attached via optionalAuth) may see DRAFT/ARCHIVED products
 // in search results.
@@ -41,7 +42,8 @@ export const globalSearch = async (req: Request, res: Response): Promise<void> =
         take: limit,
         // Include the image so the frontend can display it in the dropdown
         include: { 
-          featuredImage: { select: { thumbUrl: true, originalUrl: true } } 
+          featuredImage: { select: { thumbUrl: true, originalUrl: true } },
+          variants: variantCardSelect,
         }
       }),
 

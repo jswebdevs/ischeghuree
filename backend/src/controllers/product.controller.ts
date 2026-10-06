@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
+import { variantCardSelect } from '../utils/productCard';
 import { logAction } from './audit.controller';
 
 const cleanPrice = (v: any): number | null => {
@@ -280,6 +281,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
         include: {
           categories: { select: { id: true, name: true, slug: true } },
           featuredImage: { select: { id: true, originalUrl: true, thumbUrl: true } },
+          variants: variantCardSelect,
         },
       }),
       prisma.product.count({ where }),
@@ -326,6 +328,7 @@ export const getProductBySlug = async (req: Request, res: Response): Promise<voi
             priceMax: true,
             priceNote: true,
             featuredImage: { select: { originalUrl: true, thumbUrl: true } },
+            variants: variantCardSelect,
           },
         },
       },

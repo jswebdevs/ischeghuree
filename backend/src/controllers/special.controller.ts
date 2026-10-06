@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
+import { variantCardSelect } from '../utils/productCard';
 
 const productCardIncludes = {
   featuredImage: { select: { originalUrl: true, thumbUrl: true } },
   categories: { select: { name: true } },
+  variants: variantCardSelect,
 };
 
 export const getSpecialCollection = async (req: Request, res: Response): Promise<void> => {

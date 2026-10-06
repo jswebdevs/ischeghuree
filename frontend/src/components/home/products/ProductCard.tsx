@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Layers, ClipboardList } from "lucide-react";
@@ -16,7 +17,20 @@ export interface CardProduct {
   priceNote?: string | null;
   productStatus?: string | null;
   tags?: string[] | null;
+  variants?: CardVariant[] | null;
 }
+
+export interface CardVariant {
+  id: string;
+  name: string;
+  colorHex?: string | null;
+  isAvailable?: boolean;
+  image?: { originalUrl: string; thumbUrl?: string | null } | null;
+}
+
+// How many swatches fit on one line of the narrowest card (two-column grid on
+// a 375px phone) before the rest collapse into "+N".
+const MAX_CARD_SWATCHES = 4;
 
 interface ProductCardProps {
   product: CardProduct;
@@ -34,7 +48,22 @@ const STATUS_BADGE: Record<string, { label: string; className: string }> = {
 };
 
 export default function ProductCard({ product, compact = false }: ProductCardProps) {
-  const imageUrl = product.featuredImage?.originalUrl;
+  const variants = product.variants ?? [];
+  // selectedId sticks (click/tap); previewId follows the mouse. The photo
+  // shows the previewed variation first, then the selected one, then the
+  // product's own — a variation without a photo leaves the photo unchanged.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const selected = variants.find((v) => v.id === selectedId) ?? null;
+  const shown = variants.find((v) => v.id === previewId) ?? selected;
+  const imageUrl = shown?.image?.originalUrl || product.featuredImage?.originalUrl;
+
+  // A chosen variation travels with both links, so the product page opens on
+  // it and the order form names it.
+  const variantQuery = selected ? `variant=${encodeURIComponent(selected.id)}` : "";
+  const productHref = `/products/${product.slug}${variantQuery ? `?${variantQuery}` : ""}`;
+  const orderHref = `/order-now?product=${encodeURIComponent(product.slug ?? "")}${variantQuery ? `&${variantQuery}` : ""}`;
+  const extraSwatches = Math.max(variants.length - MAX_CARD_SWATCHES, 0);
   const material = product.material;
   const badge = product.productStatus ? STATUS_BADGE[product.productStatus] : undefined;
 
@@ -44,7 +73,7 @@ export default function ProductCard({ product, compact = false }: ProductCardPro
           below is plain markup and the Order button can stay a real anchor
           without nesting one inside another. */}
       <Link
-        href={`/products/${product.slug}`}
+        href={productHref}
         className="relative block aspect-square overflow-hidden bg-muted/20"
         aria-label={product.name}
       >
@@ -80,7 +109,7 @@ export default function ProductCard({ product, compact = false }: ProductCardPro
 
       <div className={`flex-1 flex flex-col ${compact ? "p-3" : "p-4"}`}>
         <h3 className="font-heading text-sm md:text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-          <Link href={`/products/${product.slug}`}>{product.name}</Link>
+          <Link href={productHref}>{product.name}</Link>
         </h3>
 
         {/* Price sits directly under the name in a single column — storefront
@@ -90,11 +119,67 @@ export default function ProductCard({ product, compact = false }: ProductCardPro
           priceMax={product.priceMax}
           priceNote={product.priceNote}
           size="card"
-          className="mt-2 mb-3"
+          className={variants.length > 0 ? "mt-2 mb-2" : "mt-2 mb-3"}
         />
 
+        {variants.length > 0 && (
+          <div
+            role="radiogroup"
+            aria-label={`${product.name ?? ""} — অপশন / options`}
+            className="flex items-center gap-1 mb-3"
+            onMouseLeave={() => setPreviewId(null)}
+          >
+            {variants.slice(0, MAX_CARD_SWATCHES).map((v) => {
+              const isSelected = v.id === selectedId;
+              const available = v.isAvailable !== false;
+              const thumb = v.image?.thumbUrl || v.image?.originalUrl;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={available ? v.name : `${v.name} — unavailable`}
+                  title={available ? v.name : `${v.name} — unavailable`}
+                  disabled={!available}
+                  onMouseEnter={() => setPreviewId(v.id)}
+                  onClick={() => setSelectedId(isSelected ? null : v.id)}
+                  className={`relative w-5 h-5 sm:w-6 sm:h-6 rounded-full p-0.5 border transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+                    isSelected ? "border-primary border-2" : "border-border hover:border-primary/60"
+                  }`}
+                >
+                  <span
+                    className="block w-full h-full rounded-full bg-muted bg-cover bg-center"
+                    style={
+                      v.colorHex
+                        ? { backgroundColor: v.colorHex }
+                        : thumb
+                          ? { backgroundImage: `url("${thumb}")` }
+                          : undefined
+                    }
+                  />
+                  {!available && (
+                    <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+                      <span className="block w-full h-px bg-foreground/70 rotate-45" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+            {extraSwatches > 0 && (
+              <Link
+                href={productHref}
+                className="text-[10px] font-bold text-muted-foreground hover:text-primary px-1"
+                aria-label={`আরও ${extraSwatches}টি অপশন — ${extraSwatches} more options`}
+              >
+                +{extraSwatches}
+              </Link>
+            )}
+          </div>
+        )}
+
         <Link
-          href={`/order-now?product=${product.slug ?? ""}`}
+          href={orderHref}
           className="mt-auto inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-primary/10 text-primary text-[10px] md:text-[11px] font-black uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-colors"
         >
           <ClipboardList className="w-3.5 h-3.5" />

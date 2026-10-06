@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductMediaViewer from "@/components/shop/ProductMediaViewer";
 import ProductInfo from "@/components/shop/ProductInfo";
 import type { StoreVariant } from "@/components/shop/VariantSwatches";
@@ -26,6 +26,17 @@ interface ProductDetailHeroProps {
 export default function ProductDetailHero({ product }: ProductDetailHeroProps) {
   const variants = product.variants ?? [];
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Arriving from a product card with a swatch picked (?variant=<id>) opens
+  // on that variation. Read after mount so the page can stay statically
+  // cached; an unknown or unavailable id is ignored.
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("variant");
+    const match = wanted ? variants.find((v) => v.id === wanted && v.isAvailable !== false) : undefined;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of the URL after hydration
+    if (match) setSelectedId(match.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on first mount
+  }, []);
   const selected = variants.find((v) => v.id === selectedId) ?? null;
 
   // A variation with its own gallery shows only its own photos (main photo
