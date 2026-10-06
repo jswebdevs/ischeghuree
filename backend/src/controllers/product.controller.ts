@@ -17,6 +17,32 @@ const isAdminReq = (req: Request): boolean => {
 
 const HIDDEN_STATUSES = ['DRAFT', 'ARCHIVED'] as const;
 
+// Maps the Prisma errors an admin can actually cause from the product form to
+// a 4xx with a readable message (shown in the dashboard's error popup),
+// instead of a bare 500. Returns false for anything else.
+const sendPrismaError = (error: any, res: Response): boolean => {
+  if (error?.code === 'P2002') {
+    const target = ([] as string[]).concat(error.meta?.target ?? []).join(', ');
+    const field = target.includes('productCode') ? 'Product code'
+      : target.includes('slug') ? 'Slug'
+      : target || 'A unique field';
+    res.status(409).json({ success: false, message: `${field} already exists — use a different one.` });
+    return true;
+  }
+  if (error?.code === 'P2025' || error?.code === 'P2018') {
+    res.status(400).json({
+      success: false,
+      message: 'A linked category, image or suggested product no longer exists — reselect it and save again.',
+    });
+    return true;
+  }
+  if (error?.name === 'PrismaClientValidationError') {
+    res.status(400).json({ success: false, message: 'Some product fields have an invalid value.' });
+    return true;
+  }
+  return false;
+};
+
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -85,6 +111,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
     res.status(201).json({ success: true, message: 'Product created', product });
   } catch (error) {
     console.error('Create Product Error:', error);
+    if (sendPrismaError(error, res)) return;
     res.status(500).json({ success: false, message: 'Failed to create product', error });
   }
 };
@@ -284,6 +311,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     res.json({ success: true, message: 'Product updated successfully', data: product });
   } catch (error) {
     console.error('Update Product Error:', error);
+    if (sendPrismaError(error, res)) return;
     res.status(500).json({ success: false, message: 'Update failed', error });
   }
 };
