@@ -28,15 +28,25 @@ export default function ProductDetailHero({ product }: ProductDetailHeroProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = variants.find((v) => v.id === selectedId) ?? null;
 
-  // The variant's photo leads, with the product's own photos still browsable
-  // after it. Memoised: the gallery resets its active image whenever this
-  // object's identity changes, so it must only change with the selection.
+  // A variation with its own gallery shows only its own photos (main photo
+  // first). One with just a main photo leads with it and keeps the product's
+  // photos browsable after it. Memoised: the gallery resets its active image
+  // whenever this object's identity changes, so it must only change with the
+  // selection.
   const currentVariation = useMemo(() => {
-    if (!selected?.image) return null;
-    const rest = [product.featuredImage, ...(product.images || [])]
+    if (!selected) return null;
+    const own = [selected.image, ...(selected.images || [])]
       .map((img) => img?.originalUrl)
-      .filter((url): url is string => !!url && url !== selected.image?.originalUrl);
-    return { featuredImage: selected.image.originalUrl, gallery: rest };
+      .filter((url): url is string => !!url);
+    if (own.length === 0) return null;
+    const [lead, ...ownRest] = Array.from(new Set(own));
+    const rest =
+      ownRest.length > 0
+        ? ownRest
+        : [product.featuredImage, ...(product.images || [])]
+            .map((img) => img?.originalUrl)
+            .filter((url): url is string => !!url && url !== lead);
+    return { featuredImage: lead, gallery: rest };
   }, [selected, product.featuredImage, product.images]);
 
   return (

@@ -24,6 +24,7 @@ export const globalSearch = async (req: Request, res: Response): Promise<void> =
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
         { productCode: { contains: query, mode: 'insensitive' } },
+        { variants: { some: { productCode: { contains: query, mode: 'insensitive' } } } },
         { tags: { has: query.toLowerCase() } } // Searches inside your tags array too!
       ]
     };

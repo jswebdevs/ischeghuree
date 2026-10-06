@@ -17,35 +17,100 @@ const isAdminReq = (req: Request): boolean => {
 
 const HIDDEN_STATUSES = ['DRAFT', 'ARCHIVED'] as const;
 
-// Variation swatches arrive as the full ordered list on every save; they are
-// stored replace-all (delete + recreate), which keeps the admin form simple.
+// Variations arrive as the full ordered list on every save and are synced by
+// id: rows that come back with an id are updated, rows without one are
+// created, and the product's other variations are deleted. (Delete-and-
+// recreate would briefly hold two rows with the same unique productCode.)
 // Rows without a name are dropped; a malformed colour is ignored rather than
 // failing the whole save.
 const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+const optText = (v: unknown) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : null);
+const idList = (v: unknown) =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim() !== '') : [];
+
 const parseVariants = (raw: unknown) => {
   if (!Array.isArray(raw)) return null;
   return raw
     .filter((v: any) => v && typeof v.name === 'string' && v.name.trim() !== '')
     .map((v: any, i: number) => ({
-      name: v.name.trim(),
-      colorHex: typeof v.colorHex === 'string' && HEX_COLOR.test(v.colorHex) ? v.colorHex : null,
-      imageId: typeof v.imageId === 'string' && v.imageId ? v.imageId : null,
-      priceMin: cleanPrice(v.priceMin),
-      priceMax: cleanPrice(v.priceMax),
-      isAvailable: v.isAvailable !== false,
-      sortOrder: i,
+      id: optText(v.id),
+      data: {
+        name: v.name.trim(),
+        productCode: optText(v.productCode),
+        colorHex: typeof v.colorHex === 'string' && HEX_COLOR.test(v.colorHex) ? v.colorHex : null,
+        imageId: optText(v.imageId),
+        material: optText(v.material),
+        shortDesc: optText(v.shortDesc),
+        priceMin: cleanPrice(v.priceMin),
+        priceMax: cleanPrice(v.priceMax),
+        isAvailable: v.isAvailable !== false,
+        sortOrder: i,
+      },
+      galleryIds: idList(v.galleryImageIds),
     }));
 };
 
+type VariantRows = NonNullable<ReturnType<typeof parseVariants>>;
+
+const syncVariants = async (tx: any, productId: string, rows: VariantRows) => {
+  // A variation code must not reuse any product's main code, or orders quoting
+  // it would be ambiguous. (Variation-vs-variation clashes hit the unique
+  // index and surface as P2002.)
+  const codes = rows.map((r) => r.data.productCode).filter((c): c is string => !!c);
+  if (codes.length > 0) {
+    const clash = await tx.product.findFirst({
+      where: { productCode: { in: codes } },
+      select: { productCode: true },
+    });
+    if (clash) throw Object.assign(new Error('variant code clash'), { code: 'VARIANT_CODE_TAKEN', value: clash.productCode });
+  }
+
+  const existing: { id: string }[] = await tx.productVariant.findMany({
+    where: { productId },
+    select: { id: true },
+  });
+  const existingIds = new Set(existing.map((v) => v.id));
+  const keepIds = rows.map((r) => r.id).filter((id): id is string => !!id && existingIds.has(id));
+
+  await tx.productVariant.deleteMany({ where: { productId, id: { notIn: keepIds } } });
+  // Clear the kept rows' codes first so swapping codes between two
+  // variations in one save doesn't trip the unique index mid-way.
+  if (keepIds.length > 0) {
+    await tx.productVariant.updateMany({ where: { id: { in: keepIds } }, data: { productCode: null } });
+  }
+
+  for (const row of rows) {
+    const gallery = row.galleryIds.map((id) => ({ id }));
+    if (row.id && existingIds.has(row.id)) {
+      await tx.productVariant.update({
+        where: { id: row.id },
+        data: { ...row.data, images: { set: gallery } },
+      });
+    } else {
+      await tx.productVariant.create({
+        data: { ...row.data, productId, images: { connect: gallery } },
+      });
+    }
+  }
+};
+
+const mediaSelect = { select: { id: true, originalUrl: true, thumbUrl: true } };
 const variantInclude = {
   orderBy: { sortOrder: 'asc' as const },
-  include: { image: { select: { id: true, originalUrl: true, thumbUrl: true } } },
+  include: { image: mediaSelect, images: mediaSelect },
 };
 
 // Maps the Prisma errors an admin can actually cause from the product form to
 // a 4xx with a readable message (shown in the dashboard's error popup),
 // instead of a bare 500. Returns false for anything else.
 const sendPrismaError = (error: any, res: Response): boolean => {
+  if (error?.code === 'VARIANT_CODE_TAKEN') {
+    res.status(409).json({
+      success: false,
+      message: `Variation code "${error.value}" is already a product code — use a different one.`,
+    });
+    return true;
+  }
   if (error?.code === 'P2002') {
     // meta.target is empty under the Prisma 7 pg driver adapter; the column
     // then only appears in the adapter cause or the message text.
@@ -54,7 +119,9 @@ const sendPrismaError = (error: any, res: Response): boolean => {
       ...([] as string[]).concat(error.meta?.driverAdapterError?.cause?.constraint?.fields ?? []),
       String(error.message ?? ''),
     ].join(' ');
-    const field = target.includes('productCode') ? 'Product code'
+    const isVariant = error.meta?.modelName === 'ProductVariant' || target.includes('ProductVariant');
+    const field = isVariant && target.includes('productCode') ? 'A variation product code'
+      : target.includes('productCode') ? 'Product code'
       : target.includes('slug') ? 'Slug'
       : 'A unique field';
     res.status(409).json({ success: false, message: `${field} already exists — use a different one.` });
@@ -92,7 +159,9 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const product = await prisma.product.create({
+    const variantRows = parseVariants(variants);
+    const product = await prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
       data: {
         name,
         slug: slug || name.toLowerCase().replace(/ /g, '-') + '-' + Date.now(),
@@ -112,10 +181,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         productStatus: productStatus || 'DRAFT',
         blogUrl: blogUrl || null,
         variantLabel: variantLabel || null,
-        variants: (() => {
-          const rows = parseVariants(variants);
-          return rows && rows.length > 0 ? { create: rows } : undefined;
-        })(),
         categories: categoryIds && categoryIds.length > 0
           ? { connect: categoryIds.map((id: string) => ({ id })) }
           : undefined,
@@ -127,12 +192,18 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
           ? { connect: galleryImageIds.map((id: string) => ({ id })) }
           : undefined,
       },
-      include: {
-        categories: { select: { id: true, name: true, slug: true } },
-        featuredImage: { select: { id: true, originalUrl: true, thumbUrl: true } },
-        images: { select: { id: true, originalUrl: true, thumbUrl: true } },
-        variants: variantInclude,
-      },
+        select: { id: true },
+      });
+      if (variantRows && variantRows.length > 0) await syncVariants(tx, created.id, variantRows);
+      return tx.product.findUniqueOrThrow({
+        where: { id: created.id },
+        include: {
+          categories: { select: { id: true, name: true, slug: true } },
+          featuredImage: mediaSelect,
+          images: mediaSelect,
+          variants: variantInclude,
+        },
+      });
     });
 
     await logAction({
@@ -181,6 +252,8 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       where.OR = [
         { name: { contains: String(search), mode: 'insensitive' } },
         { productCode: { contains: String(search), mode: 'insensitive' } },
+        // A variation's own code finds its parent product.
+        { variants: { some: { productCode: { contains: String(search), mode: 'insensitive' } } } },
       ];
     }
     if (category) where.categories = { some: { id: String(category) } };
@@ -341,7 +414,6 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     if (priceNote !== undefined) dataToUpdate.priceNote = priceNote || null;
     if (variantLabel !== undefined) dataToUpdate.variantLabel = variantLabel || null;
     const variantRows = parseVariants(variants);
-    if (variantRows) dataToUpdate.variants = { deleteMany: {}, create: variantRows };
 
     if (featuredImageId !== undefined) {
       dataToUpdate.featuredImage = featuredImageId
@@ -361,16 +433,19 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       dataToUpdate.suggestedProducts = { set: validIds.map((pid) => ({ id: pid })) };
     }
 
-    const product = await prisma.product.update({
-      where: { id },
-      data: dataToUpdate,
-      include: {
-        featuredImage: { select: { id: true, originalUrl: true, thumbUrl: true } },
-        images: { select: { id: true, originalUrl: true, thumbUrl: true } },
-        categories: true,
-        suggestedProducts: { select: { id: true, name: true } },
-        variants: variantInclude,
-      },
+    const product = await prisma.$transaction(async (tx) => {
+      await tx.product.update({ where: { id }, data: dataToUpdate, select: { id: true } });
+      if (variantRows) await syncVariants(tx, id, variantRows);
+      return tx.product.findUniqueOrThrow({
+        where: { id },
+        include: {
+          featuredImage: mediaSelect,
+          images: mediaSelect,
+          categories: true,
+          suggestedProducts: { select: { id: true, name: true } },
+          variants: variantInclude,
+        },
+      });
     });
 
     await logAction({

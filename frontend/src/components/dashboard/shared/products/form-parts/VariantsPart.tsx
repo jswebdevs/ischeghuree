@@ -4,13 +4,20 @@ import { useState } from "react";
 import { X, Plus, ArrowUp, ArrowDown, Trash2, ImagePlus } from "lucide-react";
 import MediaManager, { type MediaItem } from "@/components/dashboard/shared/media/MediaManager";
 
+type FormMedia = { id: string; thumbUrl?: string; originalUrl: string };
+
 export interface VariantFormRow {
-  /** Client-only key for React lists; rows are saved replace-all, so it is
-   *  never sent as the database id. */
+  /** React list key. Equals the database id for saved rows. */
   key: string;
+  /** Database id of a saved variation; absent for rows added in this session. */
+  id?: string;
   name: string;
+  productCode: string;
   colorHex: string;
-  image?: { id: string; thumbUrl?: string; originalUrl: string };
+  image?: FormMedia;
+  gallery: FormMedia[];
+  material: string;
+  shortDesc: string;
   priceMin: number | string | null;
   priceMax: number | string | null;
   isAvailable: boolean;
@@ -27,8 +34,12 @@ interface VariantsPartProps {
 export const newVariantRow = (): VariantFormRow => ({
   key: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Math.random()),
   name: "",
+  productCode: "",
   colorHex: "",
   image: undefined,
+  gallery: [],
+  material: "",
+  shortDesc: "",
   priceMin: "",
   priceMax: "",
   isAvailable: true,
@@ -41,11 +52,12 @@ const inputClass =
 const labelClass = "text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1";
 
 // Variation swatches: each row is one option (a colour, pattern or size) the
-// customer can pick on the product page. A swatch shows its colour when one is
-// set, otherwise its photo. Price is optional — blank uses the product's own.
+// customer can pick on the product page, with its own code, photos, price,
+// material, description and stock. A swatch shows its colour when one is
+// set, otherwise its main photo. Blank fields fall back to the product's own.
 export default function VariantsPart({ product, update }: VariantsPartProps) {
-  // Key of the row whose image picker is open.
-  const [pickerFor, setPickerFor] = useState<string | null>(null);
+  // Row + slot whose media picker is open.
+  const [picker, setPicker] = useState<{ key: string; slot: "main" | "gallery" } | null>(null);
   const rows = product.variants;
 
   const setRows = (next: VariantFormRow[]) => update({ variants: next });
@@ -60,14 +72,21 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
     setRows(next);
   };
 
-  const handleImageSelect = (media: MediaItem | MediaItem[]) => {
-    const picked = Array.isArray(media) ? media[0] : media;
-    if (picked && pickerFor) {
-      patchRow(pickerFor, {
-        image: { id: picked.id, thumbUrl: picked.thumbUrl, originalUrl: picked.originalUrl ?? "" },
-      });
+  const handleMediaSelect = (media: MediaItem | MediaItem[]) => {
+    const picked = (Array.isArray(media) ? media : [media]).map((m) => ({
+      id: m.id,
+      thumbUrl: m.thumbUrl,
+      originalUrl: m.originalUrl ?? "",
+    }));
+    if (picker && picked.length > 0) {
+      const row = rows.find((r) => r.key === picker.key);
+      if (row && picker.slot === "main") patchRow(row.key, { image: picked[0] });
+      if (row && picker.slot === "gallery") {
+        const have = new Set(row.gallery.map((g) => g.id));
+        patchRow(row.key, { gallery: [...row.gallery, ...picked.filter((g) => !have.has(g.id))] });
+      }
     }
-    setPickerFor(null);
+    setPicker(null);
   };
 
   return (
@@ -104,8 +123,8 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
                     {/* Swatch preview + image picker */}
                     <button
                       type="button"
-                      onClick={() => setPickerFor(row.key)}
-                      title="Choose variant photo"
+                      onClick={() => setPicker({ key: row.key, slot: "main" })}
+                      title="Choose variation's main photo"
                       className="relative w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-border overflow-hidden flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors bg-background"
                     >
                       {row.image ? (
@@ -123,12 +142,21 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
                     </button>
 
                     <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="sm:col-span-2">
+                      <div>
                         <label className={labelClass}>Name *</label>
                         <input
                           value={row.name}
                           onChange={(e) => patchRow(row.key, { name: e.target.value })}
                           placeholder="লাল — Red"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Product code</label>
+                        <input
+                          value={row.productCode}
+                          onChange={(e) => patchRow(row.key, { productCode: e.target.value })}
+                          placeholder="HAIR-002-RED"
                           className={inputClass}
                         />
                       </div>
@@ -175,6 +203,55 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>Material</label>
+                      <input
+                        value={row.material}
+                        onChange={(e) => patchRow(row.key, { material: e.target.value })}
+                        placeholder="Blank = product's material"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="sm:row-span-2">
+                      <label className={labelClass}>Short description</label>
+                      <textarea
+                        value={row.shortDesc}
+                        onChange={(e) => patchRow(row.key, { shortDesc: e.target.value })}
+                        placeholder="Blank = product's description"
+                        rows={3}
+                        className={`${inputClass} resize-y`}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Gallery photos</label>
+                      <div className="flex flex-wrap gap-2">
+                        {row.gallery.map((img) => (
+                          <div key={img.id} className="relative w-12 h-12 rounded-lg overflow-hidden border border-border group">
+                            {/* eslint-disable-next-line @next/next/no-img-element -- CDN media thumbnail with unknown dimensions */}
+                            <img src={img.thumbUrl || img.originalUrl} alt="" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => patchRow(row.key, { gallery: row.gallery.filter((g) => g.id !== img.id) })}
+                              aria-label="Remove gallery photo"
+                              className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setPicker({ key: row.key, slot: "gallery" })}
+                          aria-label="Add gallery photos"
+                          className="w-12 h-12 rounded-lg border-2 border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <label className="inline-flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
                       <input
@@ -192,7 +269,7 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
                           onClick={() => patchRow(row.key, { image: undefined })}
                           className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground hover:text-destructive"
                         >
-                          Remove photo
+                          Remove main photo
                         </button>
                       )}
                       <button type="button" onClick={() => moveRow(i, -1)} disabled={i === 0} aria-label="Move up" className="p-2 rounded-lg hover:bg-muted disabled:opacity-30">
@@ -221,14 +298,16 @@ export default function VariantsPart({ product, update }: VariantsPartProps) {
         </div>
       </div>
 
-      {pickerFor && (
+      {picker && (
         <div className="fixed inset-0 z-[100] bg-background/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
           <div className="bg-card border border-border rounded-3xl w-full max-w-6xl h-full max-h-[85vh] flex flex-col overflow-hidden shadow-theme-2xl animate-in zoom-in-95">
             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/10">
-              <h3 className="font-black text-foreground uppercase tracking-wider text-sm">Select Variation Photo</h3>
-              <button type="button" onClick={() => setPickerFor(null)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors"><X size={18} /></button>
+              <h3 className="font-black text-foreground uppercase tracking-wider text-sm">
+                {picker.slot === "main" ? "Select Variation Photo" : "Add Variation Gallery Photos"}
+              </h3>
+              <button type="button" onClick={() => setPicker(null)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors"><X size={18} /></button>
             </div>
-            <div className="flex-1 overflow-hidden bg-background"><MediaManager isPicker multiple={false} onSelect={handleImageSelect} /></div>
+            <div className="flex-1 overflow-hidden bg-background"><MediaManager isPicker multiple={picker.slot === "gallery"} onSelect={handleMediaSelect} /></div>
           </div>
         </div>
       )}

@@ -43,9 +43,14 @@ export interface ProductFormState {
 
 /** A variant as returned by the API. */
 interface ApiVariant {
+  id: string;
   name: string;
+  productCode?: string | null;
   colorHex?: string | null;
   image?: { id: string; thumbUrl?: string; originalUrl: string } | null;
+  images?: { id: string; thumbUrl?: string; originalUrl: string }[] | null;
+  material?: string | null;
+  shortDesc?: string | null;
   priceMin?: number | string | null;
   priceMax?: number | string | null;
   isAvailable?: boolean;
@@ -158,9 +163,15 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
         variantLabel: initialData.variantLabel || "",
         variants: (initialData.variants || []).map((v) => ({
           ...newVariantRow(),
+          key: v.id,
+          id: v.id,
           name: v.name,
+          productCode: v.productCode || "",
           colorHex: v.colorHex || "",
           image: v.image || undefined,
+          gallery: v.images || [],
+          material: v.material || "",
+          shortDesc: v.shortDesc || "",
           priceMin: v.priceMin === null || v.priceMin === undefined ? "" : Number(v.priceMin),
           priceMax: v.priceMax === null || v.priceMax === undefined ? "" : Number(v.priceMax),
           isAvailable: v.isAvailable !== false,
@@ -193,6 +204,11 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
     // Rows the admin added but left unnamed are dropped rather than blocking
     // the save; a named row with a bad price range does block it.
     const namedVariants = product.variants.filter((v) => v.name.trim() !== "");
+    const variantCodes = namedVariants.map((v) => v.productCode.trim()).filter(Boolean);
+    const dupCode = variantCodes.find((c, i) => variantCodes.indexOf(c) !== i || c === product.productCode.trim());
+    if (dupCode) {
+      return Swal.fire("Error", `Product code "${dupCode}" is used more than once — each variation needs its own.`, "error");
+    }
     for (const v of namedVariants) {
       const vMin = cleanPrice(v.priceMin);
       const vMax = cleanPrice(v.priceMax);
@@ -227,9 +243,14 @@ export default function ProductForm({ initialData: initialDataProp }: { initialD
         galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
         variantLabel: product.variantLabel.trim() || null,
         variants: namedVariants.map((v) => ({
+          id: v.id,
           name: v.name.trim(),
+          productCode: v.productCode.trim() || null,
           colorHex: v.colorHex || null,
           imageId: v.image?.id || null,
+          galleryImageIds: v.gallery.map((g) => g.id),
+          material: v.material.trim() || null,
+          shortDesc: v.shortDesc.trim() || null,
           priceMin: cleanPrice(v.priceMin),
           priceMax: cleanPrice(v.priceMax),
           isAvailable: v.isAvailable,

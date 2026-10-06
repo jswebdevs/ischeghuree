@@ -112,6 +112,7 @@ model Media {
   linkedProductFeatured Product[]      @relation("ProductFeatured")
   linkedProductGallery  Product[]      @relation("ProductGallery")
   linkedProductVariants ProductVariant[] @relation("ProductVariantImage")
+  linkedProductVariantGallery ProductVariant[] @relation("ProductVariantGallery")
 
   linkedStoreLogos      SiteSettings[] @relation("StoreLogo")
   linkedStoreFavicons   SiteSettings[] @relation("StoreFavicon")
@@ -227,16 +228,21 @@ model Product {
 }
 
 // One selectable option of a product, shown as a swatch. The swatch is the
-// colour when colorHex is set, otherwise the image thumbnail; selecting it
-// swaps the product photo to the image and the price to its own range.
+// colour when colorHex is set, otherwise the image thumbnail. Selecting it on
+// the product page swaps in the variation's own code, photos, price,
+// material, description and stock; blank fields fall back to the product's.
 model ProductVariant {
   id          String   @id @default(uuid())
   productId   String
   product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   name        String
+  productCode String?  @unique
   colorHex    String?
   imageId     String?
   image       Media?   @relation("ProductVariantImage", fields: [imageId], references: [id], onDelete: SetNull)
+  images      Media[]  @relation("ProductVariantGallery")
+  material    String?
+  shortDesc   String?  @db.Text
   priceMin    Decimal? @db.Decimal(10, 2)
   priceMax    Decimal? @db.Decimal(10, 2)
   isAvailable Boolean  @default(true)

@@ -43,6 +43,10 @@ export default function ProductInfo({
   const priceMin = variantPriced ? selectedVariant?.priceMin : product.priceMin;
   const priceMax = variantPriced ? selectedVariant?.priceMax : product.priceMax;
   const available = selectedVariant ? selectedVariant.isAvailable !== false : true;
+  // The variation's own code, material and description win over the product's.
+  const productCode = selectedVariant?.productCode || product.productCode;
+  const material = selectedVariant?.material || product.material;
+  const shortDesc = selectedVariant?.shortDesc || product.shortDesc;
 
   const orderHref =
     `/order-now?product=${encodeURIComponent(product.slug ?? "")}` +
@@ -68,8 +72,8 @@ export default function ProductInfo({
   };
 
   const renderShortDesc = () => {
-    if (!product.shortDesc) return null;
-    const lines = product.shortDesc.split('\n').filter((line: string) => line.trim() !== '');
+    if (!shortDesc) return null;
+    const lines = shortDesc.split('\n').filter((line: string) => line.trim() !== '');
 
     if (lines.length > 1) {
       return (
@@ -83,7 +87,7 @@ export default function ProductInfo({
         </ul>
       );
     }
-    return <p className="text-sm sm:text-base text-subheading mb-8 leading-relaxed">{product.shortDesc}</p>;
+    return <p className="text-sm sm:text-base text-subheading mb-8 leading-relaxed">{shortDesc}</p>;
   };
 
   return (
@@ -99,8 +103,8 @@ export default function ProductInfo({
       </h1>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-        {product.productCode && <span>কোড — Code: {product.productCode}</span>}
-        {product.material && <span>উপাদান — Material: {product.material}</span>}
+        {productCode && <span>কোড — Code: {productCode}</span>}
+        {material && <span>উপাদান — Material: {material}</span>}
       </div>
 
       <ProductPrice

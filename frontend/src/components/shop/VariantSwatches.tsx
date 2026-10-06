@@ -3,8 +3,12 @@
 export interface StoreVariant {
   id: string;
   name: string;
+  productCode?: string | null;
   colorHex?: string | null;
   image?: { id: string; originalUrl: string; thumbUrl?: string | null } | null;
+  images?: { id: string; originalUrl: string; thumbUrl?: string | null }[] | null;
+  material?: string | null;
+  shortDesc?: string | null;
   priceMin?: number | string | null;
   priceMax?: number | string | null;
   isAvailable?: boolean;

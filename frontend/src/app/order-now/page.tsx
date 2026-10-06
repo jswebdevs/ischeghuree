@@ -28,10 +28,13 @@ async function buildProductPrefill(slug?: string, variantId?: string): Promise<s
     if (!product?.name) return slug;
     const base = product.productCode ? `${product.name} (${product.productCode})` : product.name;
     const variant = variantId
-      ? (product.variants as { id: string; name: string }[] | undefined)?.find((v) => v.id === variantId)
+      ? (product.variants as { id: string; name: string; productCode?: string | null }[] | undefined)?.find(
+          (v) => v.id === variantId
+        )
       : undefined;
     if (!variant) return base;
-    return `${base} — ${product.variantLabel || "অপশন — Option"}: ${variant.name}`;
+    const variantLine = variant.productCode ? `${variant.name} (${variant.productCode})` : variant.name;
+    return `${base} — ${product.variantLabel || "অপশন — Option"}: ${variantLine}`;
   } catch {
     return slug;
   }
