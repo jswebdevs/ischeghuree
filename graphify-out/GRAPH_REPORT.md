@@ -1,17 +1,17 @@
-# Graph Report - ischeghuree  (2026-10-02)
+# Graph Report - ischeghuree  (2026-10-22)
 
 ## Corpus Check
-- 251 files · ~163,063 words
+- 258 files · ~168,118 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 9 file(s) not represented in the graph (top: (none) 5, .example 2, .prisma 1)
 
 ## Summary
-- 1391 nodes · 2922 edges · 82 communities (77 shown, 5 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 125 edges (avg confidence: 0.86)
+- 1427 nodes · 3027 edges · 87 communities (82 shown, 5 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 126 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2b33e4f3`
+- Built from commit: `01c27534`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,12 +22,12 @@
 - dependencies
 - app/page.tsx
 - ProductForm.tsx
-- axios.ts
+- Navbar.tsx
 - logAction
 - express
 - dependencies
 - customOrder.controller.ts
-- api
+- axios.ts
 - sweetalert2
 - compilerOptions
 - compilerOptions
@@ -35,11 +35,11 @@
 - devDependencies
 - homepage/page.tsx
 - getPageBySlug
-- AdminForm.tsx
-- PageCreationForm.tsx
+- lucide-react
+- HeroForm
 - _OrderForm.tsx
 - ChatManager.tsx
-- Navbar.tsx
+- ProductCard.tsx
 - media.controller.ts
 - auth.middleware.ts
 - ইচ্ছে ঘুড়ি — Ische Ghuree · Brand Data
@@ -51,18 +51,18 @@
 - scripts
 - seed.ts
 - frontend/package.json
-- mailer.ts
+- ProductInfo.tsx
 - app.ts
 - /graphify
 - prisma.ts
-- product.routes.ts
+- product.controller.ts
 - What You Must Do When Invoked
 - devDependencies
 - ProductTable.tsx
 - customer/orders/page.tsx
 - server.ts
-- page.routes.ts
 - products/[slug]/page.tsx
+- ProductMediaViewer.tsx
 - order-now/page.tsx
 - Tailwind v4 + Dynamic Theme (ginag-frontend)
 - theme.routes.ts
@@ -74,40 +74,45 @@
 - social.routes.ts
 - Profile.tsx
 - audit.controller.ts
-- lucide-react
-- IconRenderer
+- react
+- MediaManager
 - scripts
 - Next.js 16 App Router (ginag-frontend)
-- cancellation-policy/page.tsx
+- categories/[slug]/page.tsx
 - CustomOrder Model
 - privacy-policy/page.tsx
-- shipping-policy/page.tsx
+- CollectionRail.tsx
 - Nodemailer + Gmail Skill
-- auth.controller.ts
+- category.routes.ts
 - Ische Ghuree
 - Prisma 7 (ginag-backend)
 - Dream E-commerce Backend (README)
 - Ginag Monorepo
 - Cloudinary Media Pipeline (ginag-backend)
+- MobileCategoryDrawer.tsx
+- HeroManagement.tsx
 - Nodemailer + Gmail (backend)
 - swiper.d.ts
 - sitemap.ts
+- MegaMenu.tsx
 - next
 - postcss.config.mjs
 - utils.ts
 - proxy.ts
-- app/products/page.tsx
+- return-refund-policy/page.tsx
+- SuperAdminSidebar.tsx
+- search/page.tsx
 - global.d.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `lucide-react` - 101 edges
-2. `react` - 95 edges
-3. `next` - 88 edges
-4. `api` - 54 edges
+2. `react` - 98 edges
+3. `next` - 87 edges
+4. `api` - 53 edges
 5. `logAction()` - 48 edges
 6. `express` - 40 edges
 7. `getPageBySlug()` - 31 edges
-8. `sweetalert2` - 27 edges
+8. `sweetalert2` - 26 edges
 9. `useUserStore` - 24 edges
 10. `PageData` - 23 edges
 
@@ -131,11 +136,11 @@
 - **Ginag Project Skill Registry** — claude_skills_registry, graphify_skill_graphify, claude_skills_prisma_skill_prisma_7_workflow, claude_skills_nodemailer_gmail_skill_nodemailer_gmail, claude_skills_next_app_router_skill_next_app_router, claude_skills_tailwind_v4_theme_skill_theme_tokens, claude_skills_react_hook_form_zod_skill_schema_first_forms, claude_skills_cloudinary_media_skill_cloudinary_media_pipeline [EXTRACTED 1.00]
 - **Custom Order Feature Flow** — changes_custom_order_flow, changes_checkout_branching, claude_skills_prisma_skill_customorder_model, claude_skills_react_hook_form_zod_skill_superrefine_conditional_validation, claude_skills_nodemailer_gmail_skill_renderorderconfirmation [INFERRED 0.85]
 
-## Communities (82 total, 5 thin omitted)
+## Communities (87 total, 5 thin omitted)
 
 ### Community 0 - "app/layout.tsx"
 Cohesion: 0.06
-Nodes (38): ActiveTheme, ColorsPage(), hexToHsl(), hslToHex(), VARIABLE_LABELS, hindSiliguri, notoSerifBengali, revalidate (+30 more)
+Nodes (41): ActiveTheme, ColorsPage(), hexToHsl(), hslToHex(), VARIABLE_LABELS, hindSiliguri, notoSerifBengali, revalidate (+33 more)
 
 ### Community 1 - "Project Skills Registry"
 Cohesion: 0.23
@@ -143,7 +148,7 @@ Nodes (10): Ginag Frontend (Next 16 + React 19 + Tailwind v4), Shared Axios Inst
 
 ### Community 2 - "PageData"
 Cohesion: 0.15
-Nodes (16): CancellationTemplateProps, ContactTemplateProps, doesntQualifyItems, ExchangePolicyTemplateProps, qualifiesItems, dataCategories, PrivacyPolicyTemplateProps, ProcessTemplateProps (+8 more)
+Nodes (17): AboutTemplateProps, CancellationTemplateProps, ContactSettings, ContactTemplateProps, doesntQualifyItems, ExchangePolicyTemplateProps, qualifiesItems, ProcessTemplateProps (+9 more)
 
 ### Community 3 - "dependencies"
 Cohesion: 0.08
@@ -151,39 +156,39 @@ Nodes (25): dependencies, axios, date-fns, framer-motion, @hookform/resolvers, j
 
 ### Community 4 - "app/page.tsx"
 Cohesion: 0.10
-Nodes (23): CollectionRails, CollectionTiles, FAQSection, FeaturedProductBlock, GoogleReviewsSection, Home(), HowItWorks, StorySection (+15 more)
+Nodes (22): CollectionRails, CollectionTiles, FAQSection, FeaturedProductBlock, GoogleReviewsSection, Home(), HowItWorks, StorySection (+14 more)
 
 ### Community 5 - "ProductForm.tsx"
-Cohesion: 0.10
-Nodes (26): CreateProductPage(), EditProductPage(), ProductRow, CreateProductPage(), EditProductPage(), ProductRow, AdditionalInfoPart(), AdditionalInfoPartProps (+18 more)
+Cohesion: 0.05
+Nodes (51): CreateProductPage(), EditProductPage(), ProductRow, CreateProductPage(), EditProductPage(), ProductRow, BlockTypeButton(), PageBlock (+43 more)
 
-### Community 6 - "axios.ts"
+### Community 6 - "Navbar.tsx"
 Cohesion: 0.12
-Nodes (23): AdminLayout(), UserDashboardPage(), UserLayout(), DashboardIndexPage(), AuditLog, AuditLogsPage(), SuperadminLayout(), LoginForm() (+15 more)
+Nodes (24): AdminLayout(), UserDashboardPage(), UserLayout(), DashboardIndexPage(), LoginForm(), LoginPage(), RegisterPage(), AdminSidebar() (+16 more)
 
 ### Community 7 - "logAction"
-Cohesion: 0.21
-Nodes (19): logAction(), convertToWebP(), createAdminAccount(), createUser(), deleteUser(), getAdminByUsername(), getAllAdmins(), getAllUsers() (+11 more)
+Cohesion: 0.12
+Nodes (30): logAction(), delete3dModel(), deleteTurntableFrames(), GLB_MIME_TYPES, isGlbFile(), toWebP(), upload3dModel(), uploadToCloudinary() (+22 more)
 
 ### Community 8 - "express"
-Cohesion: 0.11
-Nodes (22): adminSendMessage(), bulkUpdateSessionStatus(), getAllSessions(), getSessionHistory(), updateSessionStatus(), CachedReviews, getGoogleReviews(), globalSearch() (+14 more)
+Cohesion: 0.09
+Nodes (27): login(), adminSendMessage(), bulkUpdateSessionStatus(), getAllSessions(), getSessionHistory(), updateSessionStatus(), CachedReviews, getGoogleReviews() (+19 more)
 
 ### Community 9 - "dependencies"
 Cohesion: 0.09
 Nodes (23): dependencies, axios, bcrypt, bcryptjs, cloudinary, cookie-parser, cors, dotenv (+15 more)
 
 ### Community 10 - "customOrder.controller.ts"
-Cohesion: 0.25
-Nodes (13): createCustomOrder(), deleteCustomOrder(), DeliveryStatusValue, generateOrderNumber(), getCustomOrder(), isAdminUser(), listCustomOrders(), listMyCustomOrders() (+5 more)
+Cohesion: 0.15
+Nodes (25): createCustomOrder(), deleteCustomOrder(), DeliveryStatusValue, generateOrderNumber(), getCustomOrder(), isAdminUser(), listCustomOrders(), listMyCustomOrders() (+17 more)
 
-### Community 11 - "api"
-Cohesion: 0.18
-Nodes (10): SuperAdminHeroPage(), MediaItem, HeroFormProps, HeroImage, HeroRecord, HeroManagement(), HeroManagementProps, HeroRecord (+2 more)
+### Community 11 - "axios.ts"
+Cohesion: 0.11
+Nodes (18): AdminUser, AuditLog, AuditLogsPage(), EMPTY, Field(), ImagePicker(), OrderFormHeroEditor(), OrderHeroConfig (+10 more)
 
 ### Community 12 - "sweetalert2"
-Cohesion: 0.18
-Nodes (13): AdminCustomersPage(), Address, AddressType, initialFormState, AdminsPage(), Avatar(), RoleChips(), STATUS_STYLE (+5 more)
+Cohesion: 0.15
+Nodes (15): AdminCustomersPage(), Address, AddressType, initialFormState, AdminsPage(), Avatar(), RoleChips(), STATUS_STYLE (+7 more)
 
 ### Community 13 - "compilerOptions"
 Cohesion: 0.11
@@ -194,8 +199,8 @@ Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
 ### Community 15 - "super-admin/page.tsx"
-Cohesion: 0.50
-Nodes (4): ChartPoint, KPI(), Overview, SuperadminDashboardPage()
+Cohesion: 0.40
+Nodes (5): ChartPoint, KPI(), Overview, SuperadminDashboardPage(), recharts
 
 ### Community 16 - "devDependencies"
 Cohesion: 0.12
@@ -206,16 +211,16 @@ Cohesion: 0.08
 Nodes (43): BannerConfig, BannerMessageList(), CategoryBarConfig, ColorInput(), DEFAULTS, FaqConfig, FaqItem, FAQList() (+35 more)
 
 ### Community 18 - "getPageBySlug"
-Cohesion: 0.18
-Nodes (18): ExchangeContent(), ExchangePolicyPage(), generateMetadata(), FAQContent(), FAQPage(), generateMetadata(), generateMetadata(), ReturnRefundContent() (+10 more)
+Cohesion: 0.17
+Nodes (21): CancellationContent(), CancellationPolicyPage(), generateMetadata(), ExchangeContent(), ExchangePolicyPage(), generateMetadata(), FAQContent(), FAQPage() (+13 more)
 
-### Community 19 - "AdminForm.tsx"
-Cohesion: 0.16
-Nodes (16): AdminAddress, AdminForm(), AdminFormData, AdminFormSectionProps, AdminInitialData, ADDRESS_TYPES, AddressInput(), AddressInputProps (+8 more)
+### Community 19 - "lucide-react"
+Cohesion: 0.17
+Nodes (17): AdminAddress, AdminForm(), AdminFormData, AdminFormSectionProps, AdminInitialData, ADDRESS_TYPES, AddressInput(), AddressInputProps (+9 more)
 
-### Community 20 - "PageCreationForm.tsx"
-Cohesion: 0.07
-Nodes (32): MediaLibraryPage(), MediaLibraryPage(), GeneralSettingsPage(), SuperAdminHeroCreatePage(), SuperAdminHeroEditPage(), EMPTY, Field(), ImagePicker() (+24 more)
+### Community 20 - "HeroForm"
+Cohesion: 0.60
+Nodes (3): SuperAdminHeroCreatePage(), SuperAdminHeroEditPage(), HeroForm()
 
 ### Community 21 - "_OrderForm.tsx"
 Cohesion: 0.20
@@ -225,17 +230,17 @@ Nodes (14): FieldError(), FieldLabel(), FormValues, KiteRibbon(), OrderForm(), O
 Cohesion: 0.18
 Nodes (13): AdminMessagesPage(), AdminMessagesPage(), ChatBox(), ChatManager(), ChatTable(), ChatTableProps, ChatTableToolbar(), ChatTableToolbarProps (+5 more)
 
-### Community 23 - "Navbar.tsx"
-Cohesion: 0.09
-Nodes (27): metadata, ShopCategory, ShopFilters, ShopPage(), ShopProduct, BasicInfoPart(), BasicInfoPartProps, CATEGORY_BAR_DEFAULTS (+19 more)
+### Community 23 - "ProductCard.tsx"
+Cohesion: 0.16
+Nodes (12): metadata, ShopCategory, ShopFilters, ShopPage(), ShopProduct, CardVariant, ProductCardProps, STATUS_BADGE (+4 more)
 
 ### Community 24 - "media.controller.ts"
 Cohesion: 0.14
 Nodes (15): storage, upload, convertFile(), convertToWebM(), convertToWebP(), createMedia(), deleteMedia(), getAllMedia() (+7 more)
 
 ### Community 25 - "auth.middleware.ts"
-Cohesion: 0.17
-Nodes (15): getChartData(), getDashboardOverview(), createCategory(), deleteCategory(), getCategories(), getCategoryBySlug(), updateCategory(), authorize() (+7 more)
+Cohesion: 0.16
+Nodes (17): getChartData(), getDashboardOverview(), createPage(), deletePage(), generateSlug(), getAllPages(), getPageBySlug(), isAdminReq() (+9 more)
 
 ### Community 26 - "ইচ্ছে ঘুড়ি — Ische Ghuree · Brand Data"
 Cohesion: 0.05
@@ -250,16 +255,16 @@ Cohesion: 0.42
 Nodes (12): err(), graphify_install(), graphify_status(), graphify_uninstall(), local_skills_install(), local_skills_status(), local_skills_uninstall(), log() (+4 more)
 
 ### Community 29 - "getSettings.ts"
-Cohesion: 0.18
-Nodes (11): ContactContent(), ContactPage(), generateMetadata(), generateMetadata(), manifest(), FeaturedProduct, FeaturedProductBlock(), ContactSettings (+3 more)
+Cohesion: 0.21
+Nodes (10): ContactContent(), ContactPage(), generateMetadata(), generateMetadata(), manifest(), FeaturedProduct, FeaturedProductBlock(), ContactTemplate() (+2 more)
 
 ### Community 30 - "backend/package.json"
 Cohesion: 0.07
 Nodes (28): author, description, axios, @types/node, typescript, keywords, license, main (+20 more)
 
 ### Community 31 - "app/[slug]/page.tsx"
-Cohesion: 0.18
-Nodes (14): DynamicStorefrontPage(), generateMetadata(), PageBlock, PageBlockData, RESERVED, revalidate, RichTextBlock(), SplitBlock() (+6 more)
+Cohesion: 0.17
+Nodes (15): DynamicStorefrontPage(), generateMetadata(), PageBlock, PageBlockData, RESERVED, revalidate, RichTextBlock(), SplitBlock() (+7 more)
 
 ### Community 32 - "scripts"
 Cohesion: 0.20
@@ -270,12 +275,12 @@ Cohesion: 0.18
 Nodes (16): BRAND, buildFooterConfig(), buildHomepageConfig(), ensureMedia(), main(), MediaSpec, ProductSpec, seedCategories() (+8 more)
 
 ### Community 34 - "frontend/package.json"
-Cohesion: 0.09
-Nodes (21): eslintConfig, axios, @types/node, typescript, name, private, version, babel-plugin-react-compiler (+13 more)
+Cohesion: 0.10
+Nodes (20): eslintConfig, axios, @types/node, typescript, name, private, version, babel-plugin-react-compiler (+12 more)
 
-### Community 35 - "mailer.ts"
-Cohesion: 0.28
-Nodes (12): BRAND, contactBlock(), DELIVERY_STATUS_LABELS, emailShell(), escapeHtml(), getTransporter(), ORDER_TYPE_LABELS, renderDeliveryStatusUpdate() (+4 more)
+### Community 35 - "ProductInfo.tsx"
+Cohesion: 0.27
+Nodes (10): InfoProduct, MediaViewerProps, ProductDetailHeroProps, hasPrice(), ProductInfo(), ProductInfoData, ProductInfoProps, StoreVariant (+2 more)
 
 ### Community 36 - "app.ts"
 Cohesion: 0.15
@@ -286,12 +291,12 @@ Cohesion: 0.10
 Nodes (18): AST Structural Extraction, Community Detection, Incremental --update Re-extraction, Parallel Semantic Extraction Subagents, For --cluster-only, For git commit hook, For /graphify add, For /graphify explain (+10 more)
 
 ### Community 38 - "prisma.ts"
-Cohesion: 0.18
+Cohesion: 0.19
 Nodes (10): adapter, globalForPrisma, adapter, pages, pool, prisma, dotenv, pg (+2 more)
 
-### Community 39 - "product.routes.ts"
-Cohesion: 0.15
-Nodes (21): cleanPrice(), createProduct(), deleteProduct(), getProductBySlug(), getProductFilters(), getProducts(), HIDDEN_STATUSES, isAdminReq() (+13 more)
+### Community 39 - "product.controller.ts"
+Cohesion: 0.17
+Nodes (21): cleanPrice(), createProduct(), deleteProduct(), getProductById(), getProductBySlug(), getProductFilters(), getProducts(), HIDDEN_STATUSES (+13 more)
 
 ### Community 40 - "What You Must Do When Invoked"
 Cohesion: 0.11
@@ -302,8 +307,8 @@ Cohesion: 0.14
 Nodes (14): devDependencies, babel-plugin-react-compiler, eslint, eslint-config-next, tailwindcss, @tailwindcss/postcss, @tanstack/react-query-devtools, @types/js-cookie (+6 more)
 
 ### Community 42 - "ProductTable.tsx"
-Cohesion: 0.23
-Nodes (10): ProductRow, ProductsManagementPage(), ProductRow, ProductsManagementPage(), AdminProduct, formatRange(), ProductTable(), ProductTableProps (+2 more)
+Cohesion: 0.21
+Nodes (10): ProductsManagementPage(), ProductsManagementPage(), ProductsManager(), AdminProduct, formatRange(), ProductSort, ProductTable(), ProductTableProps (+2 more)
 
 ### Community 43 - "customer/orders/page.tsx"
 Cohesion: 0.18
@@ -313,17 +318,17 @@ Nodes (12): CustomerOrdersPage(), CustomOrder, DELIVERY_LABEL, DELIVERY_STATUS_S
 Cohesion: 0.23
 Nodes (8): app, allowedOriginPatterns, allowedOrigins, isSocketOriginAllowed(), main(), setupChatSocket(), jsonwebtoken, socket.io
 
-### Community 45 - "page.routes.ts"
-Cohesion: 0.38
-Nodes (8): createPage(), deletePage(), generateSlug(), getAllPages(), getPageBySlug(), isAdminReq(), updatePage(), router
+### Community 45 - "products/[slug]/page.tsx"
+Cohesion: 0.29
+Nodes (9): fetchProduct(), fetchRelated(), generateMetadata(), ProductDetailsPage(), RelatedProduct, revalidate, ProductDetailHero(), ProductTabs() (+1 more)
 
-### Community 46 - "products/[slug]/page.tsx"
-Cohesion: 0.06
-Nodes (43): fetchProduct(), fetchRelated(), generateMetadata(), ProductDetailsPage(), RelatedProduct, revalidate, SearchContent(), SearchPage() (+35 more)
+### Community 46 - "ProductMediaViewer.tsx"
+Cohesion: 0.14
+Nodes (16): Frame, Product360Viewer(), Props, Model(), Product3DViewer(), GalleryImage, ProductGallery(), ProductGalleryProps (+8 more)
 
 ### Community 47 - "order-now/page.tsx"
-Cohesion: 0.33
-Nodes (8): KiteMark(), KiteRibbon(), OrderHero(), OrderHeroData, buildProductPrefill(), metadata, OrderNowPage(), revalidate
+Cohesion: 0.31
+Nodes (9): KiteMark(), KiteRibbon(), OrderHero(), OrderHeroData, buildProductPrefill(), metadata, OrderNowPage(), revalidate (+1 more)
 
 ### Community 48 - "Tailwind v4 + Dynamic Theme (ginag-frontend)"
 Cohesion: 0.13
@@ -334,8 +339,8 @@ Cohesion: 0.36
 Nodes (8): createTheme(), deleteTheme(), getActiveTheme(), getAllThemes(), getPublicThemes(), toggleThemeProperty(), updateTheme(), router
 
 ### Community 50 - "about-us/page.tsx"
-Cohesion: 0.43
-Nodes (5): AboutContent(), AboutUsPage(), generateMetadata(), AboutTemplate(), AboutTemplateProps
+Cohesion: 0.60
+Nodes (4): AboutContent(), AboutUsPage(), generateMetadata(), AboutTemplate()
 
 ### Community 51 - "Prisma 7 + Supabase Workflow"
 Cohesion: 0.24
@@ -350,8 +355,8 @@ Cohesion: 0.18
 Nodes (10): Brand source, Changes — Ische Ghuree rebrand (2026-08-12), Dead code / dead config deleted, Known design decisions, Public-surface bug fixes, Required operator steps (deploy checklist), Schema (`backend/prisma/schema.prisma`), Seeds (+2 more)
 
 ### Community 54 - "settings.routes.ts"
-Cohesion: 0.42
-Nodes (7): getHomepageConfig(), getSettings(), isAdmin(), stripSecrets(), updateHomepageSection(), updateSettings(), router
+Cohesion: 0.50
+Nodes (6): getHomepageConfig(), getSettings(), isAdmin(), stripSecrets(), updateHomepageSection(), updateSettings()
 
 ### Community 55 - "social.routes.ts"
 Cohesion: 0.43
@@ -365,13 +370,13 @@ Nodes (4): page(), page(), page(), ProfilePage()
 Cohesion: 0.48
 Nodes (5): deleteAllAuditLogs(), deleteAuditLog(), getAuditLogById(), getAuditLogs(), router
 
-### Community 58 - "lucide-react"
-Cohesion: 0.14
-Nodes (13): AdminDashboardPage(), KPI(), Overview, CustomerChatsPage(), AdminUser, PageInitialData, SessionData, ChatMessage (+5 more)
+### Community 58 - "react"
+Cohesion: 0.19
+Nodes (10): AdminDashboardPage(), KPI(), Overview, CustomerChatsPage(), SessionData, ChatMessage, CustomerChatBox(), FloatingWidget() (+2 more)
 
-### Community 59 - "IconRenderer"
+### Community 59 - "MediaManager"
 Cohesion: 0.06
-Nodes (51): CategoriesPage(), metadata, revalidate, Category, fetchAllCategories(), fetchCategory(), fetchCategoryProducts(), generateMetadata() (+43 more)
+Nodes (49): CategoriesPage(), metadata, revalidate, CategoriesManagementPage(), Category, MediaLibraryPage(), CategoriesManagementPage(), Category (+41 more)
 
 ### Community 60 - "scripts"
 Cohesion: 0.33
@@ -381,29 +386,29 @@ Nodes (6): scripts, build, dev, lint, start, upload
 Cohesion: 0.22
 Nodes (8): Data fetching, File conventions, Metadata, Next.js 16 App Router (ginag-frontend), Project layout, Provider stack (top → bottom inside `<body>`), Server vs client components, Theme bootstrap (no flash)
 
-### Community 62 - "cancellation-policy/page.tsx"
-Cohesion: 0.60
-Nodes (4): CancellationContent(), CancellationPolicyPage(), generateMetadata(), CancellationTemplate()
+### Community 62 - "categories/[slug]/page.tsx"
+Cohesion: 0.31
+Nodes (9): Category, fetchAllCategories(), fetchCategory(), fetchCategoryProducts(), generateMetadata(), revalidate, SingleCategoryPage(), FeaturedProducts() (+1 more)
 
 ### Community 63 - "CustomOrder Model"
 Cohesion: 0.25
 Nodes (6): Checkout customOrder Branching, payment.ts Utilities (getPaymentConfig/getStripeClient/capturePaypalOrder), renderOrderConfirmation Template, CustomOrder Model, Dropped Commerce Models (Order/Cart/Wishlist/Coupon), superRefine Conditional Required Fields
 
 ### Community 64 - "privacy-policy/page.tsx"
-Cohesion: 0.60
-Nodes (4): generateMetadata(), PrivacyContent(), PrivacyPolicyPage(), PrivacyPolicyTemplate()
+Cohesion: 0.36
+Nodes (6): generateMetadata(), PrivacyContent(), PrivacyPolicyPage(), dataCategories, PrivacyPolicyTemplate(), PrivacyPolicyTemplateProps
 
-### Community 65 - "shipping-policy/page.tsx"
-Cohesion: 0.60
-Nodes (4): generateMetadata(), ShippingContent(), ShippingPolicyPage(), ShippingPolicyTemplate()
+### Community 65 - "CollectionRail.tsx"
+Cohesion: 0.33
+Nodes (7): CollectionRails(), FlatCategory, FeaturedProductsProps, CardProduct, CollectionRail(), CollectionRailProps, getProductsByCategory()
 
 ### Community 66 - "Nodemailer + Gmail Skill"
 Cohesion: 0.67
 Nodes (3): Gmail App Password SMTP Flow, Nodemailer + Gmail Skill, sendMail Utility (utils/mailer.ts)
 
-### Community 67 - "auth.controller.ts"
-Cohesion: 0.36
-Nodes (5): login(), authLimiter, router, generateToken(), bcrypt
+### Community 67 - "category.routes.ts"
+Cohesion: 0.43
+Nodes (6): createCategory(), deleteCategory(), getCategories(), getCategoryBySlug(), updateCategory(), router
 
 ### Community 68 - "Ische Ghuree"
 Cohesion: 0.29
@@ -425,6 +430,14 @@ Nodes (3): Ginag Monorepo, graphify Always-on Integration, ischeghuree (repo nam
 Cohesion: 0.33
 Nodes (5): Adding a new upload endpoint, Cloudinary Media Pipeline (ginag-backend), Gotchas, How uploads work (in order), Where things live
 
+### Community 73 - "MobileCategoryDrawer.tsx"
+Cohesion: 0.38
+Nodes (6): DrawerCategory, IconRenderer, MobileCategoryDrawer(), MobileCategoryDrawerProps, NestedDrawerCategory, QUICK_LINKS
+
+### Community 74 - "HeroManagement.tsx"
+Cohesion: 0.47
+Nodes (4): SuperAdminHeroPage(), HeroManagement(), HeroManagementProps, HeroRecord
+
 ### Community 75 - "Nodemailer + Gmail (backend)"
 Cohesion: 0.40
 Nodes (4): Gotchas, Nodemailer + Gmail (backend), Pre-built templates, Sending a transactional email
@@ -437,9 +450,21 @@ Nodes (4): swiper/css, swiper/css/autoplay, swiper/css/navigation, swiper/css/pa
 Cohesion: 0.67
 Nodes (3): fetchSlugs(), sitemap(), staticRoutes
 
+### Community 78 - "MegaMenu.tsx"
+Cohesion: 0.47
+Nodes (5): CATEGORY_BAR_DEFAULTS, IconRenderer, MegaMenu(), MenuCategory, safeColor()
+
 ### Community 79 - "next"
-Cohesion: 0.10
-Nodes (7): nextConfig, AdminRow, AdminTableProps, PageTable(), StorefrontPage, StorefrontPagesDashboard(), next
+Cohesion: 0.08
+Nodes (8): nextConfig, AdminRow, AdminTableProps, PageTable(), StorefrontPage, StorefrontPagesDashboard(), metadata, next
+
+### Community 83 - "return-refund-policy/page.tsx"
+Cohesion: 0.60
+Nodes (4): generateMetadata(), ReturnRefundContent(), ReturnRefundPolicyPage(), ReturnRefundTemplate()
+
+### Community 85 - "search/page.tsx"
+Cohesion: 0.67
+Nodes (3): SearchContent(), SearchPage(), SearchResult
 
 ## Ambiguous Edges - Review These
 - `Ginag Frontend (Next 16 + React 19 + Tailwind v4)` → `dreamreload (create-next-app README)`  [AMBIGUOUS]
@@ -448,8 +473,8 @@ Nodes (7): nextConfig, AdminRow, AdminTableProps, PageTable(), StorefrontPage, S
   backend/README.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **509 isolated node(s):** `name`, `version`, `description`, `main`, `test` (+504 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 554 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **519 isolated node(s):** `name`, `version`, `description`, `main`, `test` (+514 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 564 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
@@ -459,13 +484,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Ginag Backend (Express 5 + Prisma 7 + Supabase)` and `Dream E-commerce Backend (README)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `next` connect `next` to `app/layout.tsx`, `PageData`, `app/page.tsx`, `ProductForm.tsx`, `axios.ts`, `api`, `sweetalert2`, `super-admin/page.tsx`, `homepage/page.tsx`, `getPageBySlug`, `AdminForm.tsx`, `PageCreationForm.tsx`, `Navbar.tsx`, `getSettings.ts`, `app/[slug]/page.tsx`, `frontend/package.json`, `ProductTable.tsx`, `customer/orders/page.tsx`, `products/[slug]/page.tsx`, `order-now/page.tsx`, `about-us/page.tsx`, `lucide-react`, `IconRenderer`, `cancellation-policy/page.tsx`, `privacy-policy/page.tsx`, `shipping-policy/page.tsx`, `sitemap.ts`, `proxy.ts`, `app/products/page.tsx`?**
-  _High betweenness centrality (0.132) - this node is a cross-community bridge._
-- **Why does `lucide-react` connect `lucide-react` to `app/layout.tsx`, `PageData`, `app/page.tsx`, `ProductForm.tsx`, `axios.ts`, `api`, `sweetalert2`, `super-admin/page.tsx`, `homepage/page.tsx`, `getPageBySlug`, `AdminForm.tsx`, `PageCreationForm.tsx`, `_OrderForm.tsx`, `ChatManager.tsx`, `Navbar.tsx`, `OrdersInbox.tsx`, `getSettings.ts`, `app/[slug]/page.tsx`, `frontend/package.json`, `ProductTable.tsx`, `customer/orders/page.tsx`, `products/[slug]/page.tsx`, `order-now/page.tsx`, `Profile.tsx`, `IconRenderer`, `next`?**
-  _High betweenness centrality (0.119) - this node is a cross-community bridge._
-- **Why does `express` connect `express` to `auth.controller.ts`, `app.ts`, `product.routes.ts`, `logAction`, `customOrder.controller.ts`, `page.routes.ts`, `theme.routes.ts`, `hero.routes.ts`, `settings.routes.ts`, `social.routes.ts`, `media.controller.ts`, `auth.middleware.ts`, `backend/package.json`, `audit.controller.ts`?**
-  _High betweenness centrality (0.117) - this node is a cross-community bridge._
+- **Why does `next` connect `next` to `app/layout.tsx`, `PageData`, `app/page.tsx`, `ProductForm.tsx`, `Navbar.tsx`, `axios.ts`, `sweetalert2`, `super-admin/page.tsx`, `homepage/page.tsx`, `getPageBySlug`, `lucide-react`, `ProductCard.tsx`, `getSettings.ts`, `app/[slug]/page.tsx`, `frontend/package.json`, `ProductInfo.tsx`, `ProductTable.tsx`, `customer/orders/page.tsx`, `products/[slug]/page.tsx`, `ProductMediaViewer.tsx`, `order-now/page.tsx`, `about-us/page.tsx`, `react`, `MediaManager`, `categories/[slug]/page.tsx`, `privacy-policy/page.tsx`, `CollectionRail.tsx`, `MobileCategoryDrawer.tsx`, `HeroManagement.tsx`, `sitemap.ts`, `MegaMenu.tsx`, `proxy.ts`, `return-refund-policy/page.tsx`, `SuperAdminSidebar.tsx`, `search/page.tsx`?**
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `app/layout.tsx`, `PageData`, `app/page.tsx`, `ProductForm.tsx`, `Navbar.tsx`, `axios.ts`, `sweetalert2`, `super-admin/page.tsx`, `homepage/page.tsx`, `getPageBySlug`, `lucide-react`, `_OrderForm.tsx`, `ChatManager.tsx`, `ProductCard.tsx`, `OrdersInbox.tsx`, `getSettings.ts`, `app/[slug]/page.tsx`, `frontend/package.json`, `ProductInfo.tsx`, `customer/orders/page.tsx`, `products/[slug]/page.tsx`, `ProductMediaViewer.tsx`, `about-us/page.tsx`, `Profile.tsx`, `MediaManager`, `privacy-policy/page.tsx`, `CollectionRail.tsx`, `MobileCategoryDrawer.tsx`, `HeroManagement.tsx`, `MegaMenu.tsx`, `next`, `return-refund-policy/page.tsx`, `SuperAdminSidebar.tsx`, `search/page.tsx`?**
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
+- **Why does `express` connect `express` to `category.routes.ts`, `app.ts`, `product.controller.ts`, `logAction`, `customOrder.controller.ts`, `theme.routes.ts`, `hero.routes.ts`, `settings.routes.ts`, `social.routes.ts`, `media.controller.ts`, `auth.middleware.ts`, `backend/package.json`, `audit.controller.ts`?**
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `description` to the rest of the system?**
-  _509 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _519 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app/layout.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.0636734693877551 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.058001397624039136 - nodes in this community are weakly interconnected._
