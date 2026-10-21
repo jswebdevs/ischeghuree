@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Eye, Edit, Trash2, Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useCurrency } from "@/context/SettingsContext";
@@ -17,13 +16,21 @@ interface AdminProduct {
   categories?: { name?: string }[] | null;
 }
 
+/** Server-side sort keys understood by GET /products (`sort=`). "" = newest first. */
+export type ProductSort = "" | "az" | "za" | "price_low" | "price_high";
+
 interface ProductTableProps {
   // Callers only guarantee an id; the rows are cast to the richer shape below.
   products: { id: string }[];
   onDelete: (id: string) => void;
+  /** Dashboard root for edit links, e.g. "/dashboard/admin". */
+  basePath: string;
+  /** Sorting is done by the server across every page, not within the rows shown. */
+  sort: ProductSort;
+  onSortChange: (sort: ProductSort) => void;
 }
 
-type SortKey = "name" | "price" | "category" | null;
+type SortKey = "name" | "price";
 
 const formatRange = (p: AdminProduct, symbol: string) => {
   const min = p.priceMin != null ? Number(p.priceMin) : null;
@@ -37,55 +44,38 @@ const formatRange = (p: AdminProduct, symbol: string) => {
 };
 
 // Hoisted so it is not re-created on every render (react-hooks/static-components)
-const SortIcon = ({
-  columnKey,
-  sortConfig,
-}: {
-  columnKey: SortKey;
-  sortConfig: { key: SortKey; direction: "asc" | "desc" } | null;
-}) => {
-  if (sortConfig?.key !== columnKey) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
-  return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+const SortIcon = ({ columnKey, sort }: { columnKey: SortKey; sort: ProductSort }) => {
+  const asc = columnKey === "name" ? "az" : "price_low";
+  const desc = columnKey === "name" ? "za" : "price_high";
+  if (sort === asc) return <ArrowUp className="w-3 h-3" />;
+  if (sort === desc) return <ArrowDown className="w-3 h-3" />;
+  return <ArrowUpDown className="w-3 h-3 opacity-30" />;
 };
 
-export default function ProductTable({ products: productsProp, onDelete }: ProductTableProps) {
+export default function ProductTable({
+  products: productsProp,
+  onDelete,
+  basePath,
+  sort,
+  onSortChange,
+}: ProductTableProps) {
   const products = productsProp as AdminProduct[];
   const { symbol } = useCurrency();
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "asc" | "desc" } | null>(null);
 
   const getCategoryText = (product: AdminProduct) => {
     if (!product.categories || product.categories.length === 0) return "";
     return product.categories.map((c) => c.name).join(", ");
   };
 
+  // Header click: ascending first, then descending, then back to newest.
   const handleSort = (key: SortKey) => {
-    let direction: "asc" | "desc" = "asc";
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") direction = "desc";
-    setSortConfig({ key, direction });
+    const asc: ProductSort = key === "name" ? "az" : "price_low";
+    const desc: ProductSort = key === "name" ? "za" : "price_high";
+    onSortChange(sort === asc ? desc : sort === desc ? "" : asc);
   };
 
-  const sortedProducts = [...products].sort((a, b) => {
-    if (!sortConfig) return 0;
-    const { key, direction } = sortConfig;
-    let aValue: string | number = 0;
-    let bValue: string | number = 0;
-    if (key === "name") {
-      aValue = a.name.toLowerCase();
-      bValue = b.name.toLowerCase();
-    } else if (key === "price") {
-      aValue = Number(a.priceMin) || 0;
-      bValue = Number(b.priceMin) || 0;
-    } else if (key === "category") {
-      aValue = getCategoryText(a).toLowerCase();
-      bValue = getCategoryText(b).toLowerCase();
-    }
-    if (aValue < bValue) return direction === "asc" ? -1 : 1;
-    if (aValue > bValue) return direction === "asc" ? 1 : -1;
-    return 0;
-  });
-
   if (products.length === 0) {
-    return <div className="p-10 text-center text-muted-foreground">No products yet. Add one to get started.</div>;
+    return <div className="p-10 text-center text-muted-foreground">No products found.</div>;
   }
 
   return (
@@ -94,24 +84,21 @@ export default function ProductTable({ products: productsProp, onDelete }: Produ
       <div className="md:hidden mb-4">
         <select
           className="w-full p-2.5 text-sm border border-border rounded-lg bg-background text-foreground"
-          value={sortConfig ? `${sortConfig.key}-${sortConfig.direction}` : "none-none"}
-          onChange={(e) => {
-            const [key, dir] = e.target.value.split("-");
-            if (key === "none") setSortConfig(null);
-            else setSortConfig({ key: key as SortKey, direction: dir as "asc" | "desc" });
-          }}
+          value={sort}
+          onChange={(e) => onSortChange(e.target.value as ProductSort)}
+          aria-label="Sort products"
         >
-          <option value="none-none">Default</option>
-          <option value="name-asc">Name (A→Z)</option>
-          <option value="name-desc">Name (Z→A)</option>
-          <option value="price-asc">Price (low→high)</option>
-          <option value="price-desc">Price (high→low)</option>
+          <option value="">Newest first</option>
+          <option value="az">Name (A→Z)</option>
+          <option value="za">Name (Z→A)</option>
+          <option value="price_low">Price (low→high)</option>
+          <option value="price_high">Price (high→low)</option>
         </select>
       </div>
 
       {/* Mobile cards */}
       <div className="md:hidden grid grid-cols-1 gap-4">
-        {sortedProducts.map((product) => {
+        {products.map((product) => {
           const imageSrc = product.featuredImage?.thumbUrl || product.featuredImage?.originalUrl;
           const categoryText = getCategoryText(product);
           return (
@@ -148,7 +135,7 @@ export default function ProductTable({ products: productsProp, onDelete }: Produ
                   <Eye className="w-4 h-4" />
                 </Link>
                 <Link
-                  href={`/dashboard/super-admin/products/${product.id}/edit`}
+                  href={`${basePath}/products/${product.id}/edit`}
                   className="p-2.5 text-muted-foreground hover:text-blue-500 bg-muted/50 hover:bg-muted rounded-lg transition-colors flex-1 flex justify-center"
                 >
                   <Edit className="w-4 h-4" />
@@ -175,25 +162,20 @@ export default function ProductTable({ products: productsProp, onDelete }: Produ
                 className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
                 onClick={() => handleSort("name")}
               >
-                <div className="flex items-center gap-1.5">Product <SortIcon columnKey="name" sortConfig={sortConfig} /></div>
+                <div className="flex items-center gap-1.5">Product <SortIcon columnKey="name" sort={sort} /></div>
               </th>
-              <th
-                className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
-                onClick={() => handleSort("category")}
-              >
-                <div className="flex items-center gap-1.5">Category <SortIcon columnKey="category" sortConfig={sortConfig} /></div>
-              </th>
+              <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Category</th>
               <th
                 className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none text-right"
                 onClick={() => handleSort("price")}
               >
-                <div className="flex items-center justify-end gap-1.5">Price Range <SortIcon columnKey="price" sortConfig={sortConfig} /></div>
+                <div className="flex items-center justify-end gap-1.5">Price Range <SortIcon columnKey="price" sort={sort} /></div>
               </th>
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {sortedProducts.map((product) => {
+            {products.map((product) => {
               const imageSrc = product.featuredImage?.thumbUrl || product.featuredImage?.originalUrl;
               const categoryText = getCategoryText(product);
               return (
@@ -232,7 +214,7 @@ export default function ProductTable({ products: productsProp, onDelete }: Produ
                         <Eye className="w-4 h-4" />
                       </Link>
                       <Link
-                        href={`/dashboard/super-admin/products/${product.id}/edit`}
+                        href={`${basePath}/products/${product.id}/edit`}
                         className="p-2 text-muted-foreground hover:text-blue-500 bg-background rounded-lg border border-transparent hover:border-border transition-all"
                       >
                         <Edit className="w-4 h-4" />

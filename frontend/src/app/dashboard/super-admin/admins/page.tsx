@@ -7,6 +7,7 @@ import { Plus, Search, Loader2 } from "lucide-react";
 import UserTable, { type UserRow } from "../_components/UserTable";
 import Swal from "sweetalert2";
 import type { AxiosError } from "axios";
+import CountBadge from "@/components/dashboard/shared/CountBadge";
 
 export default function AdminsPage() {
     const [admins, setAdmins] = useState<UserRow[]>([]);
@@ -61,7 +62,10 @@ export default function AdminsPage() {
         <div className="p-4 md:p-6 max-w-7xl mx-auto animate-in fade-in duration-500 pb-24">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">Admin Management</h1>
+                    <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
+                        Admin Management
+                        <CountBadge count={loading && !admins.length ? null : admins.length} label="admins" />
+                    </h1>
                     <p className="text-sm text-muted-foreground">Manage administrative accounts and permissions.</p>
                 </div>
 
@@ -94,4 +98,4 @@ export default function AdminsPage() {
             </div>
         </div>
     );
-}
+}

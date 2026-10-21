@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import CategoryTable from "@/components/dashboard/shared/category/CategoryTable";
 import ViewCategoryModal from "@/components/dashboard/shared/category/ViewCategoryModal";
 import CategoryForm from "@/components/dashboard/shared/category/CategoryForm";
+import CountBadge from "@/components/dashboard/shared/CountBadge";
 
 interface Category {
   id: string;
@@ -82,7 +83,10 @@ export default function CategoriesManagementPage() {
     <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">Categories</h1>
+          <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-3">
+            Categories
+            <CountBadge count={loading && !categories.length ? null : categories.length} label="categories" />
+          </h1>
           <p className="text-sm text-muted-foreground">Manage your store&apos;s product categories</p>
         </div>
 

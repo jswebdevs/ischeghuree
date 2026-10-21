@@ -15,13 +15,15 @@ export interface MediaItem {
 
 interface MediaManagerProps {
   isPicker?: boolean;
+  /** Reports the library size after each load (the media page's title badge). */
+  onCountChange?: (count: number) => void;
   multiple?: boolean;
   // Method syntax (bivariant params) so single-select consumers can type
   // their handler as (media: MediaItem) => void.
   onSelect?(media: MediaItem | MediaItem[]): void;
 }
 
-export default function MediaManager({ isPicker = false, multiple = false, onSelect }: MediaManagerProps) {
+export default function MediaManager({ isPicker = false, multiple = false, onSelect, onCountChange }: MediaManagerProps) {
   const [activeTab, setActiveTab] = useState<"upload" | "library">("library");
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,12 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
       setLoading(false);
     }
   };
+
+  // Tell the host page how big the library is (its title badge), only once
+  // a load has finished so it doesn't briefly report 0.
+  useEffect(() => {
+    if (!loading) onCountChange?.(mediaItems.length);
+  }, [loading, mediaItems.length, onCountChange]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchMedia flips the loading flag synchronously before its async fetch

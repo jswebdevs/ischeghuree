@@ -6,6 +6,7 @@ import { Search, Loader2, Users } from "lucide-react";
 import UserTable, { type UserRow } from "../../super-admin/_components/UserTable";
 import Swal from "sweetalert2";
 import type { AxiosError } from "axios";
+import CountBadge from "@/components/dashboard/shared/CountBadge";
 
 export default function AdminCustomersPage() {
     const [customers, setCustomers] = useState<UserRow[]>([]);
@@ -89,6 +90,7 @@ export default function AdminCustomersPage() {
                     <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
                         <Users className="w-8 h-8 text-primary" />
                         Customer Management
+                        <CountBadge count={loading && !customers.length ? null : customers.length} label="customers" />
                     </h1>
                     <p className="text-sm text-muted-foreground">View and manage registered customers.</p>
                 </div>

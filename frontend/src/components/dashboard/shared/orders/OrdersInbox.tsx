@@ -1,5 +1,6 @@
 "use client";
 
+import CountBadge from "@/components/dashboard/shared/CountBadge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
@@ -115,6 +116,7 @@ export default function OrdersInbox() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deliveryDraft, setDeliveryDraft] = useState<DeliveryDraft | null>(null);
   const [savingDelivery, setSavingDelivery] = useState(false);
+  const [orderTotal, setOrderTotal] = useState<number | null>(null);
 
   const fetchOrders = async (signal?: AbortSignal) => {
     setLoading(true);
@@ -128,6 +130,8 @@ export default function OrdersInbox() {
         },
       });
       setOrders(res.data?.data || []);
+      // The title badge counts every order; filtered fetches leave it alone.
+      if (statusFilter === "ALL" && !search) setOrderTotal(res.data?.pagination?.total ?? null);
     } catch (err) {
       // Aborted by a newer filter/search change — the newer request owns the UI.
       if (signal?.aborted) return;
@@ -269,6 +273,7 @@ export default function OrdersInbox() {
           <h1 className="text-3xl font-black text-heading uppercase tracking-tight flex items-center gap-3">
             <ClipboardList className="w-7 h-7 text-primary" />
             Custom Orders
+            <CountBadge count={orderTotal} label="orders" />
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Submissions from the customer order form. Click a card to view full details.

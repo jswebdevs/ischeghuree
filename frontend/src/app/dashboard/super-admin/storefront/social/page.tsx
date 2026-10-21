@@ -19,6 +19,7 @@ import {
 } from "react-icons/lu";
 
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
+import CountBadge from "@/components/dashboard/shared/CountBadge";
 
 interface SocialLink {
     id: string;
@@ -145,7 +146,10 @@ export default function SocialLinksPage() {
                         <LuShare2 size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-foreground tracking-tight">Social Links</h1>
+                        <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-3">
+                            Social Links
+                            <CountBadge count={isLoading && !links.length ? null : links.length} label="social links" />
+                        </h1>
                         <p className="text-sm text-muted-foreground mt-1">Manage external links displayed in the storefront footer.</p>
                     </div>
                 </div>
