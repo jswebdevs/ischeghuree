@@ -153,9 +153,11 @@ export default function ProductTable({
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto">
+      {/* No own overflow: the manager's region scrolls both ways, so the
+          sticky header below sticks to it. */}
+      <div className="hidden md:block">
         <table className="w-full text-left border-collapse whitespace-nowrap">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-card shadow-[0_1px_0_var(--color-border)]">
             <tr className="border-b border-border bg-muted/30">
               <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider w-16">Image</th>
               <th

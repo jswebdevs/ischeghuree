@@ -219,3 +219,23 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
   .ig-marquee-enter { display: none; }
   .ig-marquee-static { display: block; }
 }
+/* Dashboard app shell.
+   Dashboard layouts mark their root with .dashboard-shell. While one is on
+   the page the window itself never scrolls: the body is locked to the
+   viewport, the storefront footer and promo banner are dropped, and
+   #main-content becomes a flex column the shell fills. The navbar and the
+   sidebar therefore stay put, and only the dashboard's content area (or a
+   page's own inner region, e.g. a table body) scrolls. */
+body:has(.dashboard-shell) {
+  height: 100dvh;
+  overflow: hidden;
+}
+body:has(.dashboard-shell) #main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+body:has(.dashboard-shell) .site-footer,
+body:has(.dashboard-shell) .ig-banner {
+  display: none;
+}

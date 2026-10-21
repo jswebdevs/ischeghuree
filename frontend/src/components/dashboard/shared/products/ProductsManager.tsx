@@ -16,6 +16,19 @@ interface ProductRow {
 
 const PAGE_SIZES = [10, 20, 50, 100] as const;
 
+// Page buttons to show: first, last, and a window around the current page,
+// with null marking a gap ("…").
+function pageList(page: number, totalPages: number): (number | null)[] {
+  const wanted = new Set([1, totalPages, page - 1, page, page + 1]);
+  const pages = [...wanted].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+  const out: (number | null)[] = [];
+  pages.forEach((p, i) => {
+    if (i > 0 && p - pages[i - 1] > 1) out.push(null);
+    out.push(p);
+  });
+  return out;
+}
+
 // Admin product list, shared by the super-admin and admin dashboards. Paging,
 // search and sorting all run on the server (GET /products page/limit/search/
 // sort), so every product is reachable no matter how large the catalog grows.
@@ -120,8 +133,10 @@ export default function ProductsManager({ basePath }: { basePath: string }) {
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    // Fills the dashboard's content area: title, search and the pagination
+    // bar stay put; only the product rows scroll (the region below).
+    <div className="h-full min-h-0 flex flex-col max-w-[1600px] mx-auto w-full animate-in fade-in duration-500">
+      <div className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div>
           <h1 className="text-2xl font-black text-foreground tracking-tight uppercase flex items-center gap-3">
             Products
@@ -140,7 +155,7 @@ export default function ProductsManager({ basePath }: { basePath: string }) {
       </div>
 
       {/* Search + page size */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
@@ -169,14 +184,14 @@ export default function ProductsManager({ basePath }: { basePath: string }) {
         </label>
       </div>
 
-      <div className="bg-card border border-border rounded-2xl shadow-theme-sm overflow-hidden min-h-[50vh] flex flex-col">
+      <div className="flex-1 min-h-0 bg-card border border-border rounded-2xl shadow-theme-sm overflow-hidden flex flex-col">
         {loading ? (
-          <div className="flex flex-col items-center justify-center flex-1 min-h-[50vh] p-20">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-10">
             <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
             <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest">Loading products...</p>
           </div>
         ) : (
-          <div className="flex-1 p-4 md:p-0">
+          <div className="flex-1 min-h-0 overflow-auto p-4 md:p-0">
             <ProductTable
               products={products}
               onDelete={handleDelete}
@@ -190,33 +205,55 @@ export default function ProductsManager({ basePath }: { basePath: string }) {
           </div>
         )}
 
-        {total > 0 && (
-          <div className="p-4 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs font-bold text-muted-foreground">
-              Showing {from}–{to} of {total} · Page {page} of {totalPages}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || loading}
-                aria-label="Previous page"
-                className="p-2 rounded-xl bg-background border border-border text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || loading}
-                aria-label="Next page"
-                className="p-2 rounded-xl bg-background border border-border text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Pagination bar — pinned to the bottom of the card, always shown. */}
+        {/* md:pr-24 keeps the page buttons clear of the floating chat button,
+            which sits fixed in the bottom-right corner on desktop. */}
+        <div className="shrink-0 px-4 md:pr-24 py-3 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-xs font-bold text-muted-foreground tabular-nums">
+            {total > 0 ? `Showing ${from}–${to} of ${total}` : "No products"}
+          </span>
+          <nav aria-label="Pagination" className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1 || loading}
+              aria-label="Previous page"
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-background border border-border text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {pageList(page, totalPages).map((p, i) =>
+              p === null ? (
+                <span key={`gap-${i}`} className="px-1 text-muted-foreground" aria-hidden="true">…</span>
+              ) : (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPage(p)}
+                  disabled={loading}
+                  aria-label={`Page ${p}`}
+                  aria-current={p === page ? "page" : undefined}
+                  className={`h-9 min-w-9 px-2 rounded-lg border text-sm font-bold tabular-nums transition-colors ${
+                    p === page
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background border-border text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || loading}
+              aria-label="Next page"
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-background border border-border text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        </div>
       </div>
     </div>
   );

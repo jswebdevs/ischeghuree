@@ -12,7 +12,10 @@ export default function ToTopButton() {
             const scrollTop = window.scrollY;
             const docHeight = document.documentElement.scrollHeight;
             const winHeight = document.documentElement.clientHeight;
-            const scrollPercent = scrollTop / (docHeight - winHeight);
+            // A page that can't scroll (e.g. the fixed-height dashboard) has no
+            // scrollable range; avoid 0/0 = NaN reaching the SVG.
+            const range = docHeight - winHeight;
+            const scrollPercent = range > 0 ? scrollTop / range : 0;
 
             setScrollProgress(Math.min(scrollPercent * 100, 100));
             // Show only after scrolling down 150px

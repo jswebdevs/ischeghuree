@@ -91,7 +91,7 @@ export default async function Footer() {
   const IconMap: Record<string, LucideIcon> = { Mail, Phone, MapPin, Store };
 
   return (
-    <footer className="bg-gradient-theme border-t border-border mt-auto pt-16 pb-24 md:pb-8">
+    <footer className="site-footer bg-gradient-theme border-t border-border mt-auto pt-16 pb-24 md:pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
 
