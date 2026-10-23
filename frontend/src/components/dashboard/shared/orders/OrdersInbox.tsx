@@ -1,7 +1,8 @@
 "use client";
 
 import CountBadge from "@/components/dashboard/shared/CountBadge";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Pagination from "@/components/dashboard/shared/Pagination";
+import { useCallback, useEffect, useRef, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
@@ -101,6 +102,9 @@ const ORDER_TYPE_STYLE: Record<OrderType, string> = {
   WHOLESALE: "bg-secondary/20 text-foreground border-secondary/50",
 };
 
+// Cards per page — multiples of 12 fill the 1/2/3/4-column grid evenly.
+const PAGE_SIZES = [12, 24, 48, 96] as const;
+
 export default function OrdersInbox() {
   const { user } = useUserStore();
   const isSuperAdmin = (user?.roles || []).includes("SUPER_ADMIN");
@@ -117,6 +121,16 @@ export default function OrdersInbox() {
   const [deliveryDraft, setDeliveryDraft] = useState<DeliveryDraft | null>(null);
   const [savingDelivery, setSavingDelivery] = useState(false);
   const [orderTotal, setOrderTotal] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState<number>(24);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  // Per-status totals from the server (search applied, status filter not),
+  // so each chip's count is right whatever page or filter is showing.
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  // Bumped to refetch the current view after an edit or delete.
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = () => setReloadKey((k) => k + 1);
 
   const fetchOrders = async (signal?: AbortSignal) => {
     setLoading(true);
@@ -124,14 +138,36 @@ export default function OrdersInbox() {
       const res = await api.get("/custom-orders", {
         signal,
         params: {
-          limit: 100,
+          page,
+          limit,
           ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
           ...(search ? { search } : {}),
         },
       });
+      const pages = res.data?.pagination?.totalPages || 1;
+      const found = res.data?.pagination?.total ?? 0;
+      // Deleting the last card of the last page leaves it empty: step back.
+      if (page > pages && found > 0) {
+        setPage(pages);
+        return;
+      }
       setOrders(res.data?.data || []);
-      // The title badge counts every order; filtered fetches leave it alone.
-      if (statusFilter === "ALL" && !search) setOrderTotal(res.data?.pagination?.total ?? null);
+      setTotal(found);
+      setTotalPages(pages);
+      const list: CustomOrder[] = res.data?.data || [];
+      // Older backends don't send statusCounts: fall back to counting the
+      // loaded page (exact for the active chip's total, approximate otherwise).
+      const serverCounts: Record<string, number> | undefined = res.data?.statusCounts;
+      const nextCounts =
+        serverCounts ??
+        Object.fromEntries([
+          ["ALL", statusFilter === "ALL" ? found : list.length],
+          ...STATUSES.map((st) => [st, statusFilter === st ? found : list.filter((o) => o.status === st).length]),
+        ]);
+      setCounts(nextCounts);
+      // The title badge counts every order; a search narrows the counts, so
+      // only unsearched fetches update it.
+      if (!search) setOrderTotal(serverCounts?.ALL ?? (statusFilter === "ALL" ? found : null));
     } catch (err) {
       // Aborted by a newer filter/search change — the newer request owns the UI.
       if (signal?.aborted) return;
@@ -151,14 +187,8 @@ export default function OrdersInbox() {
       clearTimeout(t);
       controller.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; the debounced refetch must only run when the filter or search changes
-  }, [statusFilter, search]);
-
-  const counts = useMemo(() => {
-    const m: Record<string, number> = { ALL: orders.length };
-    for (const s of STATUSES) m[s] = orders.filter((o) => o.status === s).length;
-    return m;
-  }, [orders]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchOrders is re-created every render; the debounced refetch must only run when the view (filter, search, page, page size) changes or a reload is requested
+  }, [statusFilter, search, page, limit, reloadKey]);
 
   const openView = (o: CustomOrder) => {
     setViewing(o);
@@ -196,6 +226,9 @@ export default function OrdersInbox() {
       setTimeout(() => {
         closeView();
         setSavingStatus(false);
+        // Refresh the chip counts, and drop the card if it no longer matches
+        // the active status filter.
+        reload();
       }, 1500);
     } catch (err) {
       toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Update failed");
@@ -258,6 +291,8 @@ export default function OrdersInbox() {
       await api.delete(`/custom-orders/${o.id}`);
       setOrders((prev) => prev.filter((x) => x.id !== o.id));
       toast.success(`Deleted order ${o.orderNumber}`);
+      // Pull the next order up onto this page and refresh the counts.
+      reload();
       if (viewing?.id === o.id) closeView();
     } catch (err) {
       toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Delete failed");
@@ -267,15 +302,17 @@ export default function OrdersInbox() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    // Fills the dashboard's content area: header, filters and the pagination
+    // bar stay put; only the order cards scroll.
+    <div className="h-full min-h-0 flex flex-col gap-4">
+      <header className="shrink-0 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-heading uppercase tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-black text-heading uppercase tracking-tight flex items-center gap-3">
             <ClipboardList className="w-7 h-7 text-primary" />
             Custom Orders
             <CountBadge count={orderTotal} label="orders" />
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="hidden sm:block text-sm text-muted-foreground mt-1">
             Submissions from the customer order form. Click a card to view full details.
           </p>
         </div>
@@ -283,20 +320,28 @@ export default function OrdersInbox() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search name, phone, order #…"
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-card border border-border outline-none focus:ring-2 focus:ring-primary text-sm"
           />
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2">
+      {/* Phones: one swipeable row of chips, so the cards keep most of the
+          height; wider screens wrap. */}
+      <div className="shrink-0 flex flex-nowrap md:flex-wrap items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
         {(["ALL", ...STATUSES] as const).map((s) => (
           <button
             key={s}
             type="button"
-            onClick={() => setStatusFilter(s)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-all cursor-pointer ${
+            onClick={() => {
+              setStatusFilter(s);
+              setPage(1);
+            }}
+            className={`shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition-all cursor-pointer ${
               statusFilter === s
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-card text-muted-foreground border-border hover:border-primary/40"
@@ -305,30 +350,58 @@ export default function OrdersInbox() {
             {s.replace("_", " ")} <span className="opacity-60">({counts[s] ?? 0})</span>
           </button>
         ))}
+        <label className="shrink-0 ml-auto flex items-center gap-2 text-xs font-bold text-muted-foreground whitespace-nowrap">
+          Per page
+          <select
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1);
+            }}
+            className="px-2.5 py-1.5 bg-card border border-border rounded-lg text-sm text-foreground"
+          >
+            {PAGE_SIZES.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </label>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="flex-1 min-h-0 bg-card border border-border rounded-3xl overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4">
+          {loading ? (
+            <div className="h-full flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="h-full flex items-center justify-center p-16 text-center text-muted-foreground">
+              {search || statusFilter !== "ALL" ? "No orders match this filter." : "No orders yet."}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {orders.map((o) => (
+                <OrderCard
+                  key={o.id}
+                  order={o}
+                  onView={() => openView(o)}
+                  onDelete={() => confirmDelete(o)}
+                  canDelete={isSuperAdmin}
+                  deleting={deletingId === o.id}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      ) : orders.length === 0 ? (
-        <div className="bg-card border border-border rounded-3xl p-16 text-center text-muted-foreground">
-          No orders yet.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {orders.map((o) => (
-            <OrderCard
-              key={o.id}
-              order={o}
-              onView={() => openView(o)}
-              onDelete={() => confirmDelete(o)}
-              canDelete={isSuperAdmin}
-              deleting={deletingId === o.id}
-            />
-          ))}
-        </div>
-      )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          limit={limit}
+          onPageChange={setPage}
+          disabled={loading}
+          emptyLabel="No orders"
+        />
+      </div>
 
       {viewing && (
         <ViewModal

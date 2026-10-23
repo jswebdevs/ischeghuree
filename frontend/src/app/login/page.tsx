@@ -118,8 +118,11 @@ function LoginForm() {
         }, 500);
       }
     } catch (err) {
-      console.error("Login Error:", err);
       const axiosError = err as AxiosError<{ message?: string }>;
+      // Wrong credentials (401) or rate limiting (429) are expected outcomes
+      // the popup below explains; only log unexpected failures.
+      const status = axiosError.response?.status;
+      if (status !== 401 && status !== 429) console.error("Login Error:", err);
       Swal.fire({
         icon: "error",
         title: "Login Failed",

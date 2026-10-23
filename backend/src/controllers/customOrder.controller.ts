@@ -212,16 +212,20 @@ export const listCustomOrders = async (req: Request, res: Response): Promise<voi
       }
       where.status = status;
     }
+    // Search applies to the per-status counts too; the status filter doesn't
+    // (the counts label the status filter chips themselves).
+    const searchWhere: any = {};
     if (search && typeof search === 'string') {
-      where.OR = [
+      searchWhere.OR = [
         { customerName: { contains: search, mode: 'insensitive' } },
         { customerPhone: { contains: search, mode: 'insensitive' } },
         { orderNumber: { contains: search, mode: 'insensitive' } },
         { customerEmail: { contains: search, mode: 'insensitive' } },
       ];
+      where.OR = searchWhere.OR;
     }
 
-    const [orders, total] = await Promise.all([
+    const [orders, total, byStatus] = await Promise.all([
       prisma.customOrder.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -229,7 +233,16 @@ export const listCustomOrders = async (req: Request, res: Response): Promise<voi
         take: safeLimit,
       }),
       prisma.customOrder.count({ where }),
+      prisma.customOrder.groupBy({ by: ['status'], where: searchWhere, _count: { _all: true } }),
     ]);
+
+    const statusCounts: Record<string, number> = {};
+    let allCount = 0;
+    for (const row of byStatus) {
+      statusCounts[row.status] = row._count._all;
+      allCount += row._count._all;
+    }
+    statusCounts.ALL = allCount;
 
     res.json({
       success: true,
@@ -240,6 +253,7 @@ export const listCustomOrders = async (req: Request, res: Response): Promise<voi
         limit: safeLimit,
         totalPages: Math.ceil(total / safeLimit),
       },
+      statusCounts,
     });
   } catch (error) {
     console.error('List CustomOrders error:', error);
