@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import globalErrorHandler from './middlewares/global.error.handler';
 import { apiLimiter } from './middlewares/rateLimit';
 import routes from './routes';
+import { statusPage, statusJson } from './controllers/status.controller';
 
 const app: Application = express();
 
@@ -102,14 +103,13 @@ app.set('trust proxy', 1);
 
 // 2. API Routes — wrapped in a generous global rate limiter so a single
 // IP can't exhaust the function. Tight limits on /auth are applied per-route.
+app.get('/api/v1/status', statusJson);
 app.use('/api/v1', apiLimiter, routes);
 
 app.get('/test', (req, res) => res.send('Router is working'));
 
-// 3. Health Check (Good for Docker)
-app.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Ische Ghuree API running' });
-});
+// 3. Status page, also the Docker/Coolify health check path
+app.get('/', statusPage);
 
 // 4. Global Error Handler (Must be last)
 app.use(globalErrorHandler);

@@ -16,17 +16,16 @@ interface Category {
   parentId?: string | null;
 }
 
+/** Null only for a real 404; other failures throw to the error page, so an
+ *  API outage isn't shown as a missing category. */
 async function fetchCategory(slug: string) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${slug}`, {
-      next: { revalidate: 300, tags: [`category-${slug}`] },
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.category || json.data || null;
-  } catch {
-    return null;
-  }
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${slug}`, {
+    next: { revalidate: 300, tags: [`category-${slug}`] },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Category request failed (${res.status})`);
+  const json = await res.json();
+  return json.category || json.data || null;
 }
 
 async function fetchAllCategories() {

@@ -33,17 +33,17 @@ async function fetchRelated(product: {
   return siblings.filter((p) => p.id !== product.id).slice(0, 8);
 }
 
+/** Null only when the API says the product doesn't exist. Any other failure
+ *  throws so the visitor gets the error page with a retry, not a false 404
+ *  (and a cached good page isn't replaced by "not found" during an outage). */
 async function fetchProduct(slug: string) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
-      next: { revalidate: 120, tags: [`product-${slug}`] },
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.product || json.data || null;
-  } catch {
-    return null;
-  }
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`, {
+    next: { revalidate: 120, tags: [`product-${slug}`] },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Product request failed (${res.status})`);
+  const json = await res.json();
+  return json.product || json.data || null;
 }
 
 export async function generateMetadata({

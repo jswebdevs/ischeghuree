@@ -9,6 +9,15 @@ import {
 } from "lucide-react";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
+// <input type="datetime-local"> works in device-local time without an offset;
+// the API stores UTC.
+const toLocalInput = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+};
+const fromLocalInput = (v: string) => (v ? new Date(v).toISOString() : null);
+
 export default function GeneralSettingsPage() {
     const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES" | "GOOGLE">("IDENTITY");
     const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +41,8 @@ export default function GeneralSettingsPage() {
         orderPrefix: "IG-",
         maintenanceMode: false,
         maintenanceMessage: "",
+        maintenanceStart: "",
+        maintenanceEnd: "",
         googlePlaceId: "",
         googleApiKey: "",
         logoId: null as string | null,
@@ -63,6 +74,8 @@ export default function GeneralSettingsPage() {
                     orderPrefix: d.orderPrefix || "IG-",
                     maintenanceMode: d.maintenanceMode ?? false,
                     maintenanceMessage: d.maintenanceMessage || "",
+                    maintenanceStart: toLocalInput(d.maintenanceStart),
+                    maintenanceEnd: toLocalInput(d.maintenanceEnd),
                     googlePlaceId: d.googlePlaceId || "",
                     googleApiKey: d.googleApiKey || "",
                     logoId: d.logoId,
@@ -91,11 +104,22 @@ export default function GeneralSettingsPage() {
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured only to omit the preview URLs from the payload
             const { logoUrl, faviconUrl, ogImageUrl, ...payload } = formData;
-            await api.patch('/settings', payload);
+            const res = await api.patch('/settings', {
+                ...payload,
+                maintenanceStart: fromLocalInput(formData.maintenanceStart),
+                maintenanceEnd: fromLocalInput(formData.maintenanceEnd),
+            });
+            // The server stamps or clears the window when the switch changes.
+            setFormData((prev) => ({
+                ...prev,
+                maintenanceStart: toLocalInput(res.data?.data?.maintenanceStart),
+                maintenanceEnd: toLocalInput(res.data?.data?.maintenanceEnd),
+            }));
             toast.success("Settings saved successfully!");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to save settings.");
+            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            toast.error(message || "Failed to save settings.");
         } finally {
             setIsSaving(false);
         }
@@ -310,12 +334,35 @@ export default function GeneralSettingsPage() {
                                     </label>
                                 </div>
 
-                                {formData.maintenanceMode && (
-                                    <div className="animate-in slide-in-from-top-2">
-                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Maintenance Display Message</label>
-                                        <textarea value={formData.maintenanceMessage} onChange={e => setFormData({ ...formData, maintenanceMessage: e.target.value })} rows={2} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" placeholder="We are upgrading our servers. Be back soon!" />
+                                <div>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Maintenance Display Message</label>
+                                    <textarea value={formData.maintenanceMessage} onChange={e => setFormData({ ...formData, maintenanceMessage: e.target.value })} rows={2} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" placeholder="We are upgrading our servers. Be back soon!" />
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="maintenance-start" className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                                            {formData.maintenanceMode ? "Started" : "Downtime starts"}
+                                        </label>
+                                        <input id="maintenance-start" type="datetime-local" value={formData.maintenanceStart} disabled={formData.maintenanceMode} onChange={e => setFormData({ ...formData, maintenanceStart: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none disabled:opacity-60" />
                                     </div>
-                                )}
+                                    <div>
+                                        <label htmlFor="maintenance-end" className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                                            {formData.maintenanceMode ? "Expected back" : "Downtime ends"}
+                                        </label>
+                                        <input id="maintenance-end" type="datetime-local" value={formData.maintenanceEnd} onChange={e => setFormData({ ...formData, maintenanceEnd: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" />
+                                    </div>
+                                </div>
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <p className="text-xs text-muted-foreground">
+                                        Times are in this device&apos;s timezone. Customers see a notice until the start time, then the site locks until the end time and reopens by itself.
+                                    </p>
+                                    {(formData.maintenanceStart || formData.maintenanceEnd) && (
+                                        <button type="button" onClick={() => setFormData({ ...formData, maintenanceStart: "", maintenanceEnd: "" })} className="text-xs font-bold text-destructive hover:underline">
+                                            Clear schedule
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                         </div>

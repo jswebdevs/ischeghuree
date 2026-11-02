@@ -371,6 +371,11 @@ model SiteSettings {
   orderPrefix        String   @default("IG-")
   maintenanceMode    Boolean  @default(false)
   maintenanceMessage String?
+  // Maintenance window. A future start shows a downtime notice on the live
+  // site; the site locks from start to end. With the switch on, start records
+  // when it was turned on and end is the expected return time.
+  maintenanceStart   DateTime?
+  maintenanceEnd     DateTime?
   googlePlaceId      String?
   googleApiKey       String?
   footerConfig       Json?

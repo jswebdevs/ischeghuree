@@ -225,6 +225,9 @@ export default async function RootLayout({
               <MaintenanceGuard
                 isMaintenanceMode={isMaintenanceMode}
                 message={maintenanceMessage}
+                start={settings?.maintenanceStart}
+                end={settings?.maintenanceEnd}
+                timezone={settings?.timezone || "Asia/Dhaka"}
               >
                 <StickyBanner data={bannerData} whatsappLink={bannerWhatsapp} />
                 <Navbar initialSettings={settings} categoryBar={categoryBar} />

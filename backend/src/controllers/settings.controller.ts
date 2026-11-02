@@ -14,6 +14,16 @@ const stripSecrets = (s: any) => {
   return safe;
 };
 
+// undefined = leave as is, null/'' = clear, anything else must be a real date.
+class BadMaintenanceDate extends Error {}
+const parseWhen = (v: unknown): Date | null | undefined => {
+  if (v === undefined) return undefined;
+  if (v === null || v === '') return null;
+  const d = new Date(v as string);
+  if (Number.isNaN(d.getTime())) throw new BadMaintenanceDate();
+  return d;
+};
+
 const isAdmin = (req: Request) => {
   const roles = (req as any).user?.roles || [];
   return roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
@@ -105,9 +115,43 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
       logoId, faviconId, ogImageId,
       currencyCode, currencySymbol, timezone, address,
       orderPrefix, maintenanceMode, maintenanceMessage,
+      maintenanceStart, maintenanceEnd,
       googlePlaceId, googleApiKey,
       footerConfig, homepageConfig,
     } = req.body;
+
+    const current = await prisma.siteSettings.findUnique({
+      where: { id: 'singleton' },
+      select: { maintenanceMode: true, maintenanceStart: true, maintenanceEnd: true },
+    });
+    const now = new Date();
+    let start = parseWhen(maintenanceStart);
+    let end = parseWhen(maintenanceEnd);
+    const effectiveEnd = () => (end !== undefined ? end : current?.maintenanceEnd ?? null);
+    const effectiveStart = () => (start !== undefined ? start : current?.maintenanceStart ?? null);
+
+    if (maintenanceMode === true && !current?.maintenanceMode) {
+      // Timestamp the switch: it took effect now, whatever start was on file.
+      // An end left over from an earlier window would be in the past, so drop it.
+      start = now;
+      const e = effectiveEnd();
+      if (e && e <= now) end = null;
+    } else if (maintenanceMode === false && current?.maintenanceMode) {
+      // Back up. Clear a window already under way, or the site would stay
+      // locked by schedule; a booking for later is kept.
+      const s = effectiveStart();
+      if (!s || s <= now) {
+        start = null;
+        end = null;
+      }
+    }
+
+    const s = effectiveStart();
+    const e = effectiveEnd();
+    if (s && e && e <= s) {
+      res.status(400).json({ success: false, message: 'Maintenance end must be after its start.' });
+      return;
+    }
 
     const update: Record<string, unknown> = {
       storeName, tagline, companySlogan,
@@ -115,6 +159,8 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
       logoId, faviconId, ogImageId,
       currencyCode, currencySymbol, timezone, address,
       orderPrefix, maintenanceMode, maintenanceMessage,
+      maintenanceStart: start,
+      maintenanceEnd: end,
       googlePlaceId,
       footerConfig, homepageConfig,
     };
@@ -146,6 +192,8 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
         orderPrefix: orderPrefix || 'IG-',
         maintenanceMode: maintenanceMode ?? false,
         maintenanceMessage,
+        maintenanceStart: start ?? null,
+        maintenanceEnd: end ?? null,
         googlePlaceId,
         googleApiKey: typeof googleApiKey === 'string' && googleApiKey.trim() !== '' ? googleApiKey.trim() : null,
         footerConfig: footerConfig || {},
@@ -163,6 +211,8 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
       details: {
         updatedFields: Object.keys(req.body),
         maintenanceMode: updatedSettings.maintenanceMode,
+        maintenanceStart: updatedSettings.maintenanceStart,
+        maintenanceEnd: updatedSettings.maintenanceEnd,
         storeName: updatedSettings.storeName,
       },
       ipAddress: req.ip,
@@ -171,6 +221,10 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
 
     res.json({ success: true, message: 'Settings saved successfully', data: stripSecrets(updatedSettings) });
   } catch (error) {
+    if (error instanceof BadMaintenanceDate) {
+      res.status(400).json({ success: false, message: 'Invalid maintenance date.' });
+      return;
+    }
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to update site settings' });
   }
